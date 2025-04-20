@@ -1,9 +1,10 @@
 import { title } from "@/components/primitives";
+import PricingTable from "@/components/pricing/pricing-table";
 
-export default function PricingPage() {
+export default function DocsPage() {
   return (
-    <div>
-      <h1 className={title()}>Pricing</h1>
-    </div>
+      <div className="flex flex-col items-center justify-center p-4">
+        <PricingTable></PricingTable>
+      </div>
   );
 }
