@@ -1,4 +1,3 @@
-// components/webshops/WebshopCard.tsx
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -31,9 +30,7 @@ export default function WebshopCard({
 }: CardProps & { name: string; url: string }) {
   const [imageSrc, setImageSrc] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [wooSettings, setWooSettings] = useState<{
-    selectedShopUrl?: string;
-  } | null>(null);
+  const [wooSettings, setWooSettings] = useState<{ selectedShopUrl?: string } | null>(null);
 
   // derive this shop’s “slug” once
   const slug = useMemo(() => slugify(url), [url]);
@@ -43,8 +40,7 @@ export default function WebshopCard({
     (async () => {
       setLoading(true);
       try {
-        const ep =
-          process.env.NEXT_PUBLIC_SCREENSHOT_ENDPOINT || "/api/screenshot";
+        const ep = process.env.NEXT_PUBLIC_SCREENSHOT_ENDPOINT || "/api/screenshot";
         const res = await fetch(`${ep}?url=${encodeURIComponent(url)}`);
         if (res.ok) {
           const blob = await res.blob();
@@ -61,12 +57,7 @@ export default function WebshopCard({
     const raw = localStorage.getItem("wooConnections");
     if (raw) {
       try {
-        const conns: Array<{
-          selectedShopUrl: string;
-          consumerKey: string;
-          consumerSecret: string;
-        }> = JSON.parse(raw);
-        // if any connection matches this shop URL, consider “connected”
+        const conns: Array<{ selectedShopUrl: string; consumerKey: string; consumerSecret: string }> = JSON.parse(raw);
         if (conns.find((c) => c.selectedShopUrl === url)) {
           setWooSettings({ selectedShopUrl: url });
         }
@@ -80,9 +71,11 @@ export default function WebshopCard({
     <Card className="w-full max-w-sm shadow-md rounded-lg overflow-hidden" {...cardProps}>
       <CardBody className="px-3 pb-1 bg-white">
         <div className="relative">
-          {loading ? (
+          {loading || !imageSrc ? (
             <div className="flex items-center justify-center h-48">
-              <span className="text-gray-400">Loading preview…</span>
+              <span className="text-gray-400">
+                {loading ? "Loading preview…" : "No preview available"}
+              </span>
             </div>
           ) : (
             <Image

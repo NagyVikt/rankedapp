@@ -1,3 +1,89 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add this to your global CSS file (e.g., globals.css) AFTER @tailwind utilities */
+
+/* Add this to your global CSS file (e.g., globals.css) AFTER @tailwind utilities */
+
+/* Add/Modify in your global CSS file (e.g., globals.css) AFTER @tailwind utilities */
+
+/* --- Reset default prose table borders --- */
+/* This prevents default prose lines from interfering with our custom borders */
+.prose table {
+    border: none !important;
+}
+.prose thead, .prose tbody, .prose tfoot {
+    border: none !important;
+}
+.prose tr {
+    border: none !important;
+}
+.prose td, .prose th {
+    border: none !important; /* Remove default cell borders */
+}
+/* --- End Reset --- */
+
+
+/* Target tables specifically having a 'width' attribute when inside a .prose container */
+.prose table[width] {
+    width: 100% !important;
+    max-width: 500px !important; /* Keep the max-width constraint */
+    table-layout: auto !important;
+    border-collapse: collapse !important; /* Collapse borders for clean lines */
+    border-spacing: 0 !important; /* Ensure no space between borders */
+    margin-top: 1em !important; /* Add some space above/below the table */
+    margin-bottom: 1em !important;
+    /* Remove padding/border from the table itself */
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Target table cells (td/th) specifically having a 'width' attribute */
+/* These rules ensure the width attribute value is ignored */
+.prose td[width],
+.prose th[width] {
+    width: auto !important;
+    max-width: none !important;
+}
+
+/* --- Style the FIRST cell (label) in each row --- */
+.prose table[width] tr > td:first-child,
+.prose table[width] tr > th:first-child {
+    background-color: #f9fafb !important; /* Example: Very Light Gray background */
+    /* Padding: Top/Bottom Left Right - Add more right padding */
+    padding: 0.6em 1.5em 0.6em 0.6em !important;
+    border: 1px solid #e5e7eb !important; /* Example: Light gray border */
+    vertical-align: top !important;
+    font-weight: 600 !important; /* Make labels bold */
+    /* Optional: Give label column a relative width hint */
+    /* width: 35% !important; */
+}
+
+/* --- Style the SECOND cell (value) in each row --- */
+/* Use :nth-child(2) which is more specific than :last-child if there are ever more than 2 columns */
+.prose table[width] tr > td:nth-child(2),
+.prose table[width] tr > th:nth-child(2) {
+    background-color: #ffffff !important; /* Example: White background */
+     /* Padding: Top/Bottom Left Right - Add more left padding */
+    padding: 0.6em 0.6em 0.6em 1.5em !important;
+    border: 1px solid #e5e7eb !important; /* Example: Light gray border */
+    vertical-align: top !important;
+     /* Optional: Give value column a relative width hint */
+    /* width: 65% !important; */
+}
+
+/* --- Optional Resets --- */
+/* Reset margins/padding for strong/b tags if they cause spacing issues */
+.prose strong,
+.prose b {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-weight: 600 !important; /* Keep them bold */
+}
+
+/* Reset margins for list items containing tables */
+.prose li > table {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}

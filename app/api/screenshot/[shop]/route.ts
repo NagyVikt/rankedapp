@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadShops } from "@/lib/shops";
+import { Buffer } from "buffer";
+
+// Force this to run in Node.js (so Buffer is available)
+export const runtime = "nodejs";
 
 // strip protocol + optional www.
 function slugify(url: string) {
@@ -10,7 +14,10 @@ function slugify(url: string) {
     .toLowerCase();
 }
 
-export async function GET(req: NextRequest, { params }: { params: { shop: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { shop: string } }
+) {
   const { shop } = params;
   const page = req.nextUrl.searchParams.get("page") || "1";
   const perPage = req.nextUrl.searchParams.get("per_page") || "25";
@@ -22,26 +29,36 @@ export async function GET(req: NextRequest, { params }: { params: { shop: string
     return NextResponse.json({ error: "Unknown shop" }, { status: 404 });
   }
 
-  // 2) load credentials from cookie (or adjust as needed)
+  // 2) load credentials from cookie
   const cookie = req.cookies.get("wooConnections");
-  const conns = cookie ? JSON.parse(cookie.value) as any[] : [];
+  const conns = cookie ? (JSON.parse(cookie.value) as any[]) : [];
   const conn = conns.find((c) => c.selectedShopUrl === matched.url);
   if (!conn) {
-    return NextResponse.json({ error: "Missing WooCommerce credentials" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Missing WooCommerce credentials" },
+      { status: 401 }
+    );
   }
 
   // 3) normalize and force www.
   let raw = matched.url;
   if (!/^https?:\/\//i.test(raw)) raw = `https://${raw}`;
   const parsed = new URL(raw);
-  if (!parsed.hostname.startsWith("www.")) parsed.hostname = `www.${parsed.hostname}`;
+  if (!parsed.hostname.startsWith("www.")) {
+    parsed.hostname = `www.${parsed.hostname}`;
+  }
   const origin = parsed.origin;
 
   // 4) call WooCommerce with Basic Auth
-  const auth = Buffer.from(`${conn.consumerKey}:${conn.consumerSecret}`).toString("base64");
+  const auth = Buffer.from(
+    `${conn.consumerKey}:${conn.consumerSecret}`
+  ).toString("base64");
+
   const wcRes = await fetch(
     `${origin}/wp-json/wc/v3/products?page=${page}&per_page=${perPage}`,
-    { headers: { Authorization: `Basic ${auth}` } }
+    {
+      headers: { Authorization: `Basic ${auth}` },
+    }
   );
 
   const data = await wcRes.json();
@@ -49,6 +66,6 @@ export async function GET(req: NextRequest, { params }: { params: { shop: string
 
   return NextResponse.json(data, {
     status: wcRes.status,
-    headers: { "X-Total-Pages": totalPages }
+    headers: { "X-WP-TotalPages": totalPages },
   });
 }

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import WebshopCard from "@/components/webshops/WebshopCard";
+import WebshopCard from "@/components/webshop/WebshopCard";
 import { loadShops, saveShops, Shop } from "@/lib/shops";
 
 export default function WebshopsPage() {

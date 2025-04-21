@@ -37,6 +37,12 @@ export default function WooCommerceTab() {
   const saveAll = (next: WooEntry[]) => {
     localStorage.setItem("wooConnections", JSON.stringify(next));
     setConnections(next);
+      // 2) ALSO write an HTTP cookie so your API route can pick it up
+  //    - URL‑encode the JSON so it’s cookie‑safe
+  //    - path=/ ensures it’s sent to all routes under your domain
+  //    - max-age=30 days (in seconds)
+  const value = encodeURIComponent(JSON.stringify(next));
+  document.cookie = `wooConnections=${value}; path=/; max-age=${60 * 60 * 24 * 30}`;
   };
 
   // handlers
