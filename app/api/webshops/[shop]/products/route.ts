@@ -80,7 +80,7 @@ export async function GET(
 
   // 5) fetch that one page of products
   const wcRes = await fetch(`${origin}/wp-json/wc/v3/products?${qs}`, {
-    next: { revalidate: 60 }, // cache on the edge 60s
+    next: { revalidate: 120 }, // cache on the edge 60s
   });
   if (!wcRes.ok) {
     return NextResponse.json(
