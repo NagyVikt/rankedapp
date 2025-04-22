@@ -48,6 +48,7 @@ export default function ProductPopup({ shopSlug, productId, trigger }: Props) {
       availableColors: [],
       details: [],
       seoScore: 0,
+      shopSlug,
     };
   }
 
