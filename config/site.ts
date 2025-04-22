@@ -6,7 +6,7 @@ export const siteConfig = {
   navItems: [
     {
       label: "Playground",
-      href: "/playground",
+      href: "/",
     },
   
     {
