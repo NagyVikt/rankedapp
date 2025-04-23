@@ -2,283 +2,256 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import grapesjs, { Editor, Block } from "grapesjs"; // Import Block type
+import grapesjs, { Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
-// GrapesJS Plugins
 import newsletterPlugin from "grapesjs-preset-newsletter";
-const blocksBasicPlugin = require('grapesjs-blocks-basic');
-
-// React Email Rendering
+import customCodePlugin from "grapesjs-custom-code";
 import { render } from "@react-email/render";
 
-// Email Templates (Used for Template Blocks)
+// templates
 import { BasicNewsletter } from "../email-templates/basic";
 import { PromoEmail } from "../email-templates/promo";
 import { MarketingEmail } from "../email-templates/marketing";
-// Import the component used for the GALLERY TEMPLATE block
-import { GalleryComponent as GalleryTemplateComponent } from "../email-templates/gallery"; // Renamed to avoid conflict
 
-// Types
-import { ComponentItem } from "./types"; // Ensure this type is defined correctly
-
-// --- Import Previews from './previews/' ---
-// These define the look in the block manager
-import { galleryPreviewHtml } from "./previews/gallery";
-// import { ecommercePreviewHtml } from "./previews/ecommerce";
-// ... import ALL other previews needed for gridItems ...
-import { textPreviewHtml } from "./previews/text";
-
-
-// --- Import ACTUAL Components from './codeSnippets/' ---
-// These define the content inserted on drop for component blocks
-import { GalleryComponent } from './codeSnippets/gallery'; // Component for the draggable block
-// import { EcommerceComponent } from './codeSnippets/ecommerce';
-// ... import ALL other components needed for gridItems ...
-// import { TextComponent } from './codeSnippets/text';
-
-
-// Placeholders (Only needed if components/previews aren't ready)
-const PlaceholderComponent = () => React.createElement('div', {}, 'Placeholder');
-const placeholderPreviewHtml = '<div style="padding:10px; border:1px dashed #999; text-align:center; font-size:10px; color:#999;">Placeholder</div>';
-
-
+// grid display
+import ComponentGrid from "./ComponentGrid";
+// raw HTML previews
+// import each preview widget
+import { galleryPreviewHtml }    from "./previews/gallery";
+import { galleryCode } from './codeSnippets/gallery';
+import { ecommercePreviewHtml }  from "./previews/ecommerce";
+import { articlesPreviewHtml }   from "./previews/articles";
+import { buttonsPreviewHtml }   from "./previews/buttons";
+import { headersPreviewHtml }   from "./previews/headers";
+import { footersPreviewHtml }   from "./previews/footers";
+import { dividerPreviewHtml } from "./previews/divider";
+import { featuresPreviewHtml } from "./previews/features";
+import { gridPreviewHtml } from "./previews/grid";
+import { headingPreviewHtml } from "./previews/heading";
+import { linkPreviewHtml } from "./previews/link";
+import { imagePreviewHtml } from "./previews/image";
+import { marketingPreviewHtml } from "./previews/marketing";
+import { pricingPreviewHtml } from "./previews/pricing";
+import  { textPreviewHtml } from "./previews/text";
 export default function EmailBuilder() {
-  const editorRef = useRef<Editor | null>(null);
+  const editorRef = useRef<Editor>();
   const [ready, setReady] = useState(false);
 
-  // --- Define Grid Items for Draggable Components ---
-  // Uses previews from './previews' and components from './codeSnippets'
-  const gridItems: Omit<ComponentItem, 'count' | 'href'>[] = [
-    // --- Gallery Component Block Definition ---
-    {
-      blockId: "react-gallery",             // Unique ID
-      title: "Gallery",
-      previewHtml: galleryPreviewHtml,      // Use the specific preview from ./previews/gallery.ts
-      component: GalleryComponent,          // Use the component from ./codeSnippets/gallery.tsx
-    },
-    // --- Text Component Block Definition ---
-    {
-      blockId: "react-text",
-      title: "Text",
-      previewHtml: textPreviewHtml,         // Use preview from ./previews/text.ts (ensure it exists)
-      component: <PlaceholderComponent />,  // Replace with TextComponent from ./codeSnippets/
-    },
-    // ... other component definitions ...
-  ];
-
-
-  // --- Main useEffect for GrapesJS Initialization ---
   useEffect(() => {
-    if (editorRef.current) return; // Already initialized
-    console.log("EmailBuilder: Initializing GrapesJS...");
-
-    // Render initial templates (including the Gallery Template)
     Promise.all([
-      render(<BasicNewsletter title="Monthly Update" />, { pretty: true }),
-      render(<PromoEmail />, { pretty: true }),
-      render(<MarketingEmail />, { pretty: true }),
-      // Render the component imported from email-templates for the template block
-      render(<GalleryTemplateComponent />, { pretty: true }),
-    ]).then(([basicHTML, promoHTML, marketingHTML, galleryTemplateHTML]) => { // <-- Renamed variable
-        console.log("EmailBuilder: Templates rendered.");
-
-      // Initialize GrapesJS Editor
+      render(<BasicNewsletter title="Monthly Update" />),
+      render(<PromoEmail />),
+      render(<MarketingEmail />),
+    ]).then(([basicHTML, promoHTML, marketingHTML]) => {
+      const wrappedMarketing = `…`;
+  
       const editor = grapesjs.init({
         container: "#gjs",
-        // ...(your existing config)...
         fromElement: false,
         storageManager: false,
-        height: "calc(100vh - 220px)",
-        width: 'auto',
-        plugins: [ newsletterPlugin, blocksBasicPlugin ],
+        height: "100%",
+        plugins: [newsletterPlugin, customCodePlugin],
         pluginsOpts: {
-            'gjs-preset-newsletter': { /* options */ },
-            'gjs-blocks-basic': { /* options */ }
-        },
-        styleManager: { /* config */
-            sectors: [{ name: 'General', properties:['display', 'position', 'top', 'right', 'left', 'bottom'] }, { name: 'Dimension', open: false, properties: [ 'width', 'height', 'max-width', 'min-height', 'margin', 'padding' ]},{ name: 'Typography', open: false, properties:['font-family', 'font-size', 'font-weight', 'letter-spacing', 'color', 'line-height', 'text-align', 'text-shadow'] }, { name: 'Decorations', open: false, properties: ['background-color', 'border-radius', 'border', 'box-shadow', 'background']}]
-        },
-        blockManager: { appendTo: '#blocks' },
-        dragMode: 'absolute',
-        protectedCss: '',
-        canvas: { styles: ['body { margin: 0; padding: 0; }'], scripts: [] }
+          [newsletterPlugin]: {},
+          "grapesjs-custom-code": {
+            // any custom‑code options here
+          },
+        },  // ← close pluginsOpts here
+        canvas: { styles: ["/css/tailwind.css"] },
+        components: wrappedMarketing,
+        styleManager: { /* … */ },
       });
-      console.log("EmailBuilder: GrapesJS instance created.");
-      editorRef.current = editor; // Store ref immediately
-
+  
       const bm = editor.BlockManager;
-      const templatesCategory = 'Templates';
-      const reactEmailCategory = 'React Email Components';
-
-      // --- Add Template Blocks ---
-      // These add pre-rendered full email structures
-      bm.add("template-basic", { label: "Basic Newsletter", category: templatesCategory, content: basicHTML, attributes: { class: 'gjs-block-template' }});
-      bm.add("template-promo", { label: "Promo Email", category: templatesCategory, content: promoHTML, attributes: { class: 'gjs-block-template' } });
-      bm.add("template-marketing", { label: "Marketing Email", category: templatesCategory, content: marketingHTML, attributes: { class: 'gjs-block-template' } });
-      // Add the Gallery *Template* block
-      bm.add("template-gallery", { label: "Gallery Email", category: templatesCategory, content: galleryTemplateHTML, attributes: { class: 'gjs-block-template' } }); // <-- Use galleryTemplateHTML
-      console.log("EmailBuilder: Template blocks added.");
-
-      // --- Add React-Email Component Blocks ---
-      // These use previews from ./previews and components from ./codeSnippets
-      // They have NO content property here; content is added on drop via event listener
-      console.log(`EmailBuilder: Defining ${gridItems.length} React-Email blocks...`);
+  
+      // 1) Your HTML newsletter blocks
+      bm.add("basic-newsletter", {
+        label: "Basic Newsletter",
+        category: "Templates",
+        content: basicHTML,
+      });
+      bm.add("promo-email", {
+        label: "Promo Email",
+        category: "Templates",
+        content: promoHTML,
+      });
+      bm.add("marketing-email", {
+        label: "Marketing Email",
+        category: "Templates",
+        content: wrappedMarketing,
+      });
+  
+      // 2) Your React‑Email TSX blocks
       gridItems.forEach((item) => {
-        // Use the specific previewHtml imported for this item
-        const previewContent = typeof item.previewHtml === 'string'
-            ? item.previewHtml
-            : placeholderPreviewHtml;
-
-        if (typeof item.previewHtml !== 'string') {
-             console.warn(`Preview for ${item.title} (${item.blockId}) is not a string! Using placeholder.`);
+        if (item.code && item.blockId) {
+          bm.add(item.blockId, {
+            label: item.title,
+            category: "React‑Email",
+            content: {
+              type: "custom-code",
+              code: item.code.trim(),
+            },
+          });
         }
-
-        bm.add(item.blockId, {
-          // The label now renders the imported previewHtml
-          label: `<div class="gjs-block-label-preview" style="width: 95%; height: 70px; overflow: hidden; margin: 2px auto; border: 1px solid #444; position: relative; background-color: #0F0F10;">${previewContent}</div><div class="gjs-block-label-title" style="margin-top: 3px; font-size: 0.75rem; text-align: center; white-space: normal; padding: 0 2px;">${item.title}</div>`,
-          category: reactEmailCategory,
-          // ** NO 'content' property here **
-          attributes: { class: 'gjs-block-react-email' }
-        });
       });
-      console.log("EmailBuilder: React-Email blocks defined.");
-
-      // --- Event Listener to Handle Component Drop (to replace content) ---
-      const handleBlockDrop = (block: Block) => {
-          const blockId = block.getId();
-          const droppedItem = gridItems.find(item => item.blockId === blockId);
-
-          // Only act if it's one of our specific component blocks
-          if (droppedItem) {
-              console.log(`Handling drop for React Email component: ${droppedItem.title}`);
-              try {
-                  const componentHtml = render(droppedItem.component, { pretty: true });
-                  // Replace canvas content
-                  editor.setComponents(componentHtml);
-                  console.log(`Canvas content replaced with ${droppedItem.title}`);
-                  editor.select(editor.getComponents().models[0]); // Select the new content
-              } catch (error) {
-                  console.error(`Error rendering component ${droppedItem.title} on drop:`, error);
-                  editor.setComponents(`<div style="padding: 20px; text-align: center; color: red;">Error loading ${droppedItem.title}. Check console.</div>`);
-              }
-          }
-          // Let template blocks handle their drop normally (if needed, otherwise they also might need setComponents)
-          // Note: If template blocks *also* need to replace content reliably, they might need similar handling,
-          // or ensure they are only dropped on an empty canvas.
-      };
-
-      editor.on('canvas:drop', (event: Event, block: Block) => {
-          if (block && block instanceof grapesjs.Block) {
-              handleBlockDrop(block);
-          }
-      });
-      console.log("EmailBuilder: Drop event listener added.");
-
-      // --- Editor Ready ---
+  
+      // 3) Only after registering *all* blocks:
+      editorRef.current = editor;
       setReady(true);
-      console.log("EmailBuilder: Editor is ready.");
-
-    }).catch(error => {
-        console.error("EmailBuilder: Error rendering initial templates:", error);
     });
+  }, []);
+  
 
-    // --- Cleanup Function ---
-    return () => {
-        console.log("EmailBuilder: Cleanup running.");
-        const editorToDestroy = editorRef.current;
-        if (editorToDestroy) {
-            editorToDestroy.off('canvas:drop');
-            console.log("EmailBuilder: Destroying GrapesJS instance.");
-            editorToDestroy.destroy();
-            editorRef.current = null;
-        }
-        setReady(false);
-        console.log("EmailBuilder: Cleanup finished.");
-    };
-
-  }, []); // Empty dependency array []
-
-  // --- Event Handlers ---
-  // ... (exportHtml and handleSend functions remain the same) ...
-   const exportHtml = () => {
-     if (!editorRef.current) {
-        console.warn("Export HTML called but editor not ready.");
-        return "";
-    }
-    const html = editorRef.current.getHtml({ cleanId: true });
-    const css = editorRef.current.getCss();
-    return `<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style type="text/css">${css}</style></head><body>${html}</body></html>`;
+  const exportHtml = () => {
+    const html = editorRef.current!.getHtml();
+    const css  = editorRef.current!.getCss();
+    return `<style>${css}</style>${html}`;
   };
 
   const handleSend = async () => {
-     const htmlContent = exportHtml();
-     if (!htmlContent) {
-         alert("Editor not ready or no content.");
-         return;
-     }
-     const to = prompt("Send to:");
-     if (!to) return;
-     const subject = prompt("Subject?", "Your Campaign");
-     if (!subject) return;
-
-     console.log("Sending email with HTML:", htmlContent.substring(0, 200) + "...");
-
-     try {
-         const res = await fetch("/api/send-email", {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify({ to, subject, html: htmlContent }),
-         });
-         if (!res.ok) {
-             throw new Error(`HTTP error! status: ${res.status}`);
-         }
-         const { success, error } = await res.json();
-         alert(success ? "✔ Sent!" : `❌ Send failed: ${error || 'Unknown error'}`);
-     } catch (err) {
-         console.error("Failed to send email:", err);
-         alert(`❌ Failed to send email: ${err instanceof Error ? err.message : String(err)}`);
-     }
+    const html = exportHtml();
+    const to = prompt("Send to:");
+    const subject = prompt("Subject?", "Your Campaign");
+    if (!to || !subject) return;
+    const res = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, subject, html }),
+    });
+    const { success, error } = await res.json();
+    alert(success ? "✔ Sent!" : `❌ ${error}`);
   };
 
-  // --- Render Component ---
+  // build the grid items — each uses the raw HTML widget
+  const gridItems: ComponentItem[] = [
+    {
+      href: "/components/gallery",
+      title: "Gallery",
+      count: 4,
+      previewHtml: galleryPreviewHtml,
+    },
+    {
+      href: "/components/ecommerce",
+      title: "Ecommerce",
+      count: 5,
+      previewHtml: ecommercePreviewHtml,
+    },
+    {
+      href: "/components/articles",
+      title: "Articles",
+      count: 6,
+      previewHtml: articlesPreviewHtml,
+    },
+    {
+      href: "/components/buttons",
+      title: "Buttons",
+      count: 6,
+      previewHtml: buttonsPreviewHtml,
+    },
+    {
+      href: "/components/headers",
+      title: "Headers",
+      count: 6,
+      previewHtml: headersPreviewHtml,
+    },
+    {
+      href: "/components/footers",
+      title: "Footers",
+      count: 2,
+      previewHtml: footersPreviewHtml,
+    },
+    {
+      href: "/components/divider",
+      title: "Divider",
+      count: 1,
+      previewHtml: dividerPreviewHtml,
+    },
+    {
+      href: "/components/features",
+      title: "Features",
+      count: 4,
+      previewHtml: featuresPreviewHtml,
+    },
+    {
+      href: "/components/grid",
+      title: "Grid",
+      count: 4,
+      previewHtml: gridPreviewHtml,
+    },
+    {
+      href: "/components/heading",
+      title: "Heading",
+      count: 1,
+      previewHtml: headingPreviewHtml,
+    },
+    {
+      href: "/components/link",
+      title: "Link",
+      count: 1,
+      previewHtml: linkPreviewHtml,
+    },
+    {
+      href: "/components/image",
+      title: "Image",
+      count: 1,
+      previewHtml: imagePreviewHtml,
+    },
+    {
+      href: "/components/marketing",
+      title: "Marketing",
+      count: 1,
+      previewHtml: marketingPreviewHtml,
+    },
+    {
+      href: "/components/pricing",
+      title: "Pricing",
+      count: 1,
+      previewHtml: pricingPreviewHtml,
+    },
+    {
+      href: "/components/text",
+      title: "Text",
+      count: 1,
+      previewHtml: textPreviewHtml,
+    },
+
+  ];
+
   return (
-      // The outer structure provides the dark background and padding
-      <div className="space-y-6 bg-neutral-800 text-white p-4">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Email Builder</h2>
-        <p className="text-slate-400 mb-4">
-          Drag components from the left panel onto the canvas. Select elements on the canvas to style them using the right panel.
+        <h1 className="text-3xl font-bold text-white">Templates</h1>
+        <p className="text-slate-400">
+          Pick one of our React‑Email templates to get started.
         </p>
       </div>
-      <div className="flex flex-row border border-neutral-700" style={{ height: 'calc(100vh - 180px)' }}>
-         {/* Block panel styling (bg-neutral-900) provides the dark background */}
-         <div id="blocks" className="w-[240px] bg-neutral-900 text-neutral-100 overflow-y-auto p-1" />
-         <div className="flex-grow bg-white"> {/* Canvas */}
-           <div id="gjs" style={{ border: 'none' }} />
-         </div>
-         <div className="w-[260px] bg-neutral-900 text-neutral-100 overflow-y-auto relative flex flex-col"> {/* Right Panel */}
-             <div className="flex-grow">
-                 <div className="gjs-pn-buttons"></div>
-                 <div className="gjs-pn-views" style={{ height: 'calc(100% - 40px)'}}></div>
-             </div>
-             {/* Buttons */}
-             <div className="flex flex-col gap-2 p-2 border-t border-neutral-700 bg-neutral-900 mt-auto">
-                <button
-                    onClick={() => { /* Preview logic */ }}
-                    disabled={!ready}
-                    className="w-full py-2 px-4 bg-indigo-600 rounded hover:bg-indigo-500 disabled:opacity-50 text-sm"
-                >
-                    Preview HTML
-                </button>
-                <button
-                    onClick={handleSend}
-                    disabled={!ready}
-                    className="w-full py-2 px-4 bg-emerald-600 rounded hover:bg-emerald-500 disabled:opacity-50 text-sm"
-                >
-                    Send Test Email
-                </button>
-             </div>
-         </div>
+
+      <ComponentGrid items={gridItems} />
+
+      <div className="min-h-[800px] grid grid-cols-[240px_1fr_260px] bg-neutral-900 text-neutral-100">
+        <div id="blocks" className="overflow-auto p-4" />
+        <div className="p-4 bg-neutral-800">
+          <div id="gjs" style={{
+            width: "100%", height: "100%", minHeight: "900px",
+            border: "1px solid #374151",
+          }} />
+        </div>
+        <div className="p-4 flex flex-col gap-4">
+          <button
+            onClick={exportHtml}
+            disabled={!ready}
+            className="py-2 px-4 bg-indigo-600 rounded hover:bg-indigo-500 disabled:opacity-50"
+          >
+            Export HTML
+          </button>
+          <button
+            onClick={handleSend}
+            disabled={!ready}
+            className="py-2 px-4 bg-emerald-600 rounded hover:bg-emerald-500 disabled:opacity-50"
+          >
+            Send Test Email
+          </button>
+        </div>
       </div>
     </div>
   );

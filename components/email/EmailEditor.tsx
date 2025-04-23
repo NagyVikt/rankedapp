@@ -1,65 +1,79 @@
 'use client'
-import { useRef } from 'react'
+
+import { useState, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import type { EmailEditorProps, EditorRef } from 'react-email-editor'
+// Import your grid components and types (make sure paths are correct)
+import ComponentGrid from './ComponentGrid'
+import { gridItems } from './gridItems'
+import type { ComponentItem } from './types'
 
+// disable SSR
 const EmailEditor = dynamic<EmailEditorProps>(
   () => import('react-email-editor'),
   { ssr: false }
 )
 
 export default function MyEmailEditor() {
-  const editorRef = useRef<EditorRef>(null)
+  const [selectedItem, setSelectedItem] = useState<{ title: string; snippetHtml: string } | null>(null);
+  const editorRef = useRef<EditorRef>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  // build your HTML once
-  const snippetHTML = `
-    <div style="padding:20px; background:#eee; text-align:center;">
-      <h2>🚀 Welcome!</h2>
-      <p>Your HTML block.</p>
-    </div>
-  `
+  // Fired when editor has fully loaded
+  const handleReady: EmailEditorProps['onReady'] = (editor) => {
+    setIsReady(true);
+    // you could load a blank design here if you like:
+    // editor.loadDesign({}); 
+  }
 
-  const customToolJS = `
-    // register our new tool inside the iframe
-    unlayer.registerTool({
-      name: 'my_html_snippet',
-      label: 'My HTML Snippet',
-      icon: 'fa-code',
-      supportedDisplayModes: ['web','email'],
-      options: {},
-      values: {},
-      renderer: {
-        // <-- wrap in createViewer
-        Viewer: unlayer.createViewer({
-          render: function() {
-            return \`${snippetHTML}\`
-          }
-        }),
-        // need both web & email exporters
-        exporters: {
-          web: function() { return \`${snippetHTML}\` },
-          email: function() { return \`${snippetHTML}\` }
-        },
-        // stub out head.css/js or the layout code will call these
-        head: {
-          css: function() { return '' },
-          js: function() { return '' }
-        }
-      },
-      validator: function() { return [] }
-    });
-  `
 
+
+  // Whenever an item is clicked, build a tiny JSON design that
+  // injects an HTML block containing your snippetHtml
+  useEffect(() => {
+    if (!isReady || !editorRef.current || !selectedItem) return;
+     (async () => {
+         try {
+           const { Unlayer2be } = await import('unlayer2be')
+           const design = Unlayer2be.fromHtml(selectedItem.snippetHtml)
+           editorRef.current!.editor.loadDesign(design)
+         } catch (err) {
+           console.error('unlayer2be parse failed:', err)
+         }
+       })()
+  }, [selectedItem, isReady])
+  
+
+  // --- Layout: Place Grid and Editor Side-by-Side ---
   return (
-    <div style={{ height: 600 }}>
-      <EmailEditor
-        ref={editorRef}
-        projectId={1234}
-        displayMode="email"
-        options={{
-          customJS: [ customToolJS ]
-        }}
-      />
+    // Use Flexbox for layout. Adjust height/width as needed (e.g., h-screen)
+    <div className="flex w-full"> {/* Example: Full viewport height minus a potential header */}
+
+      {/* Sidebar Column for the Component Grid */}
+      <div className="w-1/4 max-w-xs border-r border-gray-300 overflow-y-auto p-4 bg-gray-50"> {/* Adjust width, add styling */}
+        <h2 className="text-lg font-semibold mb-4 sticky top-0 bg-gray-50 pb-2">Select Template</h2>
+        <ComponentGrid
+          items={gridItems}
+          // When an item is clicked in the grid, update the selectedItem state
+          onSelect={(item) => {
+            console.log("Grid item selected in parent:", item.title);
+            setSelectedItem(item);
+          }}
+         // You could optionally pass selectedItem to highlight the active item in the grid
+         // currentSelection={selectedItem}
+        />
+      </div>
+
+      <div className="flex-1 p-4 bg-gray-100"> {/* Main content area for the Email Editor */}
+        <EmailEditor
+          ref={editorRef}
+          projectId={1234}
+          displayMode="email"
+          onLoad={handleReady}
+          minHeight="800px" // Adjust as needed
+
+        />
+      </div>
     </div>
-  )
+  );
 }

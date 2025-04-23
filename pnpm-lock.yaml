@@ -296,6 +296,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      unlayer2be:
+        specifier: ^1.1.5
+        version: 1.1.5
       usehooks-ts:
         specifier: ^3.1.0
         version: 3.1.0(react@19.1.0)
@@ -6477,6 +6480,9 @@ packages:
 
   unlayer-types@1.248.0:
     resolution: {integrity: sha512-jXse36Qo8LT8XsI0/3bVeKe7NV8QGEih+Yji6y4qAQqC4CNWZBJAbofvRS0eb5Ad2uiLdxYQIbRiDQvoy8bkJA==}
+
+  unlayer2be@1.1.5:
+    resolution: {integrity: sha512-wHzRslKyB2SYjyezmFCA3Gx0Yk6Jmpvdnp1U/RL9eVPYM5ClAVH0Nnhr0s11kOKListjz+8kbjgtM+5P6cN8Dg==}
 
   update-browserslist-db@1.1.3:
     resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
@@ -13971,6 +13977,8 @@ snapshots:
       unist-util-visit-parents: 6.0.1
 
   unlayer-types@1.248.0: {}
+
+  unlayer2be@1.1.5: {}
 
   update-browserslist-db@1.1.3(browserslist@4.24.4):
     dependencies:

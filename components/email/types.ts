@@ -43,3 +43,15 @@ declare global {
     __unlayer_lastEditorId: number;
   }
 }
+
+// types.ts
+export interface ComponentItem {
+  href:       string;
+  blockId:    string;
+  title:      string;
+  count?:     number;
+  previewHtml:string;           // ← New: the full HTML for the preview
+  iconSvg:    string;  
+  snippetHtml:string;           // ← New: the actual HTML you drop into the email
+  component:  React.ReactElement;
+}
