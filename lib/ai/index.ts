@@ -4,6 +4,7 @@ import { openrouter } from '@openrouter/ai-sdk-provider';
 import { togetherai } from '@ai-sdk/togetherai';
 
 import { customMiddleware } from "./custom-middleware";
+import type { LanguageModelV1 } from 'ai'; // Adjust import path if necessary
 // Type definition for valid reasoning models used for research and structured outputs
 type ReasoningModel = typeof VALID_REASONING_MODELS[number];
 
@@ -70,7 +71,7 @@ export const customModel = (apiIdentifier: string, forReasoning: boolean = false
   console.log("Using model:", modelId);
 
   return wrapLanguageModel({
-    model,
+    model: model as LanguageModelV1, // Force the type - USE WITH CAUTION!
     middleware: customMiddleware,
   });
 };
