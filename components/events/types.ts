@@ -1,15 +1,11 @@
-import type {SVGProps} from "react";
+// ./types.ts (or wherever ComponentItem is defined)
+import React from 'react';
 
-export type IconSvgProps = SVGProps<SVGSVGElement> & {
-  size?: number;
-};
-
-// components/types.ts
 export interface ComponentItem {
   href: string;
+  blockId: string; // Unique ID for the GrapesJS block
   title: string;
-  count: number;
-  previewHtml: string;
-  code?: string;            // <-- new
-  blockId?: string;         // <-- optional unique ID for GrapesJS
+  count?: number;
+  previewHtml: string; // HTML for the visual picker grid
+  component: React.ReactElement; // The actual React Email component
 }
