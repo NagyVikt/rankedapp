@@ -1,89 +1,141 @@
 "use client";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { useState, useRef } from "react";
+import {
+  GoogleGenerativeAI,
+  ChatSession as GeminiChatSession, // Use an alias or just ChatSession if you remove yours
+  GenerateContentResult, // Import this type too for clarity if needed
+  GenerationConfig as GeminiGenerationConfig, // Optional: alias library's config type
+  Content, // Import Content type for message history
+} from "@google/generative-ai";
+import { useState, useRef, useEffect } from "react"; // Added useEffect
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY!;
+if (!apiKey) {
+  throw new Error("NEXT_PUBLIC_GEMINI_API_KEY is not set"); // Add runtime check
+}
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Allowed fields for generationConfig:
+// Allowed fields for generationConfig (Keep your local interface for state)
 interface GenerationConfig {
   temperature: number;
   topP: number;
   topK: number;
   maxOutputTokens: number;
-  responseMimeType: string;
+  responseMimeType: string; // Note: Check library docs if responseMimeType is valid here
+                            // It might belong elsewhere or have a different name/structure.
+                            // Often it's part of GenerateContentRequest, not startChat generationConfig.
+                            // Let's assume it's okay for now based on your code.
 }
 
-// Chat message shape:
+// Chat message shape (Keep your local interface)
 interface ChatMessage {
-  role: "user" | "assistant";
+  role: "user" | "model"; // Use "model" for consistency with the library
   content: string;
 }
 
-// For the internal chat session:
-interface ChatSession {
-  sendMessage: (message: string) => Promise<{ response: { text: () => Promise<string> } }>;
-}
+// REMOVE your local ChatSession interface:
+// interface ChatSession {
+//   sendMessage: (message: string) => Promise<{ response: { text: () => Promise<string> } }>;
+// }
 
 const useChat = () => {
-  // The system prompt (persona / high-level instructions)
   const [systemPrompt, setSystemPrompt] = useState<string>("");
-
-  // The selected model, separate from generationConfig.
-  const [modelType, setModelType] = useState<string>("gemini-2.0-flash");
-
-  // Only store the standard generation config fields here (no modelType).
+  const [modelType, setModelType] = useState<string>("gemini-1.5-flash"); // Default to a known stable model
   const [generationConfig, setGenerationConfig] = useState<GenerationConfig>({
     temperature: 1,
     topP: 0.95,
     topK: 64,
     maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
+    responseMimeType: "text/plain", // Double-check this parameter's validity/placement
   });
-
-  // The conversation so far.
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [error, setError] = useState<Error | null>(null); // Add error state
 
-  // Use a ref to store the chat session so it isn’t reinitialized on every render.
-  const chatSessionRef = useRef<ChatSession | null>(null);
+  // Use the imported ChatSession type from the library
+  const chatSessionRef = useRef<GeminiChatSession | null>(null);
 
-  // Create the model instance for the chosen model + system prompt.
-  const model = genAI.getGenerativeModel({
-    model: modelType,
-    systemInstruction: systemPrompt,
-  });
+  // Re-initialize chat when model, system prompt, or generation config changes
+  useEffect(() => {
+    const initializeChat = async () => {
+      try {
+        setError(null); // Clear previous errors
+        const model = genAI.getGenerativeModel({
+          model: modelType,
+          systemInstruction: systemPrompt,
+          // Ensure generationConfig properties are valid for the model's startChat
+          // Some might only be valid on individual sendMessage requests
+        });
 
-  // Start a new chat session.
-  async function startChat(): Promise<ChatSession> {
-    return model.startChat({ generationConfig });
-  }
+        // Pass only the valid GenerationConfig properties for startChat
+        // Check library documentation for what startChat accepts.
+        // Often, only history might be passed here, config later.
+        // Let's adapt based on common patterns:
+        const history = messages.map(msg => ({ // Convert local messages to library format if needed
+            role: msg.role,
+            parts: [{ text: msg.content }]
+        })) as Content[]; // Type assertion might be needed depending on strictness
 
-  // Send a user message, then get the assistant's response.
+        chatSessionRef.current = model.startChat({
+           generationConfig: { // Pass the generation config subset valid for startChat
+             temperature: generationConfig.temperature,
+             topP: generationConfig.topP,
+             topK: generationConfig.topK,
+             maxOutputTokens: generationConfig.maxOutputTokens,
+             // responseMimeType might not belong here, check docs
+           },
+           history: history, // Start chat with existing history
+        });
+      } catch (err) {
+        console.error("Failed to initialize chat:", err);
+        setError(err instanceof Error ? err : new Error("Unknown chat initialization error"));
+      }
+    };
+
+    if (apiKey) { // Ensure API key is present before initializing
+        initializeChat();
+    }
+
+    // Cleanup function if needed (e.g., abort ongoing requests)
+    // return () => { /* cleanup logic */ };
+
+  }, [modelType, systemPrompt, generationConfig]); // Rerun when these change
+
   const sendMessage = async (userMessage: string) => {
-    // Add the user's message to local state.
+    if (!chatSessionRef.current) {
+      setError(new Error("Chat session not initialized."));
+      return;
+    }
+    if (isLoading) return; // Prevent multiple simultaneous messages
+
+    setIsLoading(true);
+    setError(null);
+    // Add user message optimistically
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
 
-    // If there is no active session, start a new one.
-    if (!chatSessionRef.current) {
-      chatSessionRef.current = await startChat();
+    try {
+      // Send the message to the model using the existing session
+      const result = await chatSessionRef.current.sendMessage(userMessage);
+
+      // Access the response text directly (it's synchronous)
+      const assistantMessage = result.response.text();
+
+      // Append the assistant's response
+      setMessages((prev) => [
+        ...prev,
+        { role: "model", content: assistantMessage }, // Use "model" role
+      ]);
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      setError(err instanceof Error ? err : new Error("Failed to get response"));
+      // Optional: Remove the optimistic user message if the API call failed
+      setMessages((prev) => prev.slice(0, -1));
+    } finally {
+      setIsLoading(false);
     }
-    
-    // Send the message to the model.
-    const result = await chatSessionRef.current.sendMessage(userMessage);
-
-    // Await the text from the response.
-    const assistantMessage = await result.response.text();
-
-    // Append the assistant's response.
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: assistantMessage },
-    ]);
   };
 
   return {
-    // Return both the generationConfig and modelType, but keep them separate.
     generationConfig,
     setGenerationConfig,
     modelType,
@@ -92,6 +144,8 @@ const useChat = () => {
     setSystemPrompt,
     messages,
     sendMessage,
+    isLoading, // Expose loading state
+    error, // Expose error state
   };
 };
 

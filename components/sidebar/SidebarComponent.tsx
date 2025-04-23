@@ -56,33 +56,47 @@ export default function SidebarComponent() {
           {/* Navigation */}
           <ScrollShadow className="-mr-6 flex-1 max-h-full py-6 pr-6">
             <nav className="flex flex-col space-y-2 px-2">
-              {items.map(item => {
-                const isActive = pathname === item.href;
-                const isWebshops = item.key === 'webshops';
-                return (
-                  <div key={item.key} className="flex items-center">
+            {items.map((item) => {
+              const isActive = pathname === item.href;
+              const isWebshops = item.key === "webshops";
+
+              return (
+                <div key={item.key} className="flex items-center">
+                  {item.href ? (
                     <Link
                       href={item.href}
                       className={`flex items-center gap-3 px-4 py-2 rounded transition-colors ${
-                        isActive ? 'bg-default-100 text-foreground' : 'text-default-700 hover:bg-default-100'
+                        isActive
+                          ? "bg-default-100 text-foreground"
+                          : "text-default-700 hover:bg-default-100"
                       }`}
                     >
                       {item.icon && <Icon icon={item.icon} width={24} />}
                       <span className="text-small font-medium">{item.title}</span>
                       {item.endContent && <span className="ml-auto">{item.endContent}</span>}
                     </Link>
-                    {isWebshops && (
-                      <button
-                        onClick={() => setShowModal(true)}
-                        className="ml-2 flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 hover:bg-default-100"
-                        aria-label="Add Webshop"
-                      >
-                        <Icon icon="mdi:plus" width={16} className="text-gray-600" />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                  ) : (
+                    // fallback if you want non-link items
+                    <span className="flex items-center gap-3 px-4 py-2 rounded text-default-700">
+                      {item.icon && <Icon icon={item.icon} width={24} />}
+                      <span className="text-small font-medium">{item.title}</span>
+                      {item.endContent && <span className="ml-auto">{item.endContent}</span>}
+                    </span>
+                  )}
+
+                  {isWebshops && (
+                    <button
+                      onClick={() => setShowModal(true)}
+                      className="ml-2 flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 hover:bg-default-100"
+                      aria-label="Add Webshop"
+                    >
+                      <Icon icon="mdi:plus" width={16} className="text-gray-600" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+
             </nav>
 
             {/* Upgrade Card */}

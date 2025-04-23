@@ -1,16 +1,20 @@
+// components/sidebar/SidebarComponent.tsx
+'use client';
+
 import React, { useState, useCallback, forwardRef } from 'react';
 import {
   Listbox,
   ListboxItem,
-  ListboxSection,
   Accordion,
   AccordionItem,
 } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@heroui/react';
-
 import { items, SidebarItem, SidebarItemType } from './sidebar-items';
+
+// pull in the exact Key & Selection types the Listbox uses
+import type { Key as SharedKey, Selection } from '@react-types/shared';
 
 export type SidebarProps = {
   isCompact?: boolean;
@@ -19,66 +23,83 @@ export type SidebarProps = {
   classNames?: Record<string, string>;
 };
 
-const Sidebar = forwardRef<HTMLElement, SidebarProps>(
-  ({ isCompact = false, hideEndContent = false, iconClassName, classNames }, ref) => {
-    const navigate = useNavigate();
-    const { pathname } = useLocation();
+const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
+  (
+    { isCompact = false, hideEndContent = false, iconClassName, classNames },
+    ref
+  ) => {
+    const router = useRouter();
+    const pathname = usePathname();
 
-    // Determine default selected key from URL
-    const defaultKey =
-      items.find((it) => it.href && pathname.startsWith(it.href))?.key || items[0].key;
-    const [selected, setSelected] = useState<React.Key>(defaultKey);
+    // the ListboxItem.key in your items is a string, so treat it as SharedKey
+    const defaultKey = (items.find((it) => it.href && pathname.startsWith(it.href))
+      ?.key ?? items[0].key) as SharedKey;
 
-    // On selection change, update state and navigate
+    // now selected is a SharedKey
+    const [selected, setSelected] = useState<SharedKey>(defaultKey);
+
+    // onSelectionChange expects a Selection (Key or Iterable<Key> or "all")
     const onSelChange = useCallback(
-      (keys: React.Key[]) => {
-        const key = Array.from(keys)[0];
-        setSelected(key);
-        const item = items.find((i) => i.key === key);
-        if (item && item.href) {
-          navigate(item.href);
+      (keys: Selection) => {
+        // Normalize to an array of SharedKey
+        let chosen: SharedKey;
+        if (keys === 'all') {
+          chosen = defaultKey;
+        } else if (typeof keys === 'string' || typeof keys === 'number') {
+          chosen = keys as SharedKey;
+        } else {
+          // Iterable<Key>
+          chosen = (Array.from(keys)[0] ?? defaultKey) as SharedKey;
+        }
+
+        setSelected(chosen);
+        const item = items.find((i) => (i.key as SharedKey) === chosen);
+        if (item?.href) {
+          router.push(item.href);
         }
       },
-      [navigate]
+      [router, defaultKey]
     );
 
-    // Render a leaf menu item
     const renderItem = useCallback(
-      (item: SidebarItem) => (
-        <ListboxItem
-          key={item.key}
-          {...item}
-          endContent={isCompact || hideEndContent ? null : item.endContent}
-          startContent={
-            isCompact
-              ? null
-              : item.icon && (
-                  <Icon
-                    icon={item.icon}
-                    width={24}
-                    className={cn(
-                      'text-default-500 group-data-[selected=true]:text-foreground',
-                      iconClassName
-                    )}
-                  />
-                )
-          }
-          textValue={item.title}
-          title={isCompact ? null : item.title}
-        >
-          {isCompact ? (
-            <div className="flex w-full items-center justify-center">
-              {item.icon && (
+      (item: SidebarItem) => {
+        // strip out key before spreading
+        const { key: itemKey, ...itemProps } = item;
+        return (
+          <ListboxItem
+            key={itemKey}
+            {...itemProps}
+            endContent={
+              isCompact || hideEndContent ? null : item.endContent
+            }
+            startContent={
+              isCompact
+                ? null
+                : item.icon && (
+                    <Icon
+                      icon={item.icon}
+                      width={24}
+                      className={cn(
+                        'text-default-500 group-data-[selected=true]:text-foreground',
+                        iconClassName
+                      )}
+                    />
+                  )
+            }
+            textValue={item.title}
+            title={isCompact ? null : item.title}
+          >
+            {isCompact && item.icon ? (
+              <div className="flex w-full items-center justify-center">
                 <Icon icon={item.icon} width={24} className={iconClassName} />
-              )}
-            </div>
-          ) : null}
-        </ListboxItem>
-      ),
+              </div>
+            ) : null}
+          </ListboxItem>
+        );
+      },
       [isCompact, hideEndContent, iconClassName]
     );
 
-    // Render a nested "nest" item with accordion
     const renderNest = useCallback(
       (item: SidebarItem) => (
         <Accordion key={item.key} className="p-0">
@@ -87,7 +108,11 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
             title={
               <div className="flex items-center gap-2 p-2">
                 {item.icon && (
-                  <Icon icon={item.icon} width={24} className={iconClassName} />
+                  <Icon
+                    icon={item.icon}
+                    width={24}
+                    className={iconClassName}
+                  />
                 )}
                 <span>{item.title}</span>
               </div>
@@ -98,7 +123,8 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
               hideSelectedIcon
               variant="flat"
               items={item.items!}
-              selectedKeys={[selected] as unknown as React.Key[]}
+              // pass the single selected key inside an iterable
+              selectedKeys={new Set([selected])}
             >
               {item.items!.map(renderItem)}
             </Listbox>
@@ -111,14 +137,15 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
     return (
       <Listbox
         ref={ref}
-        hideSelectedIcon
         as="nav"
-        classNames={{ list: cn('flex flex-col space-y-2', classNames?.list) }}
+        hideSelectedIcon
         items={items}
         selectionMode="single"
-        selectedKeys={[selected] as unknown as React.Key[]}
+        // likewise wrap selected in a Set
+        selectedKeys={new Set([selected])}
         onSelectionChange={onSelChange}
         variant="flat"
+        classNames={{ list: cn('flex flex-col space-y-2', classNames?.list) }}
       >
         {(item) =>
           item.type === SidebarItemType.Nest && item.items?.length
@@ -129,6 +156,6 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
     );
   }
 );
-Sidebar.displayName = 'Sidebar';
 
-export default Sidebar;
+SidebarComponent.displayName = 'SidebarComponent';
+export default SidebarComponent;

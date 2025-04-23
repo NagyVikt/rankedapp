@@ -3,7 +3,6 @@
 import type {Selection, SortDescriptor} from "@heroui/react";
 import type {ColumnsKey, StatusOptions, Users} from "./data";
 import type {Key} from "@react-types/shared";
-
 import {
   Dropdown,
   DropdownTrigger,
@@ -45,37 +44,42 @@ import {useMemoizedCallback} from "./use-memoized-callback";
 
 import {columns, INITIAL_VISIBLE_COLUMNS, users} from "./data";
 import {Status} from "./Status";
+const initialSortColumn = columns[0].uid as Key;
 
 export default function Component() {
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const [visibleColumns, setVisibleColumns] = useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [visibleColumns, setVisibleColumns] = useState<Selection>(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
   const [rowsPerPage] = useState(10);
   const [page, setPage] = useState(1);
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "memberInfo",
-    direction: "ascending",
-  });
+
+   // 2) Initialize sortDescriptor using that first column:
+   const [sortDescriptor, setSortDescriptor] =
+   useState<SortDescriptor>({
+     column: initialSortColumn,
+     direction: "ascending",
+   });
 
   const [workerTypeFilter, setWorkerTypeFilter] = React.useState("all");
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [startDateFilter, setStartDateFilter] = React.useState("all");
 
   const headerColumns = useMemo(() => {
-    if (visibleColumns === "all") return columns;
-
+    // 3a) start with the full `columns` array
     return columns
-      .map((item) => {
-        if (item.uid === sortDescriptor.column) {
-          return {
-            ...item,
-            sortDirection: sortDescriptor.direction,
-          };
-        }
-
-        return item;
-      })
-      .filter((column) => Array.from(visibleColumns).includes(column.uid));
+      .map((col) =>
+        col.uid === sortDescriptor.column
+          ? { ...col, sortDirection: sortDescriptor.direction }
+          : col
+      )
+      // 3b) filter out any you don’t want visible
+      .filter((col) =>
+        visibleColumns === "all"
+          ? true
+          : (visibleColumns as Set<Key>).has(col.uid as Key)
+      );
   }, [visibleColumns, sortDescriptor]);
 
   const itemFilter = useCallback(
@@ -576,7 +580,6 @@ export default function Component() {
         }}
         selectedKeys={filterSelectedKeys}
         selectionMode="multiple"
-        sortDescriptor={sortDescriptor}
         topContent={topContent}
         topContentPlacement="outside"
         onSelectionChange={onSelectionChange}

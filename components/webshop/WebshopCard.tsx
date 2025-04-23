@@ -25,7 +25,6 @@ function slugify(url: string) {
 export default function WebshopCard({
   name,
   url,
-  statusApiUrl = "/wp-json/webshop/v1/status",
   ...cardProps
 }: CardProps & { name: string; url: string }) {
   const [imageSrc, setImageSrc] = useState<string>("");
