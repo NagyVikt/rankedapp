@@ -3,7 +3,8 @@
 
 import React from "react";
 import { Input, Button } from "@heroui/react";
-import { Shop } from "@/context/shops";
+
+import type { Shop } from "@/lib/shops";
 
 interface Props {
   shops: Shop[];
@@ -56,7 +57,7 @@ export default function WooConnectionForm({
         </select>
       </div>
       <div className="flex justify-end gap-2">
-        <Button variant="light" color="neutral" onPress={onCancel}>Cancel</Button>
+        <Button variant="light" color="default" onPress={onCancel}>Cancel</Button>
         <Button onPress={onSave} disabled={!ck.trim() || !cs.trim() || !sel}>Save Connection</Button>
       </div>
     </div>

@@ -22,8 +22,9 @@ export default function PromptInputWithEnclosedActions(
         onValueChange={(val) => {
           props.onChange?.({
             target: { value: val },
-          } as unknown as React.ChangeEvent<HTMLTextAreaElement>);
+          } as unknown as React.ChangeEvent<HTMLInputElement>);
         }}
+        
         classNames={{
           innerWrapper: cn("items-center", props.classNames?.innerWrapper),
           input: cn(

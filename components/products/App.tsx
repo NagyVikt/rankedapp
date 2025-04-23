@@ -1,15 +1,16 @@
 "use client";
 
-import type {ProductViewItem} from "./product-view-item";
+import type { ProductViewItemProps } from "./product-view-item";
 
 import React from "react";
 import {BreadcrumbItem, Breadcrumbs} from "@heroui/react";
 
 import ProductViewInfo from "./product-view-item";
 
-const item: ProductViewItem = {
+const item: ProductViewItemProps = {
   id: "942837-003",
   name: "Nike Air Max 270",
+  shopSlug: "nike-air-max-270",   // <-- add this
   description:
     "The Nike Air Max 270 delivers an even more adaptive fit than before. Stretch material in the upper moves with your foot, while the tri-star outsole pattern adjusts to your every step for a ride that delivers support and flexibility where you need it.",
   images: [

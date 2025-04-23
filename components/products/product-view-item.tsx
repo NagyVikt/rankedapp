@@ -35,9 +35,13 @@ export interface ProductViewItemProps {
   className?: string;
   shopSlug: string;
 }
-
-const badgeColors = ["primary", "secondary", "success", "warning", "destructive"];
-
+const badgeColors = [
+  "primary",
+  "secondary",
+  "success",
+  "warning",
+  "danger",    // ← you already changed this from "destructive"
+] as const;
 // helper to strip code fences from description
 const sanitizeDescription = (text = "") =>
   text.replace(/^```[\s\S]*?```/g, "").trim();

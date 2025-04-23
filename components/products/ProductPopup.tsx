@@ -53,9 +53,12 @@ export default function ProductPopup({ shopSlug, productId, trigger }: Props) {
   }
 
   // inject HeroUI onPress for React triggers
-  let Trigger = <>{trigger}</>;
+  let Trigger: React.ReactNode = <>{trigger}</>;
   if (React.isValidElement(trigger)) {
-    Trigger = cloneElement(trigger, { onPress: () => setOpen(true) });
+    // cast to any or to ReactElement<any, any> so we can add onPress
+    Trigger = cloneElement(trigger as React.ReactElement<any>, {
+      onPress: () => setOpen(true),
+    });
   } else {
     Trigger = (
       <span onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>

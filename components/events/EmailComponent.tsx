@@ -1,6 +1,5 @@
 // components/events/EmailBuilder.tsx
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 
 export default function EmailBuilder() {
@@ -13,18 +12,21 @@ export default function EmailBuilder() {
       Promise.all([
         import("grapesjs/dist/css/grapes.min.css"),
         import("grapesjs-preset-newsletter"),
-      ]).then(([, newsletter]) => {
-        editorRef.current = grapesjs
-          .default.init({
-            container: "#gjs",
-            height: "600px",
-            fromElement: false,
-            plugins: [newsletter.default],
-            pluginsOpts: {
-              [newsletter.default]: {}
-            },
-          });
+      ]).then(([, newsletterModule]) => {
+        const newsletterPlugin = newsletterModule.default as any;
+        const pluginId = newsletterPlugin.id || "grapesjs-preset-newsletter";
+      
+        editorRef.current = grapesjs.default.init({
+          container: "#gjs",
+          height: "600px",
+          fromElement: false,
+          plugins: [newsletterPlugin],
+          pluginsOpts: {
+            [pluginId]: {},
+          },
+        });
       });
+      
     });
   }, []);
 

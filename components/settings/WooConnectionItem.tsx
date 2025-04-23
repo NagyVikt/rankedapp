@@ -2,10 +2,11 @@
 "use client";
 
 import React from "react";
-import { Button, Icon } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Icon as Iconify } from "@iconify/react";
 import { WooEntry } from "./WooCommerceTab";
-import { Shop } from "@/context/shops";
+
+import type { Shop } from "@/lib/shops";
 
 interface Props {
   entry: WooEntry;

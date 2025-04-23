@@ -5,7 +5,7 @@ import { Input, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useShops } from "@/context/shops";
 
-interface WooEntry {
+export interface WooEntry {
   consumerKey: string;
   consumerSecret: string;
   selectedShopUrl: string;
@@ -163,7 +163,7 @@ export default function WooCommerceTab() {
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="light" color="neutral" onPress={cancelAdd}>
+            <Button variant="light" color="default" onPress={cancelAdd}>
               Cancel
             </Button>
             <Button onPress={commitAdd} disabled={!ck || !cs || !sel}>
