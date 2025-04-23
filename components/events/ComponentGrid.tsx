@@ -1,8 +1,8 @@
 // components/ComponentGrid.tsx
 import React from "react";
 import Link from "next/link";
-import { ComponentItem } from "./types";
 
+import type { ComponentItem } from "./types";
 export function ComponentCard({ href, title, count, previewHtml }: ComponentItem) {
   return (
     <Link
@@ -48,6 +48,8 @@ export function ComponentCard({ href, title, count, previewHtml }: ComponentItem
     </Link>
   );
 }
+
+
 
 export default function ComponentGrid({ items }: { items: ComponentItem[] }) {
   return (

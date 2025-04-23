@@ -26,7 +26,6 @@ export default function WebshopsPage() {
             key={shop.url}
             name={shop.name}
             url={shop.url}
-            statusApiUrl="/wp-json/webshop/v1/status"
           />
         ))}
       </div>

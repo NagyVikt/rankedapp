@@ -12,9 +12,10 @@ import { render } from "@react-email/render";
 import { BasicNewsletter } from "../email-templates/basic";
 import { PromoEmail } from "../email-templates/promo";
 import { MarketingEmail } from "../email-templates/marketing";
+import { ComponentItem } from "./types";
 
 // grid display
-import ComponentGrid, { ComponentItem } from "./ComponentGrid";
+import ComponentGrid from "./ComponentGrid";
 // raw HTML previews
 // import each preview widget
 import { galleryPreviewHtml }    from "./previews/gallery";
@@ -51,12 +52,13 @@ export default function EmailBuilder() {
         storageManager: false,
         height: "100%",
         plugins: [newsletterPlugin, customCodePlugin],
-        pluginsOpts: {
-          [newsletterPlugin]: {},
-          "grapesjs-custom-code": {
-            // any custom‑code options here
-          },
-        },  // ← close pluginsOpts here
+               pluginsOpts: {
+                   // 👇 use the plugin’s package name (or ID) as the key
+                   "grapesjs-preset-newsletter": {},
+                   "grapesjs-custom-code": {
+                     // any custom-code options here
+                  },
+                 },
         canvas: { styles: ["/css/tailwind.css"] },
         components: wrappedMarketing,
         styleManager: { /* … */ },
