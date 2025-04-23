@@ -16,10 +16,12 @@ function slugify(url: string) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { shop: string } }
-) {
-  const { shop } = params;
-  const page = req.nextUrl.searchParams.get("page") || "1";
+  { params }: { params: Promise<{ shop: string }> }
+): Promise<NextResponse>  {
+
+  const { shop } = await params;
+
+  const page    = req.nextUrl.searchParams.get("page")     || "1";
   const perPage = req.nextUrl.searchParams.get("per_page") || "25";
 
   // 1) find your saved connection

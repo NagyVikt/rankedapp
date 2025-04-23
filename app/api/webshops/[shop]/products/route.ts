@@ -20,8 +20,8 @@ function slugify(url: string) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { shop: string } }
-) {
+  { params }: { params: Promise<{ shop: string; id: string }> }
+): Promise<NextResponse> {
   // 🚨 you must await params before using them
   const { shop: shopSlug } = await params;
 

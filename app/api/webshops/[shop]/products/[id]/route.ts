@@ -19,10 +19,9 @@ function slugify(url: string) {
 
 export async function GET(
   req: NextRequest,
-  context: { params: { shop: string; id: string } }
-) {
-  // correctly await params
-  const { shop: shopSlug, id } = await context.params;
+  { params }: { params: Promise<{ shop: string; id: string }> }
+): Promise<NextResponse> {
+  const { shop: shopSlug, id } = await params;
 
   // 1) lookup shop URL from my_webshops cookie
   const shopsCookie = decodeURIComponent(
