@@ -346,7 +346,7 @@ export default function Component() {
           <div className="flex items-center gap-4">
             <Input
               className="min-w-[200px]"
-              //endContent={<className="text-default-400" width={16} />}
+             // endContent={<SearchIcon className="text-default-400" width={16} />}
               placeholder="Search"
               size="sm"
               value={filterValue}

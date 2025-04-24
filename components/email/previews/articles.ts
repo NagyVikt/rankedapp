@@ -48,18 +48,6 @@ export const articlesIconSvg = `
 `;
 
 
-const getImagePath = (fileName: string) =>
-  `${process.env.PUBLIC_URL}//images/${fileName}`
-
-// 2) An array of the image file names you want to render:
-const imageFiles = [
-  "image-1.png",
-  "image-2.png",
-  "another-image.jpg",
-  // …etc
-]
-
-
 
 export const articlesSnippetHtml = `
  <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
