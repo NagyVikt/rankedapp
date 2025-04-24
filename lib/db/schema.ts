@@ -3,14 +3,29 @@ import type { InferSelectModel } from 'drizzle-orm';
 import {
   pgTable,
   varchar,
+  serial,
   timestamp,
   json,
+  jsonb,
   uuid,
   text,
   primaryKey,
   foreignKey,
   boolean,
 } from 'drizzle-orm/pg-core';
+
+
+
+export const designs = pgTable('designs', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  design: jsonb('design').notNull(),
+  createdAt: timestamp('created_at')
+    .defaultNow()
+    .notNull(),
+})
+
+
 
 export const user = pgTable('User', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
