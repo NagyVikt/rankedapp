@@ -41,6 +41,9 @@ importers:
       '@heroui/code':
         specifier: 2.2.12
         version: 2.2.12(@heroui/theme@2.4.13(tailwindcss@3.4.17))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@heroui/framer-utils':
+        specifier: ^2.1.13
+        version: 2.1.13(@heroui/theme@2.4.13(tailwindcss@3.4.17))(framer-motion@11.13.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@heroui/input':
         specifier: 2.4.17
         version: 2.4.17(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.17))(framer-motion@11.13.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.13(tailwindcss@3.4.17))(@types/react@18.3.3)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -59,6 +62,9 @@ importers:
       '@heroui/react':
         specifier: ^2.7.6
         version: 2.7.6(@types/react@18.3.3)(framer-motion@11.13.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@3.4.17)
+      '@heroui/shared-icons':
+        specifier: ^2.1.6
+        version: 2.1.6(react@19.1.0)
       '@heroui/snippet':
         specifier: 2.2.18
         version: 2.2.18(@heroui/system@2.4.13(@heroui/theme@2.4.13(tailwindcss@3.4.17))(framer-motion@11.13.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.13(tailwindcss@3.4.17))(framer-motion@11.13.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -6478,8 +6484,8 @@ packages:
   unist-util-visit@5.0.0:
     resolution: {integrity: sha512-MR04uvD+07cwl/yhVuVWAtw+3GOR/knlL55Nd/wAdblk27GCVt3lqpTivy/tkJcZoNPzTwS1Y+KMojlLDhoTzg==}
 
-  unlayer-types@1.248.0:
-    resolution: {integrity: sha512-jXse36Qo8LT8XsI0/3bVeKe7NV8QGEih+Yji6y4qAQqC4CNWZBJAbofvRS0eb5Ad2uiLdxYQIbRiDQvoy8bkJA==}
+  unlayer-types@1.249.0:
+    resolution: {integrity: sha512-fB+tQVfz+M3iceV7AGgR8eMp/dNz/hI7tfUOHBvet3LvNUplLjGEqvX7DdITo78ml97N3epZh11vkmHznvFXcg==}
 
   unlayer2be@1.1.5:
     resolution: {integrity: sha512-wHzRslKyB2SYjyezmFCA3Gx0Yk6Jmpvdnp1U/RL9eVPYM5ClAVH0Nnhr0s11kOKListjz+8kbjgtM+5P6cN8Dg==}
@@ -13224,7 +13230,7 @@ snapshots:
   react-email-editor@1.7.11(react@19.1.0):
     dependencies:
       react: 19.1.0
-      unlayer-types: 1.248.0
+      unlayer-types: 1.249.0
 
   react-email@4.0.7(@opentelemetry/api@1.9.0)(bufferutil@4.0.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -13976,7 +13982,7 @@ snapshots:
       unist-util-is: 6.0.0
       unist-util-visit-parents: 6.0.1
 
-  unlayer-types@1.248.0: {}
+  unlayer-types@1.249.0: {}
 
   unlayer2be@1.1.5: {}
 

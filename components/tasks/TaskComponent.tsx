@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@heroui/react";
-// import {SearchIcon} from "@heroui/shared-icons";
+import {SearchIcon} from "@heroui/shared-icons";
 import React, {useMemo, useRef, useCallback, useState} from "react";
 import {Icon} from "@iconify/react";
 import {cn} from "@heroui/react";
@@ -346,7 +346,7 @@ export default function Component() {
           <div className="flex items-center gap-4">
             <Input
               className="min-w-[200px]"
-             // endContent={<SearchIcon className="text-default-400" width={16} />}
+              endContent={<SearchIcon className="text-default-400" width={16} />}
               placeholder="Search"
               size="sm"
               value={filterValue}

@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/unlayer-types/embed.d.ts" />
 
 import { CSSProperties } from 'react';
 
@@ -37,7 +36,6 @@ export interface EmailEditorProps {
 }
 
 declare global {
-  const unlayer: Unlayer;
 
   interface Window {
     __unlayer_lastEditorId: number;
