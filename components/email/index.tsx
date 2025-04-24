@@ -1,7 +1,5 @@
-// components/email/index.ts
+// re-export whatever the default export is from ./EmailEditor
+export { default } from './EmailEditor'
 
-// re-export the component as default
-export { EmailEditor as default } from './EmailEditor';
-
-// re-export all of your Unlayer types
-export type { Editor, EditorRef, EmailEditorProps, UnlayerOptions } from './types';
+// and your types (if you have them in ./types)
+export type { Editor, EditorRef, EmailEditorProps, UnlayerOptions } from './types'
