@@ -72,3 +72,8 @@ yarn-error.log*
 .vercel
 .vscode
 .env*.local
+.vs/rankedapp/v16/.suo
+.gitignore
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
