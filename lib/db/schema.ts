@@ -12,19 +12,38 @@ import {
   primaryKey,
   foreignKey,
   boolean,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm'
 
 
 
+
+// ── Designs ──────────────────────────────────────────────────────────────
 export const designs = pgTable('designs', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  design: jsonb('design').notNull(),
-  createdAt: timestamp('created_at')
-    .defaultNow()
-    .notNull(),
+  id:         serial('id').primaryKey(),
+  name:       text('name').notNull(),
+  design:     jsonb('design').notNull(),
+  createdAt:  timestamp('created_at').defaultNow().notNull(),
 })
 
+// ── Customers ────────────────────────────────────────────────────────────
+export const customers = pgTable('customers', {
+  id:         serial('id').primaryKey(),
+  shop:       varchar('shop',  { length: 100 }).notNull(),
+  email:      varchar('email', { length: 254 }).notNull(),
+  createdAt:  timestamp('created_at').defaultNow().notNull(),
+})
+
+// ── Campaigns ────────────────────────────────────────────────────────────
+export const campaigns = pgTable('campaigns', {
+  id:           serial('id').primaryKey(),
+  shop:         text('shop').notNull(),
+  send_now:     jsonb('send_now').notNull().default(sql`'[]'`),
+  weekly:       jsonb('weekly').notNull().default(sql`'[]'`),
+  assignments:  jsonb('assignments').notNull().default(sql`'{}'`),
+  updated_at:   timestamp('updated_at').defaultNow().notNull(),
+})
 
 
 export const user = pgTable('User', {
