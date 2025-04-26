@@ -13,21 +13,18 @@ import ComponentGrid from './ComponentGrid'
 import { gridItems } from './gridItems'
 import type { ComponentItem } from './types'
 
-// 1) Import only the default export, and tell TS it’s a ComponentType
-//    that takes EmailEditorProps + a ref to EditorRef
 const UnlayerEmailEditor = dynamic(
   () => import('react-email-editor').then((mod) => mod.default),
   { ssr: false }
 ) as React.ComponentType<EmailEditorProps & React.RefAttributes<EditorRef>>
 
-// 2) Wrap it in forwardRef so TS/React both know how to handle `ref`
 const EmailEditor = forwardRef<EditorRef, EmailEditorProps>((props, ref) => (
   <UnlayerEmailEditor {...props} ref={ref as Ref<EditorRef>} />
 ))
-EmailEditor.displayName = 'EmailEditor'  // for React DevTools
+EmailEditor.displayName = 'EmailEditor'
 
 type SavedDesign = {
-  id: string
+  id: number
   name: string
   design: any
 }
@@ -38,13 +35,20 @@ export default function MyEmailEditor() {
   const editorRef = useRef<EditorRef>(null)
   const [isReady, setIsReady] = useState(false)
 
+  // 1) Load existing designs from your API
+  useEffect(() => {
+    fetch('/api/designs')
+      .then((res) => res.json())
+      .then((designs: SavedDesign[]) => setSavedDesigns(designs))
+      .catch(console.error)
+  }, [])
+
   const handleLoad: EmailEditorProps['onLoad'] = () => {
     setIsReady(true)
   }
 
   useEffect(() => {
     if (!isReady || !selectedItem) return
-
     ;(async () => {
       try {
         const { Unlayer2be } = await import('unlayer2be')
@@ -60,26 +64,38 @@ export default function MyEmailEditor() {
     const inst = editorRef.current?.editor
     if (!inst) return
 
-    inst.exportHtml((data: { design: any; html: string }) => {
+    inst.exportHtml(async (data: { design: any; html: string }) => {
       const { design } = data
       const name = prompt('Name your template', `Template ${savedDesigns.length + 1}`)
       if (!name) return
-      setSavedDesigns((prev) => [
-        ...prev,
-        { id: Date.now().toString(), name, design },
-      ])
+
+      try {
+        const res = await fetch('/api/designs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, design }),
+        })
+
+        if (!res.ok) {
+          console.error('Failed to save design:', await res.text())
+          return
+        }
+
+        const newDesign: SavedDesign = await res.json()
+        // prepend the newly‐saved design
+        setSavedDesigns((prev) => [newDesign, ...prev])
+      } catch (err) {
+        console.error('Error saving design:', err)
+      }
     })
   }
 
   const loadSaved = (sd: SavedDesign) => {
-    const inst = editorRef.current?.editor
-    if (!inst) return
-    inst.loadDesign(sd.design)
+    editorRef.current?.editor?.loadDesign(sd.design)
   }
 
   return (
     <div className="flex w-full h-[calc(100vh-50px)]">
-      {/* Sidebar */}
       <div className="w-1/4 border-r bg-gray-50 overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-2">Select Template</h2>
         <ComponentGrid items={gridItems} onSelect={setSelectedItem} />
@@ -113,7 +129,6 @@ export default function MyEmailEditor() {
         )}
       </div>
 
-      {/* Main editor */}
       <div className="flex-1 p-4 bg-gray-100">
         <EmailEditor
           ref={editorRef}
