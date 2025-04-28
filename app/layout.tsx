@@ -1,10 +1,12 @@
+// app/layout.tsx
+import Script from 'next/script';
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Analytics } from '@vercel/analytics/react';
 import { DeepResearchProvider } from '@/lib/deep-research-context';
-import { Navbar } from "@/components/navbar";
+import { Navbar } from '@/components/navbar';
 
 import './globals.css';
 
@@ -19,9 +21,11 @@ export const viewport = {
   maximumScale: 1, // Disable auto-zoom on mobile Safari
 };
 
+
+
 const LIGHT_THEME_COLOR = 'hsl(0 0% 100%)';
 const DARK_THEME_COLOR = 'hsl(240deg 10% 3.92%)';
-const THEME_COLOR_SCRIPT = `\
+const THEME_COLOR_SCRIPT = `
 (function() {
   var html = document.documentElement;
   var meta = document.querySelector('meta[name="theme-color"]');
@@ -37,28 +41,21 @@ const THEME_COLOR_SCRIPT = `\
   var observer = new MutationObserver(updateThemeColor);
   observer.observe(html, { attributes: true, attributeFilter: ['class'] });
   updateThemeColor();
-})();`;
+})();
+`;
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      // `next-themes` injects an extra classname to the body element to avoid
-      // visual flicker before hydration. Hence the `suppressHydrationWarning`
-      // prop is necessary to avoid the React hydration mismatch warning.
-      // https://github.com/pacocoursey/next-themes?tab=readme-ov-file#with-app
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: THEME_COLOR_SCRIPT,
-          }}
-        />
+        {/* Load the Stripe.js runtime before your app */}
+        <Script src="https://js.stripe.com/v3/" strategy="beforeInteractive" />
+        {/* Dynamic theme-color script */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_COLOR_SCRIPT }} />
       </head>
       <body className="antialiased">
         <ThemeProvider
@@ -68,8 +65,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <DeepResearchProvider>
-          <Navbar />
-
+            <Navbar />
             <Toaster position="top-center" />
             {children}
           </DeepResearchProvider>
