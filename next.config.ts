@@ -4,12 +4,13 @@ const nextConfig: NextConfig = {
   experimental: {
     // enable per‑route pre‑rendering
     ppr: true,
-    // allow these external packages in RSC
-    serverComponentsExternalPackages: [
-      'chrome-aws-lambda',
-      'puppeteer-core',
-    ],
+    // serverComponentsExternalPackages was here, now removed
   },
+  // Moved here:
+  serverComponentsExternalPackages: [
+    'chrome-aws-lambda',
+    'puppeteer-core',
+  ],
   images: {
     remotePatterns: [
       {
