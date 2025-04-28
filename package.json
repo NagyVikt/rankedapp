@@ -67,6 +67,7 @@
     "@vercel/blob": "^0.24.1",
     "@vercel/postgres": "^0.10.0",
     "ai": "4.1.16",
+    "bcrypt": "^5.1.1",
     "bcrypt-ts": "^5.0.2",
     "bcryptjs": "^3.0.2",
     "chrome-aws-lambda": "^10.1.0",

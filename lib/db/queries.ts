@@ -1,6 +1,5 @@
 // Ensures this module only runs on the server
 import 'server-only';
-
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { and, asc, desc, eq, gt, gte, isNull } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -69,13 +68,12 @@ export async function getUser(): Promise<User | null> {
  * Gets user by email address.
  */
 export async function getUserByEmail(email: string): Promise<Array<User>> {
-  try {
-    return await db.select().from(schema.users).where(eq(schema.users.email, email)); // Use schema.users
-  } catch (error) {
-    console.error('Failed to get user by email from database:', error);
-    throw error;
-  }
+  return db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, email));
 }
+
 
 /**
  * Creates a new user with a hashed password.

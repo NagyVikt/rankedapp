@@ -10,7 +10,7 @@
     "plugin:import/recommended",
     "plugin:import/typescript",
     "plugin:react/recommended",
-    "prettier",
+
     "plugin:tailwindcss/recommended",
     "plugin:prettier/recommended",
     // removed: "plugin:react-hooks/recommended",
@@ -81,9 +81,12 @@
       }
     ],
     "padding-line-between-statements": [
-      { "blankLine": "always", "prev": "*", "next": "return" },
-      { "blankLine": "always", "prev": ["const","let","var"], "next": "*" },
-      { "blankLine": "any", "prev": ["const","let","var"], "next": ["const","let","var"] }
-    ]
+  "warn",
+  [
+    { "blankLine": "always", "prev": "*", "next": "return" },
+    { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
+    { "blankLine": "any", "prev": ["const", "let", "var"], "next": ["const", "let", "var"] }
+  ]
+]
   }
 }
