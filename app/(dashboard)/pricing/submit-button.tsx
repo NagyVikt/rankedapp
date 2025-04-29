@@ -1,30 +1,24 @@
 'use client';
 
-import { Button } from '@/components/stripe/button';
-import { ArrowRight, Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+import { Button, ButtonProps } from "@heroui/react"; // Use HeroUI Button
 
-export function SubmitButton() {
+// Combine ButtonProps with children
+interface SubmitButtonProps extends Omit<ButtonProps, 'type' | 'isLoading'> {
+    children: React.ReactNode;
+}
+
+export function SubmitButton({ children, ...props }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
     <Button
       type="submit"
-      disabled={pending}
-      variant="outline"
-      className="w-full rounded-full"
+      isLoading={pending} // Use isLoading prop for HeroUI Button
+      aria-disabled={pending}
+      {...props} // Spread remaining props (like color, variant, fullWidth, etc.)
     >
-      {pending ? (
-        <>
-          <Loader2 className="animate-spin mr-2 h-4 w-4" />
-          Loading...
-        </>
-      ) : (
-        <>
-          Get Started
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </>
-      )}
+      {children}
     </Button>
   );
 }
