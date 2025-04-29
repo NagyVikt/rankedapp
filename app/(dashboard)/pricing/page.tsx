@@ -82,7 +82,7 @@ export default async function PricingPage() {
       // 'Shopify Integration - COMING SOON',
       'Deepsearch for WooCommerce products',
       // 'Deepsearch for Shopify products - COMING SOON',
-      ,
+      
     ],
     priceId: basePrice?.id, // The crucial Stripe Price ID for checkout
     mostPopular: false, // Not the most popular
