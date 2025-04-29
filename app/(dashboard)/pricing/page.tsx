@@ -1,6 +1,10 @@
 import { getStripePrices, getStripeProducts } from '@/lib/payments/stripe'; // Assuming stripe functions are here
 import PricingClientComponent from './pricing-client-component'; // Import the client component
 
+// Define the types returned by your stripe utility functions
+type SingleProductType = Awaited<ReturnType<typeof getStripeProducts>>[number];
+type SinglePriceType = Awaited<ReturnType<typeof getStripePrices>>[number];
+
 // Revalidate the data every hour (3600 seconds)
 export const revalidate = 3600;
 
@@ -32,25 +36,25 @@ export default async function PricingPage() {
 
   // --- Find Products by Name ---
   // Find the Stripe Product objects based on the names you've set in the Stripe Dashboard
-  const basePlanProduct = products.find((product) => product.name === 'Starter');
-  const plusPlanProduct = products.find((product) => product.name === 'Plus');
-  // Find the new product you created
-  const ultimateWebshopProduct = products.find((product) => product.name === 'ULTIMATE WEBSHOP');
+  const basePlanProduct = products.find((product: SingleProductType) => product.name === 'Starter');
+  const plusPlanProduct = products.find((product: SingleProductType) => product.name === 'Plus');
+  const ultimateWebshopProduct = products.find((product: SingleProductType) => product.name === 'ULTIMATE WEBSHOP');
   // const teamPlanProduct = products.find((product) => product.name === 'Team'); // Uncomment if using a "Team" plan
 
   // --- Find Corresponding Prices ---
   // Find the specific Stripe Price object for each product (assuming monthly interval here)
-  const basePrice = prices.find(
-    (price) => price.productId === basePlanProduct?.id && price.interval === 'month' // Adjust interval/currency if needed
+   // --- Find Corresponding Prices ---
+    // FIX: Add the ': SinglePriceType' annotation again
+    const basePrice = prices.find(
+      (price: SinglePriceType) => price.productId === basePlanProduct?.id && price.interval === 'month'
   );
   const plusPrice = prices.find(
-    (price) => price.productId === plusPlanProduct?.id && price.interval === 'month'
+      (price: SinglePriceType) => price.productId === plusPlanProduct?.id && price.interval === 'month'
   );
-  // Find the specific EUR monthly price for the new product
   const ultimateWebshopPrice = prices.find(
-    (price) => price.productId === ultimateWebshopProduct?.id &&
-               price.interval === 'month' &&
-               price.currency === 'eur' // Ensure currency match if needed
+      (price: SinglePriceType) => price.productId === ultimateWebshopProduct?.id &&
+                 price.interval === 'month' &&
+                 price.currency === 'eur'
   );
   // const teamPrice = prices.find(
   //   (price) => price.productId === teamPlanProduct?.id && price.interval === 'month'

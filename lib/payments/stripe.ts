@@ -10,6 +10,19 @@ import {
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil'
 });
+// --- ADD THIS INTERFACE DEFINITION ---
+interface GetStripePricesParams extends Stripe.PriceListParams {
+  active?: boolean;
+  type?: 'recurring' | 'one_time';
+  currency?: string;
+  // Add other valid Stripe.PriceListParams properties if needed
+}
+
+// --- Optional: Define interface for getStripeProducts params ---
+interface GetStripeProductsParams extends Stripe.ProductListParams {
+  active?: boolean;
+  // Add other valid Stripe.ProductListParams properties if needed
+}
 
 export async function createCheckoutSession({
   team,
@@ -146,37 +159,88 @@ export async function handleSubscriptionChange(
   }
 }
 
-export async function getStripePrices() {
-  const prices = await stripe.prices.list({
-    expand: ['data.product'],
-    active: true,
-    type: 'recurring'
-  });
 
-  return prices.data.map((price) => ({
-    id: price.id,
-    productId:
-      typeof price.product === 'string' ? price.product : price.product.id,
-    unitAmount: price.unit_amount,
-    currency: price.currency,
-    interval: price.recurring?.interval,
-    trialPeriodDays: price.recurring?.trial_period_days
-  }));
-}
+// --- FIX: Modify getStripeProducts to accept parameters ---
+export const getStripeProducts = async ( // Change to accept params
+  params: GetStripeProductsParams = {}  // Add parameter with default
+): Promise< // Add explicit Promise return type
+  {
+    id: string;
+    name: string;
+    description: string | null;
+    defaultPriceId: string | null | undefined;
+  }[]
+> => { // Use arrow function for consistency if desired
+  try { // Add try...catch
+    const listParams: Stripe.ProductListParams = {
+      ...params, // Spread incoming parameters
+      // Keep expand separate if needed, or allow override via params
+      expand: ['data.default_price', ...(params.expand || [])],
+    };
 
-export async function getStripeProducts() {
-  const products = await stripe.products.list({
-    active: true,
-    expand: ['data.default_price']
-  });
+    const products = await stripe.products.list(listParams);
 
-  return products.data.map((product) => ({
-    id: product.id,
-    name: product.name,
-    description: product.description,
-    defaultPriceId:
-      typeof product.default_price === 'string'
-        ? product.default_price
-        : product.default_price?.id
-  }));
-}
+    return products.data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      defaultPriceId:
+        typeof product.default_price === 'string'
+          ? product.default_price
+          : (product.default_price as Stripe.Price | null)?.id ?? null, // Keep robust handling
+    }));
+  } catch (error) {
+    console.error("Error fetching Stripe products:", error);
+    return [];
+  }
+};
+// --- End of modified function ---
+
+
+
+// --- FIX: Modify getStripePrices to accept parameters ---
+export const getStripePrices = async ( // Changed back to accept params
+  params: GetStripePricesParams = {}  // Added parameter with default
+): Promise< // Added explicit Promise return type (good practice)
+  {
+    id: string;
+    productId: string;
+    // Include other properties from your mapping below if needed for type safety
+    unitAmount: number | null;
+    currency: string;
+    interval: Stripe.Price.Recurring.Interval | undefined;
+    trialPeriodDays: number | null;
+    // Add product name/description if mapping includes them
+    productName?: string;
+    productDescription?: string | null;
+  }[]
+> => { // Added arrow function syntax for consistency if preferred
+  try { // Added try...catch block (good practice)
+    // Combine passed params with mandatory expand
+    const listParams: Stripe.PriceListParams = {
+      ...params, // Spread the incoming parameters
+      expand: ['data.product'], // Ensure product data is always expanded
+    };
+    // Use the combined listParams
+    const prices = await stripe.prices.list(listParams);
+
+    return prices.data.map((price) => {
+      // Type guard for expanded product
+      const product = price.product as Stripe.Product;
+      return {
+        id: price.id,
+        productId: product.id, // Use expanded product ID
+        productName: product.name, // Get name from expanded product
+        productDescription: product.description, // Get description
+        unitAmount: price.unit_amount,
+        currency: price.currency,
+        interval: price.recurring?.interval,
+        trialPeriodDays: price.recurring?.trial_period_days ?? null, // Use nullish coalescing
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching Stripe prices:", error);
+    return []; // Return empty array on error
+  }
+};
+// --- En
