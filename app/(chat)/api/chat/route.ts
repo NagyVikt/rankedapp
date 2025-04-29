@@ -26,6 +26,8 @@ import {
   saveChat,
   saveDocument,
   saveMessages,
+  getUserByEmail, // Use this one for email lookups
+
   saveSuggestions,
 } from '@/lib/db/queries';
 import type { Suggestion } from '@/lib/db/schema';
@@ -93,20 +95,26 @@ export async function POST(request: Request) {
       // Wait for the session to be fully established
       let retries = 3;
       while (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for session propagation
         session = await auth();
-        
-        if (session?.user?.id) {
-          // Verify user exists in database
-          const users = await getUser(session.user.email as string);
+        console.log(`Session fetch attempt ${4 - retries}:`, session ? 'Success' : 'Failed');
+
+        if (session?.user?.id && session?.user?.email) {
+          // *** CORRECTION 1: Use getUserByEmail ***
+          console.log(`Verifying newly created user: ${session.user.email}`);
+          const users = await getUserByEmail(session.user.email); // Check by email
           if (users.length > 0) {
-            break;
+            console.log(`User ${session.user.email} verified in DB.`);
+            break; // User found, proceed
+          } else {
+            console.warn(`User ${session.user.email} not found in DB after creation attempt.`);
           }
+        } else if (session?.user) {
+             console.warn("Session user exists but missing id or email after anonymous creation.");
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
+
         retries--;
       }
-
       if (!session?.user) {
         console.error('Failed to get session after creation');
         return new Response('Failed to create session', { status: 500 });
@@ -119,19 +127,22 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id || !session?.user?.email) {
     return new Response('Failed to create session', { status: 500 });
   }
 
-  // Verify user exists in database before proceeding
-  try {
-    const users = await getUser(session.user.email as string);
+   // Verify user exists in database before proceeding
+   try {
+    // *** CORRECTION 2: Use getUserByEmail ***
+    const users = await getUserByEmail(session.user.email); // Check by email
     if (users.length === 0) {
-      console.error('User not found in database:', session.user);
+      console.error('User from session not found in database:', session.user);
+      // This might indicate a desync issue
       return new Response('User not found', { status: 500 });
     }
+     console.log(`Verified user ${session.user.email} exists.`);
   } catch (error) {
-    console.error('Error verifying user:', error);
+    console.error('Error verifying user in database:', error);
     return new Response('Failed to verify user', { status: 500 });
   }
 

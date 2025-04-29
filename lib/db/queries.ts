@@ -80,14 +80,20 @@ export async function getUserByEmail(email: string): Promise<Array<User>> {
  */
 export async function createUser(email: string, password: string) {
   const salt = genSaltSync(10);
-  const hash = hashSync(password, salt);
+  const hash = hashSync(password, salt); // Calculate the hash
   try {
-    return await db.insert(schema.users).values({ email, password: hash }); // Use schema.users
+    // Use the correct field name 'passwordHash' matching your schema
+    return await db.insert(schema.users).values({
+      email: email,
+      passwordHash: hash // Corrected field name
+    });
   } catch (error) {
     console.error('Failed to create user in database:', error);
+    // Consider more specific error handling or re-throwing a custom error
     throw error;
   }
 }
+
 
 /**
  * Gets a user along with their associated team ID.
