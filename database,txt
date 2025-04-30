@@ -1,0 +1,15 @@
+SELECT
+    table_schema,    -- Will always be 'public' in this query's results
+    table_name,      -- The name of the table in the 'public' schema
+    ordinal_position, -- The numeric position of the column in the table
+    column_name,     -- The name of the column
+    data_type,       -- The data type of the column
+    is_nullable,     -- 'YES' if the column allows NULL values, 'NO' otherwise
+    column_default   -- The default value of the column, if any
+FROM
+    information_schema.columns
+WHERE
+    table_schema = 'public' -- Filter to include only the 'public' schema
+ORDER BY
+    table_name,          -- Order by table name
+    ordinal_position;   -- Then by column order within the table
