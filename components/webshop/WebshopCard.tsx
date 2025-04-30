@@ -1,3 +1,4 @@
+// components/webshop/WebshopCard.tsx
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -22,11 +23,19 @@ function slugify(url: string) {
     .toLowerCase();
 }
 
+// Define the props including the new onRemove callback
+export interface WebshopCardComponentProps extends CardProps {
+  name: string;
+  url: string;
+  onRemove: (url: string) => void; // Add the onRemove prop type
+}
+
 export default function WebshopCard({
   name,
   url,
+  onRemove, // Destructure the new prop
   ...cardProps
-}: CardProps & { name: string; url: string }) {
+}: WebshopCardComponentProps) {
   const [imageSrc, setImageSrc] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [wooSettings, setWooSettings] = useState<{ selectedShopUrl?: string } | null>(null);
@@ -36,70 +45,120 @@ export default function WebshopCard({
 
   useEffect(() => {
     // 1) screenshot
+    let isMounted = true; // Flag to prevent state update on unmounted component
+    let currentObjectUrl: string | null = null; // Keep track of the created URL
+
     (async () => {
       setLoading(true);
       try {
         const ep = process.env.NEXT_PUBLIC_SCREENSHOT_ENDPOINT || "/api/screenshot";
         const res = await fetch(`${ep}?url=${encodeURIComponent(url)}`);
-        if (res.ok) {
+        if (res.ok && isMounted) {
           const blob = await res.blob();
-          setImageSrc(URL.createObjectURL(blob));
+          // Revoke previous URL if exists before creating a new one
+          if (currentObjectUrl) {
+              URL.revokeObjectURL(currentObjectUrl);
+          }
+          currentObjectUrl = URL.createObjectURL(blob);
+          setImageSrc(currentObjectUrl);
+        } else if (!res.ok) {
+           // Handle fetch error explicitly if needed
+           console.error(`Screenshot fetch failed with status: ${res.status}`);
+           if (isMounted) setImageSrc(""); // Clear image src on error
         }
       } catch (e) {
-        console.error(e);
+        console.error("Screenshot fetch error:", e);
+         if (isMounted) setImageSrc(""); // Clear image src on error
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     })();
 
-    // 2) load woo link (from your Settings tab localStorage key)
-    const raw = localStorage.getItem("wooConnections");
-    if (raw) {
-      try {
-        const conns: Array<{ selectedShopUrl: string; consumerKey: string; consumerSecret: string }> = JSON.parse(raw);
-        if (conns.find((c) => c.selectedShopUrl === url)) {
-          setWooSettings({ selectedShopUrl: url });
+    // Cleanup function to revoke object URL and set mount flag
+    return () => {
+        isMounted = false;
+        // Revoke the URL when component unmounts or URL changes
+        if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
         }
-      } catch {}
-    }
-  }, [url]);
+    };
+  }, [url]); // Only re-run when URL changes
+
+  useEffect(() => {
+     // 2) load woo link
+     const raw = localStorage.getItem("wooConnections");
+     if (raw) {
+       try {
+         const conns: Array<{ selectedShopUrl: string; consumerKey: string; consumerSecret: string }> = JSON.parse(raw);
+         if (conns.find((c) => c.selectedShopUrl === url)) {
+           setWooSettings({ selectedShopUrl: url });
+         } else {
+           setWooSettings(null);
+         }
+       } catch (e) {
+           console.error("Error parsing wooConnections:", e);
+           setWooSettings(null);
+       }
+     } else {
+         setWooSettings(null);
+     }
+   }, [url]); // Depend only on url
 
   const isWooConnected = wooSettings?.selectedShopUrl === url;
 
+  const handleRemoveClick = () => {
+    if (window.confirm(`Are you sure you want to remove the webshop "${name}"?`)) {
+      onRemove(url);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-sm shadow-md rounded-lg overflow-hidden" {...cardProps}>
-      <CardBody className="px-3 pb-1 bg-white">
-        <div className="relative">
-          {loading || !imageSrc ? (
-            <div className="flex items-center justify-center h-48">
-              <span className="text-gray-400">
-                {loading ? "Loading preview…" : "No preview available"}
-              </span>
+    // Keep the flex structure for the overall card if needed for footer positioning
+    <Card className="w-full max-w-sm shadow-md rounded-lg overflow-hidden flex flex-col" {...cardProps}>
+      {/* Revert Image rendering part to original structure */}
+      <CardBody className="p-0 bg-white flex-grow"> {/* Adjusted padding maybe needed */}
+         {/* === IMAGE AREA START (Using Original Structure) === */}
+         <div className="relative"> {/* Simple relative container */}
+           {loading || !imageSrc ? (
+             <div className="flex items-center justify-center h-48 bg-gray-100 rounded-t"> {/* Centering div with background */}
+               <span className="text-gray-400 px-4 text-center"> {/* Added padding/centering */}
+                 {loading ? "Loading preview…" : "No preview available"}
+               </span>
+             </div>
+           ) : (
+             <Image
+               alt={`${name} front page`}
+               // Using original classes for correct aspect ratio and display
+               className="aspect-video w-full object-cover object-top rounded-t"
+               src={imageSrc}
+             />
+           )}
+         </div>
+         {/* === IMAGE AREA END === */}
+
+        {/* Spacer and Text Info */}
+        <div className="p-3"> {/* Add padding back here for text content */}
+            <Spacer y={2} />
+            <div className="flex flex-col gap-1 px-2">
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-semibold text-black hover:underline truncate"
+                 title={name}
+              >
+                {name}
+              </a>
+              <p className="text-sm text-gray-500 truncate" title={url}>
+                {url}
+              </p>
             </div>
-          ) : (
-            <Image
-              alt={`${name} front page`}
-              className="aspect-video w-full object-cover object-top rounded-t"
-              src={imageSrc}
-            />
-          )}
-        </div>
-
-        <Spacer y={2} />
-
-        <div className="flex flex-col gap-1 px-2">
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-lg font-semibold text-black hover:underline"
-          >
-            {name}
-          </a>
-          <p className="text-sm text-gray-500">{url}</p>
         </div>
       </CardBody>
 
+      {/* Footer remains the same */}
       <CardFooter className="flex flex-wrap justify-between items-center bg-white px-4 py-3 border-t border-gray-200 gap-2">
         {/* 1) Woo status pill */}
         <div className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded">
@@ -119,12 +178,22 @@ export default function WebshopCard({
             <Button
               variant="light"
               className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded hover:bg-gray-50"
+              aria-label={`View products for ${name}`}
             >
               <Icon icon="mdi:tag-outline" width={18} className="text-gray-600" />
               <span className="text-sm text-gray-700">Products</span>
             </Button>
           </Link>
-          {/* …you can add AI Settings / Emails here similarly… */}
+          <Button
+            variant="light"
+            color="danger"
+            className="flex items-center space-x-2 px-3 py-2 border border-red-300 rounded hover:bg-red-50 text-red-600"
+            onClick={handleRemoveClick}
+            aria-label={`Remove webshop ${name}`}
+          >
+            <Icon icon="mdi:trash-can-outline" width={18} />
+            <span className="text-sm">Remove</span>
+          </Button>
         </div>
 
         {/* 3) Credit usage */}

@@ -33,9 +33,7 @@ export const items: SidebarItem[] = [
 
   { key: 'analytics', href: '/dashboard/analytics',     icon: 'solar:chart-outline',                 title: 'Analytics' },
   { key: 'settings',  href: '/dashboard/settings',      icon: 'solar:settings-outline',              title: 'Settings' },
-  { key: 'security',  href: '/dashboard/security',      icon: 'solar:settings-outline',              title: 'Security' },
-  { key: 'acitivity',  href: '/dashboard/activity',      icon: 'solar:settings-outline',              title: 'Activity' },
-  { key: 'general',  href: '/dashboard/general',      icon: 'solar:settings-outline',              title: 'General' },
+  // { key: 'acitivity',  href: '/dashboard/activity',      icon: 'solar:settings-outline',              title: 'Activity' },
 
 
 
