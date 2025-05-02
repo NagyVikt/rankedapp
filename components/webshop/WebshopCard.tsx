@@ -1,12 +1,11 @@
 // components/webshop/WebshopCard.tsx
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import type { CardProps } from "@heroui/react";
 import {
   Card,
-  Image,
   CardBody,
   CardFooter,
   Button,
