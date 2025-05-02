@@ -7042,8 +7042,8 @@ packages:
   unist-util-visit@5.0.0:
     resolution: {integrity: sha512-MR04uvD+07cwl/yhVuVWAtw+3GOR/knlL55Nd/wAdblk27GCVt3lqpTivy/tkJcZoNPzTwS1Y+KMojlLDhoTzg==}
 
-  unlayer-types@1.251.0:
-    resolution: {integrity: sha512-HPu4I6+mq8kSEHvtzOb8OUsxw4mQagKB4d+Ukg3Vp6OVWibwi6GGdDpsI1xKXAYcrIGLgKrOAzJ3MfD98HRCLA==}
+  unlayer-types@1.252.0:
+    resolution: {integrity: sha512-9Bm1Daolzx9hxIM+G4xAqsZDEbp5wX/CkCkqUvccQhjwu3g62UhIKgsFnQvAHeO3dG5s9A/5jvZahbXrz0V2Fg==}
 
   unlayer2be@1.1.5:
     resolution: {integrity: sha512-wHzRslKyB2SYjyezmFCA3Gx0Yk6Jmpvdnp1U/RL9eVPYM5ClAVH0Nnhr0s11kOKListjz+8kbjgtM+5P6cN8Dg==}
@@ -14284,7 +14284,7 @@ snapshots:
   react-email-editor@1.7.11(react@19.1.0):
     dependencies:
       react: 19.1.0
-      unlayer-types: 1.251.0
+      unlayer-types: 1.252.0
 
   react-email@4.0.7(@opentelemetry/api@1.9.0)(bufferutil@4.0.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -15132,7 +15132,7 @@ snapshots:
       unist-util-is: 6.0.0
       unist-util-visit-parents: 6.0.1
 
-  unlayer-types@1.251.0: {}
+  unlayer-types@1.252.0: {}
 
   unlayer2be@1.1.5: {}
 

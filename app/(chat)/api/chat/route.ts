@@ -55,103 +55,100 @@ const app = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY || '',
 });
 
-// const reasoningModel = customModel(process.env.REASONING_MODEL || 'o1-mini', true);
+// --- DEVELOPMENT ONLY: Hardcode User ---
+// WARNING: NEVER USE THIS IN PRODUCTION. REMOVE BEFORE DEPLOYING.
+const DEV_USER_EMAIL = 'nagy.viktordp@gmail.com';
+// --- END DEVELOPMENT ONLY ---
+
 
 export async function POST(request: Request) {
   const maxDuration = process.env.MAX_DURATION
     ? parseInt(process.env.MAX_DURATION)
-    : 300; 
-  
+    : 300;
+
   const {
     id,
     messages,
     modelId,
     reasoningModelId,
     experimental_deepResearch = false,
-  }: { 
-    id: string; 
-    messages: Array<Message>; 
-    modelId: string; 
+  }: {
+    id: string;
+    messages: Array<Message>;
+    modelId: string;
     reasoningModelId: string;
     experimental_deepResearch?: boolean;
   } = await request.json();
+
+
+  // --- DEVELOPMENT ONLY: Fetch Hardcoded User ---
+  // WARNING: This section bypasses authentication. Remove for production.
+  console.warn(`--- DEVELOPMENT MODE: POST using hardcoded user ${DEV_USER_EMAIL} ---`);
+  let developmentUser: User | null = null; // Assuming User type from schema
+  try {
+      const users = await getUserByEmail(DEV_USER_EMAIL);
+      if (users.length === 0) {
+          console.error(`FATAL DEV ERROR: Hardcoded user ${DEV_USER_EMAIL} not found in database.`);
+          // Respond with an error, as proceeding is impossible
+          return new Response(`Development user ${DEV_USER_EMAIL} not found`, { status: 500 });
+      }
+      developmentUser = users[0]; // Get the first user found
+
+      // Ensure the fetched user has a valid UUID id
+      if (!developmentUser.id || typeof developmentUser.id !== 'string') {
+           console.error(`FATAL DEV ERROR: Hardcoded user ${DEV_USER_EMAIL} found but missing valid UUID 'id'. DB record:`, developmentUser);
+           return new Response(`Development user ${DEV_USER_EMAIL} has invalid ID`, { status: 500 });
+      }
+
+      console.log(`Using hardcoded user: ${developmentUser.email} (ID: ${developmentUser.id})`);
+
+  } catch (error) {
+      console.error(`Error fetching hardcoded user ${DEV_USER_EMAIL}:`, error);
+      return new Response('Failed to fetch development user', { status: 500 });
+  }
+  // Ensure we actually got the user before proceeding
+  if (!developmentUser) {
+     // Should have been caught above, but as a safeguard:
+     return new Response('Failed to load development user', { status: 500 });
+  }
+  // --- END DEVELOPMENT ONLY ---
+
+
+  /* --- REMOVE OR COMMENT OUT ORIGINAL AUTH LOGIC ---
 
   let session = await auth();
 
   // If no session exists, create an anonymous session
   if (!session?.user) {
-    try {
-      const result = await signIn('credentials', {
-        redirect: false,
-      });
-
-      if (result?.error) {
-        console.error('Failed to create anonymous session:', result.error);
-        return new Response('Failed to create anonymous session', {
-          status: 500,
-        });
-      }
-
-      // Wait for the session to be fully established
-      let retries = 3;
-      while (retries > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for session propagation
-        session = await auth();
-        console.log(`Session fetch attempt ${4 - retries}:`, session ? 'Success' : 'Failed');
-
-        if (session?.user?.id && session?.user?.email) {
-          // *** CORRECTION 1: Use getUserByEmail ***
-          console.log(`Verifying newly created user: ${session.user.email}`);
-          const users = await getUserByEmail(session.user.email); // Check by email
-          if (users.length > 0) {
-            console.log(`User ${session.user.email} verified in DB.`);
-            break; // User found, proceed
-          } else {
-            console.warn(`User ${session.user.email} not found in DB after creation attempt.`);
-          }
-        } else if (session?.user) {
-             console.warn("Session user exists but missing id or email after anonymous creation.");
-        }
-
-        retries--;
-      }
-      if (!session?.user) {
-        console.error('Failed to get session after creation');
-        return new Response('Failed to create session', { status: 500 });
-      }
-    } catch (error) {
-      console.error('Error creating anonymous session:', error);
-      return new Response('Failed to create anonymous session', {
-        status: 500,
-      });
-    }
+    // ... (anonymous session creation logic removed for brevity) ...
   }
 
   if (!session?.user?.id || !session?.user?.email) {
     return new Response('Failed to create session', { status: 500 });
   }
 
-   // Verify user exists in database before proceeding
+   // Verify user exists in database before proceeding (REDUNDANT NOW)
    try {
     // *** CORRECTION 2: Use getUserByEmail ***
     const users = await getUserByEmail(session.user.email); // Check by email
     if (users.length === 0) {
-      console.error('User from session not found in database:', session.user);
-      // This might indicate a desync issue
-      return new Response('User not found', { status: 500 });
+      // ... (verification logic removed) ...
     }
      console.log(`Verified user ${session.user.email} exists.`);
   } catch (error) {
-    console.error('Error verifying user in database:', error);
-    return new Response('Failed to verify user', { status: 500 });
+    // ... (error handling removed) ...
   }
+  --- END REMOVED AUTH LOGIC --- */
 
-  // Apply rate limiting
-  const identifier = session.user.id;
+
+  // Apply rate limiting using the hardcoded user's ID (UUID)
+  const identifier = developmentUser.id; // Use the fetched UUID
   const { success, limit, reset, remaining } =
     await rateLimiter.limit(identifier);
 
   if (!success) {
+    // Log which user hit the limit for debugging
+    console.warn(`Rate limit exceeded for hardcoded user: ${developmentUser.email} (ID: ${identifier})`);
     return new Response(`Too many requests`, { status: 429 });
   }
 
@@ -171,18 +168,24 @@ export async function POST(request: Request) {
 
   const chat = await getChatById({ id });
 
+  // Use the hardcoded user's ID (UUID) when saving the chat
   if (!chat) {
     const title = await generateTitleFromUserMessage({ message: userMessage });
-    await saveChat({ id, userId: session.user.id, title });
+    // Ensure userId is the UUID from the fetched developmentUser
+    console.log(`Attempting to save chat info for ID: ${id}, UserID: ${developmentUser.id}`);
+    await saveChat({ id, userId: developmentUser.id, title });
+    console.log(`Successfully saved chat info for ID: ${id}`);
   }
 
   const userMessageId = generateUUID();
 
+  // Save messages associated with the chat (no direct user ID needed here)
   await saveMessages({
     messages: [
       { ...userMessage, id: userMessageId, createdAt: new Date(), chatId: id },
     ],
   });
+
 
   return createDataStreamResponse({
     execute: (dataStream) => {
@@ -679,22 +682,35 @@ export async function POST(request: Request) {
           },
         },
         onFinish: async ({ response }) => {
-          if (session.user?.id) {
-            try {
+          // *** IMPORTANT: Use developmentUser here if in dev mode ***
+          // if (session.user?.id) { // Original code
+          if (developmentUser?.id) { // Should be this in your dev setup
+            try {    // Add this log:
+              console.log(`[onFinish] Value of 'id' (chatId) right before mapping messages:`, id);
+        
+              if (!id) {
+                 console.error("[onFinish] CRITICAL: 'id' (chatId) is NULL or UNDEFINED before mapping messages! Cannot save.");
+                 return; // Exit early to prevent the error
+              }
+
               const responseMessagesWithoutIncompleteToolCalls =
                 sanitizeResponseMessages(response.messages);
+              console.log('[onFinish] Output of sanitizeResponseMessages:', JSON.stringify(responseMessagesWithoutIncompleteToolCalls, null, 2));
 
-              await saveMessages({
+              // --- Log Correction: This log message should describe saving ASSISTANT messages ---
+              // console.log(`Attempting to save initial user message for ChatID: ${id}`); // Incorrect log text
+
+              await saveMessages({ // ---> Potential Error Point 3 <---
                 messages: responseMessagesWithoutIncompleteToolCalls.map(
-                  (message) => {
-                    const messageId = generateUUID();
+                  (message, index) => {
+                    console.log(`[onFinish .map() index ${index}] Processing message object:`, JSON.stringify(message, null, 2));
 
+                    const messageId = generateUUID();
                     if (message.role === 'assistant') {
                       dataStream.writeMessageAnnotation({
                         messageIdFromServer: messageId,
                       });
                     }
-
                     return {
                       id: messageId,
                       chatId: id,
@@ -705,11 +721,18 @@ export async function POST(request: Request) {
                   },
                 ),
               });
+
+              // --- Log Correction: This log message should describe saving ASSISTANT messages ---
+              // console.log(`Successfully saved initial user message for ChatID: ${id}`); // Incorrect log text
+
             } catch (error) {
               console.error('Failed to save chat');
             }
+          } else {
+             console.warn("onFinish skipped saving messages: developmentUser ID was missing.");
           }
         },
+        
         experimental_telemetry: {
           isEnabled: true,
           functionId: 'stream-text',
@@ -722,38 +745,72 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-
-  if (!id) {
-    return new Response('Not Found', { status: 404 });
+  // --- DEVELOPMENT ONLY: Hardcode User for DELETE ---
+  // WARNING: This section bypasses authentication. Remove for production.
+  console.warn(`--- DEVELOPMENT MODE: DELETE using hardcoded user ${DEV_USER_EMAIL} ---`);
+  let developmentUser: User | null = null;
+  try {
+      const users = await getUserByEmail(DEV_USER_EMAIL);
+      if (users.length === 0) {
+          console.error(`FATAL DEV ERROR: Hardcoded user ${DEV_USER_EMAIL} not found in database for DELETE.`);
+          return new Response(`Development user ${DEV_USER_EMAIL} not found`, { status: 500 });
+      }
+      developmentUser = users[0];
+       if (!developmentUser.id || typeof developmentUser.id !== 'string') {
+           console.error(`FATAL DEV ERROR: Hardcoded user ${DEV_USER_EMAIL} found but missing valid UUID 'id' for DELETE.`);
+           return new Response(`Development user ${DEV_USER_EMAIL} has invalid ID`, { status: 500 });
+       }
+      console.log(`DELETE using hardcoded user: ${developmentUser.email} (ID: ${developmentUser.id})`);
+  } catch (error) {
+      console.error(`Error fetching hardcoded user ${DEV_USER_EMAIL} for DELETE:`, error);
+      return new Response('Failed to fetch development user for DELETE', { status: 500 });
   }
+   if (!developmentUser) {
+     return new Response('Failed to load development user for DELETE', { status: 500 });
+  }
+  // --- END DEVELOPMENT ONLY ---
 
+  /* --- REMOVE OR COMMENT OUT ORIGINAL AUTH LOGIC FOR DELETE ---
   let session = await auth();
 
-  // If no session exists, create an anonymous session
   if (!session?.user) {
-    await signIn('credentials', {
-      redirect: false,
-    });
-    session = await auth();
+    // ... (anonymous session creation logic removed) ...
   }
 
   if (!session?.user?.id) {
-    return new Response('Failed to create session', { status: 500 });
+    // ... (error handling removed) ...
+  }
+  --- END REMOVED AUTH LOGIC --- */
+
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id'); // This is the Chat ID
+
+  if (!id) {
+    return new Response('Not Found - Chat ID missing', { status: 404 });
   }
 
   try {
     const chat = await getChatById({ id });
 
-    if (chat.userId !== session.user.id) {
+    // Check if chat exists
+    if (!chat) {
+        console.warn(`DELETE failed: Chat with ID ${id} not found.`);
+        return new Response('Chat Not Found', { status: 404 });
+    }
+
+    // Authorize using the hardcoded user's ID (UUID)
+    if (chat.userId !== developmentUser.id) {
+      console.warn(`Unauthorized DELETE attempt: Chat user ${chat.userId}, Hardcoded user ${developmentUser.id}`);
       return new Response('Unauthorized', { status: 401 });
     }
 
+    // Proceed with deletion
     await deleteChatById({ id });
-
+    console.log(`Chat ${id} deleted successfully by hardcoded user ${developmentUser.email}`);
     return new Response('Chat deleted', { status: 200 });
+
   } catch (error) {
+    console.error(`Error during chat deletion (Chat ID: ${id}):`, error); // Log error with Chat ID
     return new Response('An error occurred while processing your request', {
       status: 500,
     });

@@ -283,14 +283,35 @@ export async function updateChatVisiblityById({
 
 // --- Message Related Functions ---
 
-export async function saveMessages({ messages }: { messages: Array<Message> }) { // Ensure Message type matches schema.message
-  try {
-    // Make sure fields in Message[] match columns in schema.message
-    return await db.insert(schema.message).values(messages); // Use schema.message
-  } catch (error) {
-    console.error('Failed to save messages in database:', error);
-    throw error;
+// Inside your saveMessages function in lib/db/queries.ts
+
+export async function saveMessages({ messages }: { messages: Array<YourMessageType> }) { // Use your actual message type
+  console.log('[saveMessages] Received messages array:', JSON.stringify(messages, null, 2)); // Log received data
+
+  // Example: If looping and using a raw query or simple client
+  for (const message of messages) {
+    // Log each message object just before insert
+    console.log('[saveMessages] Processing message object:', JSON.stringify(message, null, 2));
+    console.log(`[saveMessages] Value being used for chatId: ${message.chatId}`); // Log the specific value
+
+    try {
+      // Your database insert logic here...
+      // e.g., await dbClient.query('INSERT INTO "Message"(...) VALUES ($1, $2, $3, $4, $5)',
+      //      [message.id, message.chatId, message.role, message.content, message.createdAt]);
+
+      // If using an ORM, log the object passed to the ORM create/insert method
+      // e.g., console.log('[saveMessages] Data passed to ORM create:', { id: message.id, chatId: message.chatId, ... });
+      //      await prisma.message.create({ data: { id: message.id, chatId: message.chatId, ... } });
+
+    } catch (error) {
+       console.error('[saveMessages] Error during DB insert for message ID ' + message.id + ':', error);
+       // Re-throw or handle error as appropriate for this function
+       throw error;
+    }
   }
+  // Or if using bulk insert with an ORM:
+  // console.log('[saveMessages] Data passed to ORM createMany:', JSON.stringify(messages.map(m => ({ id: m.id, chatId: m.chatId, ... })), null, 2));
+  // await prisma.message.createMany({ data: messages.map(...) });
 }
 
 export async function getMessagesByChatId({ id }: { id: string }) {

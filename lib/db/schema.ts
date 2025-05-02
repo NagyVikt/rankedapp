@@ -23,39 +23,39 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
+  passwordHash: text('passwordHash').notNull(),
   // --- Added PIN fields ---
-  pinHash: text('pin_hash'), // Stores the hashed PIN (nullable if PIN is not set)
-  isPinSet: boolean('is_pin_set').notNull().default(false), // Tracks if a PIN has been set
+  pinHash: text('pinHash'), // Stores the hashed PIN (nullable if PIN is not set)
+  isPinSet: boolean('isPinSet').notNull().default(false), // Tracks if a PIN has been set
   // ------------------------
   role: varchar('role', { length: 20 }).notNull().default('member'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  deletedAt: timestamp('deletedAt'),
   // Add emailVerified column if it's missing from your original schema but used in actions.ts
-  emailVerified: timestamp('email_verified'), // Stores timestamp of verification, null if not verified
+  emailVerified: timestamp('emailVerified'), // Stores timestamp of verification, null if not verified
 });
 
 // --- Teams ---
 export const teams = pgTable('teams', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  stripeCustomerId: text('stripe_customer_id').unique(),
-  stripeSubscriptionId: text('stripe_subscription_id').unique(),
-  stripeProductId: text('stripe_product_id'),
-  planName: varchar('plan_name', { length: 50 }),
-  subscriptionStatus: varchar('subscription_status', { length: 20 }),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+  stripeCustomerId: text('stripeCustomerId').unique(),
+  stripeSubscriptionId: text('stripeSubscriptionId').unique(),
+  stripeProductId: text('stripeProductId'),
+  planName: varchar('planName', { length: 50 }),
+  subscriptionStatus: varchar('subscriptionStatus', { length: 20 }),
 });
 
 // --- Team Members ---
 export const teamMembers = pgTable('team_members', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+  userId: integer('userId')
     .notNull()
     .references(() => users.id),
-  teamId: integer('team_id')
+  teamId: integer('teamId')
     .notNull()
     .references(() => teams.id),
   role: varchar('role', { length: 50 }).notNull(),
