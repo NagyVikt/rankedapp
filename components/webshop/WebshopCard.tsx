@@ -52,108 +52,99 @@ export default function WebshopCard({
   const slug = useMemo(() => slugify(url), [url]);
   const expectedImagePath = useMemo(() => slug ? `/images/screenshots/${slug}.png` : null, [slug]);
   const apiEndpoint = useMemo(() => process.env.NEXT_PUBLIC_SCREENSHOT_ENDPOINT || "/api/screenshot", []);
-
-  // Function to generate the screenshot via API
-  const generateScreenshot = useCallback(async () => {
-    if (!url || !expectedImagePath || imageStatus === 'generating') return;
-
-    console.log(`Calling screenshot generation API for: ${url}`);
-    setImageStatus('generating');
-
-    try {
-      const fetchUrl = `${apiEndpoint}?url=${encodeURIComponent(url)}`;
-      // Use GET method to trigger generation/saving
-      const res = await fetch(fetchUrl, { method: 'GET' });
-
-      if (res.ok) { // Status 200 (already existed) or 201 (created)
-        const data = await res.json();
-        console.log(`Screenshot API success for ${url}: ${data.message}`);
-        // Set the image source to the expected path (add timestamp to force refresh)
-        setImageSrc(expectedImagePath + `?t=${Date.now()}`);
-        setImageStatus('loaded'); // Assume loaded after successful generation/check
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        console.error(`Screenshot generation API failed for ${url} with status: ${res.status} ${res.statusText}`, errorData);
-        setImageStatus('error');
-        setImageSrc(null);
-      }
-    } catch (e) {
-      console.error(`Screenshot generation API fetch exception for ${url}:`, e);
-      setImageStatus('error');
-      setImageSrc(null);
-    }
-  }, [url, expectedImagePath, imageStatus, apiEndpoint]);
-
-  // Effect to check for existing image or trigger generation
   useEffect(() => {
-    let isMounted = true;
-    if (!expectedImagePath || imageStatus !== 'idle') {
-        if (!expectedImagePath) {
-            console.warn(`Could not generate expected image path for URL: ${url}`);
-            setImageStatus('notFound');
+    let isMounted = true
+    let currentObjectUrl: string | null = null
+  
+    async function checkAndLoad() {
+      console.log(`[Effect Check] Generating screenshot for: ${url}`)
+      setImageStatus("generating")
+  
+      try {
+        // 1) call your screenshot API
+        const apiUrl = `${apiEndpoint}?url=${encodeURIComponent(url)}`
+        const res = await fetch(apiUrl, { method: "GET" })
+        if (!isMounted) return
+  
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "")
+          console.error(
+            `[Effect Check] Screenshot API error for ${url}:`,
+            res.status, res.statusText, errText
+          )
+          setImageStatus("error")
+          setImageSrc(null)
+          return
         }
-        return; // Only run check when idle and path is valid
+  
+        // 2) stream PNG → blob URL
+        // 2) figure out what we got back
+        const contentType = res.headers.get("content-type") || ""
+        if (contentType.includes("application/json")) {
+          // already-existing case: parse out the public path
+          const data: { message: string; path: string } = await res.json()
+          console.log(`[Effect Check] Screenshot exists at public path:`, data.path)
+          setImageSrc(data.path)            // use the public URL instead of blob
+          setImageStatus("loaded")
+        } else {
+          // new‐capture case: stream PNG → blob URL
+          const blob = await res.blob()
+          const objectUrl = URL.createObjectURL(blob)
+          currentObjectUrl = objectUrl
+          console.log(`[Effect Check] Screenshot blob ready for ${url}:`, objectUrl)
+          setImageSrc(objectUrl)
+          setImageStatus("loaded")
+        }
+
+
+      
+    }  catch (error) {
+        console.error(`[Effect Check] Error generating screenshot for ${url}:`, error)
+        setImageStatus("error")
+        setImageSrc(null)
+      }
     }
-
-    const checkImageExistence = async () => {
-        console.log(`Checking image existence for: ${url} at ${expectedImagePath}`);
-        setImageStatus('checking');
-        try {
-            // Use HEAD request to check if the file exists via the API route
-            const checkUrl = `${apiEndpoint}?url=${encodeURIComponent(url)}`;
-            const res = await fetch(checkUrl, { method: 'HEAD' });
-
-            if (!isMounted) return; // Exit if component unmounted during fetch
-
-            if (res.ok) { // Status 200 OK - file exists
-                console.log(`Screenshot found for ${url}. Setting image source.`);
-                setImageSrc(expectedImagePath); // Set src to the known path
-                setImageStatus('loaded');
-            } else if (res.status === 404) { // Status 404 Not Found - file doesn't exist
-                console.log(`Screenshot not found for ${url}. Triggering generation.`);
-                generateScreenshot(); // Call the function to generate it
-            } else { // Other error during check
-                console.error(`Screenshot check failed for ${url} with status: ${res.status} ${res.statusText}`);
-                setImageStatus('error');
-                setImageSrc(null);
-            }
-        } catch (e) {
-            if (!isMounted) return;
-            console.error(`Screenshot check exception for ${url}:`, e);
-            setImageStatus('error');
-            setImageSrc(null);
-        }
-    };
-
-    checkImageExistence();
-
-    return () => { isMounted = false }; // Cleanup flag
-
-  }, [url, expectedImagePath, generateScreenshot, imageStatus, apiEndpoint]); // Dependencies
+    checkAndLoad()
+  
+    return () => {
+      isMounted = false
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl)
+    }
+  }, [url, apiEndpoint])  // <— *exactly* these two, same order, same length
+  
+  
 
   // Effect to load WooCommerce connection status (remains the same)
   useEffect(() => {
-     console.log(`Checking WooConnections for: ${url}`);
+     let isMounted = true;
+     console.log(`[Effect Woo] Checking WooConnections for: ${url}`);
      const raw = localStorage.getItem("wooConnections");
      if (raw) {
        try {
          const conns: Array<{ selectedShopUrl: string; consumerKey: string; consumerSecret: string }> = JSON.parse(raw);
-         if (conns.find((c) => c.selectedShopUrl === url)) {
-           setWooSettings({ selectedShopUrl: url });
-           console.log(`Woo connection found for: ${url}`);
-         } else {
-           setWooSettings(null);
-           console.log(`No Woo connection found for: ${url}`);
+         if (isMounted) {
+             if (conns.find((c) => c.selectedShopUrl === url)) {
+               setWooSettings({ selectedShopUrl: url });
+               console.log(`[Effect Woo] Woo connection found for: ${url}`);
+             } else {
+               setWooSettings(null);
+               console.log(`[Effect Woo] No Woo connection found for: ${url}`);
+             }
          }
        } catch (e) {
-           console.error("Error parsing wooConnections:", e);
-           setWooSettings(null);
+           if (isMounted) {
+               console.error("[Effect Woo] Error parsing wooConnections:", e);
+               setWooSettings(null);
+           }
        }
      } else {
-         console.log("No 'wooConnections' found in localStorage.");
-         setWooSettings(null);
+         if (isMounted) {
+             console.log("[Effect Woo] No 'wooConnections' found in localStorage.");
+             setWooSettings(null);
+         }
      }
-   }, [url]);
+     return () => { isMounted = false; };
+   }, [url]); // Only depends on URL
 
   const isWooConnected = wooSettings?.selectedShopUrl === url;
 
@@ -171,8 +162,9 @@ export default function WebshopCard({
           case 'generating': return 'Generating preview...';
           case 'error': return 'Failed to load preview.';
           case 'notFound': return 'No preview available.';
-          case 'idle': return ''; // Should not be in idle state long
-          default: return 'Loading preview...'; // Fallback
+          case 'idle': return '';
+          case 'loaded': return ''; // Don't show text when loaded
+          default: return 'Loading...'; // Fallback
       }
   };
 
@@ -191,16 +183,27 @@ export default function WebshopCard({
                </span>
              </div>
            )}
-           {/* Render Image only when src is set and status indicates loading/loaded */}
-           {imageSrc && (imageStatus === 'loaded' || imageStatus === 'generating' || imageStatus === 'checking') && (
-               <Image
-                 key={imageSrc} // Force re-render if src changes (e.g., timestamp added)
-                 alt={imageStatus === 'loaded' ? `${name} front page screenshot` : ''}
-                 className={`absolute inset-0 aspect-video w-full h-full object-cover object-top rounded-t transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'}`} // Fade in
-                 src={imageSrc}
-                 // No onLoad/onError needed here anymore as logic is handled before setting src
-               />
-           )}
+           {/* Render Image only when src is set */}
+         {imageSrc ? (
+        <img
+          src={imageSrc}
+          alt={`${name} front page screenshot`}
+          className={`absolute inset-0 aspect-video w-full h-full object-cover object-top rounded-t transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={()   => setImageStatus('loaded')}
+          onError={()  => {
+            console.error(`Failed to render blob image: ${imageSrc}`);
+            setImageStatus('error');
+            setImageSrc(null);
+          }}
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center h-full">
+          <span className="text-gray-400 px-4 text-center text-sm">
+            {getLoadingText()}
+          </span>
+        </div>
+      )}
+
          </div>
          {/* --- END IMAGE AREA --- */}
 
@@ -228,7 +231,7 @@ export default function WebshopCard({
             title={isWooConnected ? "WooCommerce Connected" : "WooCommerce Plugin/Connection Missing"}
           />
           <span className="font-medium text-gray-700">
-            {isWooConnected ? "Woo Connected" : "Plugin Missing"}
+            {isWooConnected ? "Woo Connected" : "Woocommerce API Missing"}
           </span>
         </div>
         {/* Action buttons */}

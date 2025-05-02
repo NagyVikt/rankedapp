@@ -20,8 +20,7 @@ export async function middleware(req: NextRequest) {
 
     // --- 1. Skip Middleware for Excluded Paths & Static Files ---
     if (
-        EXCLUDED_PATHS.some(path => pathname.startsWith(path)) ||
-        PUBLIC_FILE.test(pathname)
+        EXCLUDED_PATHS.some(path => pathname.startsWith(path))
     ) {
         console.log(`[Middleware] Skipping checks for public/internal path: ${pathname}`);
         return NextResponse.next({
