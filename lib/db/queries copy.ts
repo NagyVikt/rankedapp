@@ -45,8 +45,8 @@ export async function getUser(): Promise<User | null> {
 
     const userResult = await db
       .select()
-      .from(schema.users) // Use schema.users
-      .where(and(eq(schema.users.id, sessionData.user.id), isNull(schema.users.deletedAt))) // Use schema.users
+      .from(schema.user) // Use schema.users
+      .where(and(eq(schema.user.id, sessionData.user.id), isNull(schema.user.deletedAt))) // Use schema.users
       .limit(1);
 
     if (userResult.length === 0) {
@@ -70,8 +70,8 @@ export async function getUser(): Promise<User | null> {
 export async function getUserByEmail(email: string): Promise<Array<User>> {
   return db
     .select()
-    .from(schema.users)
-    .where(eq(schema.users.email, email));
+    .from(schema.user)
+    .where(eq(schema.user.email, email));
 }
 
 
@@ -83,7 +83,7 @@ export async function createUser(email: string, password: string) {
   const hash = hashSync(password, salt); // Calculate the hash
   try {
     // Use the correct field name 'passwordHash' matching your schema
-    return await db.insert(schema.users).values({
+    return await db.insert(schema.user).values({
       email: email,
       passwordHash: hash // Corrected field name
     });
@@ -102,12 +102,12 @@ export async function getUserWithTeam(userId: number) {
     try {
         const result = await db
             .select({
-                user: schema.users, // Use schema.users
+                user: schema.user, // Use schema.users
                 teamId: schema.teamMembers.teamId // Use schema.teamMembers
             })
-            .from(schema.users) // Use schema.users
-            .leftJoin(schema.teamMembers, eq(schema.users.id, schema.teamMembers.userId)) // Use schema.users, schema.teamMembers
-            .where(eq(schema.users.id, userId)) // Use schema.users
+            .from(schema.user) // Use schema.users
+            .leftJoin(schema.teamMembers, eq(schema.user.id, schema.teamMembers.userId)) // Use schema.users, schema.teamMembers
+            .where(eq(schema.user.id, userId)) // Use schema.users
             .limit(1);
         return result.length > 0 ? result[0] : null;
     } catch (error) {
@@ -547,10 +547,10 @@ export async function getActivityLogs() {
                 action: schema.activityLogs.action, // Use schema.activityLogs
                 timestamp: schema.activityLogs.timestamp, // Use schema.activityLogs
                 ipAddress: schema.activityLogs.ipAddress, // Use schema.activityLogs
-                userName: schema.users.name // Use schema.users
+                userName: schema.user.name // Use schema.users
             })
             .from(schema.activityLogs) // Use schema.activityLogs
-            .leftJoin(schema.users, eq(schema.activityLogs.userId, schema.users.id)) // Use schema.activityLogs, schema.users
+            .leftJoin(schema.user, eq(schema.activityLogs.userId, schema.users.id)) // Use schema.activityLogs, schema.users
             .where(eq(schema.activityLogs.userId, user.id)) // Use schema.activityLogs
             .orderBy(desc(schema.activityLogs.timestamp)) // Use schema.activityLogs
             .limit(10);

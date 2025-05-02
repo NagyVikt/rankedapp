@@ -1,385 +1,589 @@
+// app/actions.ts (or relevant path)
 'use server';
 
 import { z } from 'zod';
-// Import isNull and ne operators from drizzle
 import { and, eq, sql, isNull, ne } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import {
-  User,
-  users,
-  teams,
-  teamMembers,
-  activityLogs,
-  type NewUser,
-  type NewTeam,
-  type NewTeamMember,
-  type NewActivityLog,
-  ActivityType, // Assuming SET_PIN will be added here
-  invitations,
-  // Explicitly import Team type if needed
-  type Team
-} from '@/lib/db/schema';
-import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
-import { redirect } from 'next/navigation';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import { cookies } from 'next/headers';
-import { createCheckoutSession } from '@/lib/payments/stripe';
-// Assuming getUserWithTeam returns something like: { user: User; teamId: number | null; role: string | null; team: Team | null }
-// Adjust the import and usage based on the actual definition in queries.ts
-import { getUser, getUserWithTeam } from '@/lib/db/queries';
-import {
-  validatedAction,
-  validatedActionWithUser
-} from '@/lib/auth/middleware';
+import { createServerClient } from '@supabase/ssr';
+import { revalidatePath } from 'next/cache'; // For updating UI after actions
+import { redirect } from 'next/navigation';
+import { genSaltSync, hashSync, compare } from 'bcrypt-ts'; // Use compare instead of comparePasswords
 
-// Helper function to log user activity
+// Import the entire schema
+import * as schema from '@/lib/db/schema';
+// Import specific types
+import type {
+  User, Team, TeamMember, ActivityLog, Invitation,
+  NewUser, NewTeam, NewTeamMember, NewActivityLog, NewInvitation, TeamDataWithMembers
+} from '@/lib/db/schema';
+import { ActivityType } from '@/lib/db/schema'; // Assuming enum is in schema file
+
+// --- Database Connection ---
+// biome-ignore lint: Forbidden non-null assertion.
+const connectionString = process.env.POSTGRES_URL!;
+const client = postgres(connectionString);
+const db = drizzle(client, { schema, logger: process.env.NODE_ENV === 'development' });
+
+// --- Supabase Auth Helper ---
+/**
+ * Gets the authenticated Supabase user for the current request from Supabase Auth
+ * and verifies they exist in the local public.User table.
+ * Returns the user record from public.User, or null if not authenticated/found/synced.
+ */
+async function getCurrentSupabaseUser(): Promise<schema.User | null> {
+    const cookieStore = await cookies(); // Use await here as cookies() returns a promise-like object
+    // Ensure Supabase URL and Anon Key are correctly set in environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.error("Supabase URL or Anon Key is missing from environment variables.");
+        return null;
+    }
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                // Ensure cookieStore is resolved before accessing methods
+                getAll: () => cookieStore.getAll(),
+                setAll: (cookiesToSet) => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+            },
+        }
+    );
+    try {
+        const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
+        if (error) {
+            console.error("Supabase getUser error:", error.message); return null;
+        }
+        if (!supabaseUser) { return null; } // Not authenticated
+
+        // Verify user exists in your public.User table using the Supabase ID (UUID)
+        // Assuming schema.user.id is the correct column name (UUID)
+        const appUser = await db.query.user.findFirst({
+            where: eq(schema.user.id, supabaseUser.id) // Match UUIDs
+        });
+        if (!appUser) {
+             console.warn(`User ${supabaseUser.id} authenticated with Supabase but NOT FOUND in public.User table.`);
+        }
+        return appUser || null;
+    } catch (err) {
+        console.error("Error in getCurrentSupabaseUser:", err);
+        return null;
+    }
+}
+
+// --- Activity Logging Helper ---
+/**
+ * Logs user activity.
+ * @param teamId - The ID of the team (SERIAL, number). Can be null if action is not team-specific.
+ * @param userId - The ID of the user performing the action (UUID, string).
+ * @param type - The type of activity from the enum.
+ * @param ipAddress - Optional IP address.
+ */
 async function logActivity(
-  teamId: number | null | undefined,
-  userId: number,
-  type: ActivityType, // Ensure ActivityType enum includes SET_PIN
-  ipAddress?: string
+  teamId: number | null | undefined, // Use camelCase to match schema definition
+  userId: string, // Use camelCase to match schema definition
+  type: ActivityType,
+  ipAddress?: string // Use camelCase to match schema definition
 ) {
-  if (teamId === null || teamId === undefined) {
-    return;
+  // Only proceed if userId is valid
+  if (!userId) {
+      console.warn("logActivity skipped: userId is missing.");
+      return;
   }
+  // Team ID can be null for certain actions (like account deletion before team association)
+  if (teamId === undefined) {
+      console.warn(`logActivity: teamId was undefined for action ${type}, logging without team context.`);
+      teamId = null; // Log as null if undefined
+  }
+
   try {
+    // Use camelCase matching Drizzle schema definition
     const newActivity: NewActivityLog = {
-      teamId,
-      userId,
+      teamId: teamId, // Corrected: camelCase
+      userId: userId, // Corrected: camelCase
       action: type,
-      ipAddress: ipAddress || ''
+      ipAddress: ipAddress || undefined // Corrected: camelCase
+      // timestamp defaults via DB/schema
     };
-    await db.insert(activityLogs).values(newActivity);
+    // Assuming schema.activityLogs is the correct table object from your schema import
+    await db.insert(schema.activityLogs).values(newActivity);
   } catch (error) {
     console.error("Failed to log activity:", error);
+    // Don't block the main action if logging fails, but log the error
   }
 }
 
-// --- Sign In Action ---
+// Define a base state type for useActionState
+export type ActionState = {
+  error?: string | null;
+  success?: string | null;
+  email?: string; // Keep email for pre-filling form on error
+  // Add other fields if needed
+};
+
+
+// --- Middleware/Validation Helper (Conceptual Rewrite) ---
+// This replaces validatedAction and validatedActionWithUser to use Supabase SSR auth
+
+/**
+ * Wraps a server action, ensuring the user is authenticated via Supabase SSR.
+ * @param action - The server action function to execute.
+ * @returns A new function that performs the auth check before running the action.
+ */
+
+
+function authenticatedAction<TInput extends z.ZodTypeAny, TOutput extends ActionState>(
+  inputSchema: TInput | null,
+  action: (data: z.infer<TInput>, user: User, formData?: FormData) => Promise<TOutput>
+): (currentState: TOutput, formData: FormData) => Promise<TOutput> {
+  return async (currentState: TOutput, formData: FormData): Promise<TOutput> => {
+      const user = await getCurrentSupabaseUser();
+      if (!user) {
+          // Return previous state merged with new error
+          return { ...currentState, error: 'Authentication required.' } as TOutput;
+      }
+
+      let validatedData: z.infer<TInput> = {}; // Initialize as empty object
+      if (inputSchema) {
+          const dataToValidate: Record<string, any> = {};
+          // Extract all keys from schema to get values from FormData
+           // Ensure inputSchema.shape exists before iterating
+           if (inputSchema.shape) {
+               for (const key of Object.keys(inputSchema.shape)) {
+                  const value = formData.get(key);
+                  // Handle potential null values if schema expects string/number
+                  if (value !== null) {
+                      dataToValidate[key] = value;
+                  }
+              }
+           } else {
+                console.warn("authenticatedAction: Input schema has no shape property.");
+           }
+
+
+          const result = inputSchema.safeParse(dataToValidate);
+          if (!result.success) {
+              const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+              // Return previous state merged with new error
+              return { ...currentState, error: `Invalid input: ${errors}` } as TOutput;
+          }
+          validatedData = result.data;
+      }
+      // If no schema, validatedData remains empty, action must handle FormData directly if needed
+
+      try {
+          // Execute the original action
+          return await action(validatedData, user, formData);
+      } catch (error: any) {
+          console.error("Error executing authenticated action:", error);
+          // Return previous state merged with new error
+          return { ...currentState, error: error.message || 'An unexpected server error occurred.' } as TOutput;
+      }
+  };
+}
+
+// --- Sign In Action (Using Supabase SSR) ---
 const signInSchema = z.object({
-  email: z.string().email().min(3).max(255),
-  password: z.string().min(8).max(100)
+email: z.string().email("Invalid email format.").min(1, "Email is required."),
+password: z.string().min(1, "Password is required."), // Min length validation handled by Supabase/DB
 });
 
-export const signIn = validatedAction(signInSchema, async (data, formData) => {
-  const { email, password } = data;
-
-  const userWithTeam = await db
-    .select({
-      user: users,
-      team: teams // Select the whole team object
-    })
-    .from(users)
-    .leftJoin(teamMembers, eq(users.id, teamMembers.userId))
-    .leftJoin(teams, eq(teamMembers.teamId, teams.id))
-    // Use isNull to check for deletedAt
-    .where(and(eq(users.email, email), isNull(users.deletedAt)))
-    .limit(1);
-
-  if (userWithTeam.length === 0) {
-    return { error: 'Invalid email or password. Please try again.', email };
+export const signInWithSupabase = async (currentState: ActionState, formData: FormData): Promise<ActionState> => {
+  const result = signInSchema.safeParse(Object.fromEntries(formData));
+  if (!result.success) {
+      const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return { error: `Invalid input: ${errors}` };
   }
 
-  const { user: foundUser, team: foundTeam } = userWithTeam[0];
-
-  const isPasswordValid = await comparePasswords(
-    password,
-    foundUser.passwordHash
+  const { email, password } = result.data;
+  const cookieStore = await cookies(); // Use await
+  const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      // Ensure cookieStore is resolved before passing
+      { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
   );
 
-  if (!isPasswordValid) {
-    return { error: 'Invalid email or password. Please try again.', email };
+  console.log(`Attempting Supabase sign in for: ${email}`);
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+      console.error(`Supabase sign in error for ${email}:`, error.message);
+      return { error: `Sign in failed: ${error.message}`, email }; // Return email for pre-fill
   }
 
-  await Promise.all([
-    setSession(foundUser),
-    logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN)
-  ]);
+  console.log(`Supabase sign in successful for: ${email}`);
 
-  const redirectTo = formData.get('redirect') as string | null;
-  if (redirectTo === 'checkout' && foundTeam) {
-    const priceId = formData.get('priceId') as string;
-    if (!priceId) {
-        console.error("Checkout redirect requested without priceId");
-        redirect('/dashboard');
-    } else {
-        // Pass the actual team object if required by createCheckoutSession
-        return createCheckoutSession({ team: foundTeam, priceId });
-    }
-  }
-
-  redirect('/dashboard');
-});
-
-// --- Sign Up Action ---
-const signUpSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  inviteId: z.string().optional()
-});
-
-export const signUp = validatedAction(signUpSchema, async (data, formData) => {
-  const { email, password, inviteId } = data;
-
-  const existingUser = await db
-    .select({ id: users.id })
-    .from(users)
-    // Use isNull to check for deletedAt
-    .where(and(eq(users.email, email), isNull(users.deletedAt)))
-    .limit(1);
-
-  if (existingUser.length > 0) {
-    return { error: 'An account with this email already exists.', email };
-  }
-
-  const passwordHash = await hashPassword(password);
-
-  const newUser: NewUser = { email, passwordHash, role: 'owner' };
-
-  const [createdUser] = await db.insert(users).values(newUser).returning();
-
-  if (!createdUser) {
-    return { error: 'Failed to create user. Please try again.', email };
-  }
-
-  let teamId: number;
-  let userRole: string = 'owner';
-  let createdTeam: typeof teams.$inferSelect | null = null;
-  let teamName: string = `${email}'s Team`;
-
-  if (inviteId) {
-    const parsedInviteId = parseInt(inviteId, 10);
-    if (isNaN(parsedInviteId)) {
-        return { error: 'Invalid invitation ID format.', email };
-    }
-
-    const [invitation] = await db
-      .select()
-      .from(invitations)
-      .where( and( eq(invitations.id, parsedInviteId), eq(invitations.email, email), eq(invitations.status, 'pending') ))
-      .limit(1);
-
-    if (invitation) {
-      teamId = invitation.teamId;
-      userRole = invitation.role;
-
-      await Promise.all([
-          db.update(invitations).set({ status: 'accepted' }).where(eq(invitations.id, invitation.id)),
-          db.update(users).set({ role: userRole }).where(eq(users.id, createdUser.id)),
-          logActivity(teamId, createdUser.id, ActivityType.ACCEPT_INVITATION)
-      ]);
-
-      [createdTeam] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
-      if (!createdTeam) {
-          console.error(`Team with ID ${teamId} not found for accepted invitation ${inviteId}`);
-          return { error: 'Associated team not found. Please contact support.', email };
-      }
-      teamName = createdTeam.name;
-
-    } else {
-      return { error: 'Invalid or expired invitation.', email };
-    }
+  // --- Log Sign-In Activity (Optional but Recommended) ---
+  const { data: { user: signedInUser } } = await supabase.auth.getUser();
+  if (signedInUser) {
+       // Use camelCase matching Drizzle schema
+       const membership = await db.query.teamMembers.findFirst({
+          where: eq(schema.teamMembers.userId, signedInUser.id), // Corrected: camelCase userId
+          columns: { teamId: true } // Corrected: camelCase teamId
+       });
+       await logActivity(membership?.teamId ?? null, signedInUser.id, ActivityType.SIGN_IN); // Pass teamId
   } else {
-    const newTeam: NewTeam = { name: teamName };
-    [createdTeam] = await db.insert(teams).values(newTeam).returning();
-
-    if (!createdTeam) {
-        await db.delete(users).where(eq(users.id, createdUser.id));
-        return { error: 'Failed to create team. Please try again.', email };
-    }
-    teamId = createdTeam.id;
-    await logActivity(teamId, createdUser.id, ActivityType.CREATE_TEAM);
+      console.warn("Could not get user immediately after sign-in for logging.");
   }
+  // --- End Logging ---
 
-  const newTeamMember: NewTeamMember = { userId: createdUser.id, teamId: teamId, role: userRole };
-
-  await Promise.all([
-    db.insert(teamMembers).values(newTeamMember),
-    logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
-    setSession(createdUser)
-  ]);
-
-  const redirectTo = formData.get('redirect') as string | null;
-  if (redirectTo === 'checkout' && createdTeam) {
-    const priceId = formData.get('priceId') as string;
-     if (!priceId) {
-        console.error("Checkout redirect requested without priceId during signup");
-        redirect('/dashboard');
-    } else {
-       return createCheckoutSession({ team: createdTeam, priceId });
-    }
-  }
-
+  revalidatePath('/', 'layout');
   redirect('/dashboard');
+};
+
+
+// --- Sign Up Action (Using Supabase SSR) ---
+const signUpSchema = z.object({
+email: z.string().email("Invalid email format.").min(1, "Email is required.").max(64),
+password: z.string().min(8, "Password must be at least 8 characters.").max(100),
+inviteId: z.string().optional(),
 });
+
+export const signUpWithSupabase = async (currentState: ActionState, formData: FormData): Promise<ActionState> => {
+   const result = signUpSchema.safeParse(Object.fromEntries(formData));
+  if (!result.success) {
+      const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      return { error: `Invalid input: ${errors}` };
+  }
+  const { email, password, inviteId } = result.data;
+  const cookieStore = await cookies(); // Use await
+  const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      // Ensure cookieStore is resolved before passing
+      { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
+  );
+
+  console.log(`Attempting Supabase sign up for: ${email}`);
+  const { data: signUpData, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+          // Include emailRedirectTo if you want users redirected after confirmation
+          // emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+          // Include data for user_metadata if needed (like name)
+          // data: { name: name } // Assuming 'name' variable exists if needed
+      }
+  });
+
+  if (error) {
+      console.error(`Supabase sign up error for ${email}:`, error.message);
+      // Provide more specific errors if possible
+      if (error.message.includes("User already registered")) {
+           return { error: 'An account with this email already exists.', email };
+      }
+      return { error: `Sign up failed: ${error.message}`, email };
+  }
+
+  // Handle case where user exists but is unconfirmed (resend confirmation)
+  if (signUpData.user && signUpData.user.identities?.length === 0) {
+       console.log(`User ${email} exists but is unconfirmed. Resending confirmation.`);
+       // Optionally resend confirmation email here if needed, though Supabase might handle it.
+       // await supabase.auth.resend({ type: 'signup', email: email });
+       return { success: 'Please check your email to confirm your account (confirmation resent).', email };
+  }
+
+  // Check if user was created (implies confirmation needed or auto-confirmed)
+  if (!signUpData.user) {
+      console.error(`Supabase sign up for ${email} did not return a user object and no error.`);
+      return { error: 'Sign up failed for an unknown reason. Please try again.', email };
+  }
+
+  console.log(`Supabase sign up successful for: ${email}. User ID: ${signUpData.user.id}. Confirmation required: ${signUpData.user.email_confirmed_at === null}`);
+  // IMPORTANT: Rely on the database trigger ('handle_new_user') to sync the user
+  // from auth.users to public.User. Do not call createUser() here.
+  return { success: 'Account created successfully! Please check your email to confirm your account.', email };
+};
+
+
+// --- Sign Up / Setup Action ---
+// This action should be called AFTER the user has confirmed their email and logged in.
+// It sets up their initial team or processes an invitation.
+const completeSetupSchema = z.object({
+  teamName: z.string().min(1, 'Team name cannot be empty').max(100).optional(),
+  inviteId: z.string().optional(),
+});
+export const completeSetupAfterSignUp = authenticatedAction(
+  completeSetupSchema,
+  async (data, user, formData) => {
+    const { teamName: providedTeamName, inviteId } = data;
+    console.log(`completeSetupAfterSignUp called for user ${user.id}`); // Debug Log
+
+    // Use camelCase matching Drizzle schema
+    const existingMembership = await db.query.teamMembers.findFirst({
+        where: eq(schema.teamMembers.userId, user.id) // Corrected: camelCase
+    });
+    if (existingMembership) {
+        console.log(`User ${user.id} already has team membership. Skipping setup.`);
+        redirect('/dashboard');
+    }
+
+    let teamId: number; // Changed back to camelCase to match schema type
+    let userRole: string = 'owner';
+    let teamForSetup: Team | null = null;
+    const teamName = providedTeamName || `${user.email}'s Team`;
+
+    // --- Handle Invitation (If applicable) ---
+    if (inviteId) {
+      const parsedInviteId = parseInt(inviteId, 10);
+      if (isNaN(parsedInviteId)) return { error: 'Invalid invitation ID format.' };
+      // Use camelCase matching Drizzle schema
+      const invitation = await db.query.invitations.findFirst({
+        where: and(
+            eq(schema.invitations.id, parsedInviteId),
+            eq(schema.invitations.email, user.email!),
+            eq(schema.invitations.status, 'pending')
+        )
+      });
+      if (invitation) {
+          console.log(`Processing invitation ${inviteId} for user ${user.id}`);
+          teamId = invitation.teamId; // Corrected: camelCase
+          userRole = invitation.role;
+          await Promise.all([
+              db.update(schema.invitations).set({ status: 'accepted' }).where(eq(schema.invitations.id, invitation.id)),
+              logActivity(teamId, user.id, ActivityType.ACCEPT_INVITATION)
+          ]);
+          teamForSetup = await db.query.teams.findFirst({ where: eq(schema.teams.id, teamId) });
+          if (!teamForSetup) {
+              console.error(`Team with ID ${teamId} not found for accepted invitation ${inviteId}`);
+              return { error: 'Associated team not found.' };
+          }
+           console.log(`User ${user.id} accepted invite to team ${teamId} with role ${userRole}`);
+      } else {
+          console.warn(`Invalid or expired invitation ${inviteId} for user ${user.id}. Creating new team.`);
+          // Fall through to create a new team
+      }
+    }
+
+    // --- Create New Team (If no valid invitation processed) ---
+    if (!teamForSetup) {
+        console.log(`Creating new team "${teamName}" for user ${user.id}`);
+        const newTeamData: NewTeam = { name: teamName };
+        const [insertedTeam] = await db.insert(schema.teams).values(newTeamData).returning();
+        if (!insertedTeam) {
+             console.error(`Failed to create team for user ${user.id}`);
+             return { error: 'Failed to create team.' };
+        }
+        teamForSetup = insertedTeam; teamId = teamForSetup.id; userRole = 'owner';
+        await logActivity(teamId, user.id, ActivityType.CREATE_TEAM);
+        console.log(`Created new team ${teamId} for user ${user.id}`);
+    } else {
+        teamId = teamForSetup.id; // Ensure teamId is set if using invitation
+    }
+
+    // --- Create Team Membership ---
+    // Use camelCase matching Drizzle schema
+    const newTeamMember: NewTeamMember = {
+        userId: user.id, // Corrected: camelCase
+        teamId: teamId!, // Corrected: camelCase - Use non-null assertion as teamId is guaranteed to be set
+        role: userRole
+    };
+    await db.insert(schema.teamMembers).values(newTeamMember);
+    console.log(`Created team membership for user ${user.id} in team ${teamId!}`);
+
+    // Log general sign-up completion activity (optional)
+    await logActivity(teamId!, user.id, ActivityType.SIGN_UP);
+
+    // --- Handle Checkout Redirect ---
+    const redirectTo = formData?.get('redirect') as string | null;
+    if (redirectTo === 'checkout' && teamForSetup) {
+        const priceId = formData?.get('priceId') as string | null;
+        if (!priceId) {
+            console.error("Checkout redirect requested without priceId during setup");
+            // Fall through to dashboard redirect
+        } else {
+            console.log(`Redirecting user ${user.id} to checkout for team ${teamId!}, price ${priceId}`);
+            // Assuming createCheckoutSession is adapted for Server Actions or you redirect differently
+            // return createCheckoutSession({ team: teamForSetup, priceId }); // This might need adjustment
+            redirect(`/checkout?teamId=${teamId!}&priceId=${priceId}`); // Example redirect
+        }
+    }
+
+    // --- Redirect to Dashboard ---
+    console.log(`Setup complete for user ${user.id}. Redirecting to dashboard.`);
+    redirect('/dashboard');
+    // This action implicitly returns success via redirect
+    // If not redirecting, might need: return { success: 'Setup complete!' };
+});
+
 
 // --- Sign Out Action ---
 export async function signOut() {
+  console.log("signOut() action called...");
+  const cookieStore = await cookies(); // Use await
+  const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      // Ensure cookieStore is resolved before passing
+      { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
+  );
   try {
-    const user = await getUser()
-    if (user) {
-      const userWithTeam = await getUserWithTeam(user.id)
-      await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT)
-    }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+          // Use camelCase matching Drizzle schema
+          const membership = await db.query.teamMembers.findFirst({
+              where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+              columns: { teamId: true } // Corrected: camelCase
+          });
+          await logActivity(membership?.teamId ?? null, user.id, ActivityType.SIGN_OUT); // Pass teamId
+      }
   } catch (error) {
-    console.error("Error fetching user or logging sign-out:", error)
-  } finally {
-    // await cookies() to get the mutable RequestCookies object …
-    const cookieStore = await cookies()
-    // … then delete your session cookie
-    cookieStore.delete('session')
-    // and finally redirect
-    redirect('/sign-in')
+       console.error("Error fetching user or logging sign-out:", error);
   }
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+      console.error("Supabase signOut error:", error);
+  } else {
+      console.log("Supabase signOut successful.");
+  }
+  redirect('/login');
 }
 
 // --- Update Password Action ---
 const updatePasswordSchema = z.object({
-  currentPassword: z.string().min(8, "Current password is too short").max(100),
+  currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().min(8, "New password must be at least 8 characters").max(100),
   confirmPassword: z.string().min(8).max(100)
 }).refine((data) => data.newPassword === data.confirmPassword, {
     message: "New password and confirmation password do not match.",
     path: ["confirmPassword"],
 });
-
-export const updatePassword = validatedActionWithUser(
+export const updatePassword = authenticatedAction(
   updatePasswordSchema,
-  async (data, _, user) => {
+  async (data, user) => {
     const { currentPassword, newPassword } = data;
-
-    const isPasswordValid = await comparePasswords( currentPassword, user.passwordHash );
-    if (!isPasswordValid) {
-      return { error: 'Current password is incorrect.' };
+    const cookieStore = await cookies(); // Use await
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
+    );
+    const { error: reauthError } = await supabase.auth.signInWithPassword({ email: user.email!, password: currentPassword });
+    if (reauthError) {
+         console.warn(`Password re-authentication failed for user ${user.id}: ${reauthError.message}`);
+         return { error: 'Current password is incorrect.' };
     }
-
-    if (currentPassword === newPassword) {
-      return { error: 'New password must be different from the current password.' };
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    if (updateError) {
+         console.error(`Supabase updateUser (password) error for user ${user.id}:`, updateError);
+         return { error: `Failed to update password: ${updateError.message}` };
     }
-
-    const newPasswordHash = await hashPassword(newPassword);
-    const userWithTeam = await getUserWithTeam(user.id);
-
-    await Promise.all([
-      db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, user.id)),
-      logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_PASSWORD)
-    ]);
-
+    // Use camelCase matching Drizzle schema
+    const membership = await db.query.teamMembers.findFirst({
+        where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+        columns: { teamId: true } // Corrected: camelCase
+    });
+    await logActivity(membership?.teamId ?? null, user.id, ActivityType.UPDATE_PASSWORD); // Pass teamId
     return { success: 'Password updated successfully.' };
   }
 );
 
 // --- Delete Account Action ---
 const deleteAccountSchema = z.object({
-  password: z.string().min(8, "Password is required").max(100)
+  password: z.string().min(1, "Password is required")
 });
-
-export const deleteAccount = validatedActionWithUser(
+export const deleteAccount = authenticatedAction(
   deleteAccountSchema,
-  async (data, _, user) => {
+  async (data, user) => {
     const { password } = data;
-
-    const isPasswordValid = await comparePasswords(password, user.passwordHash);
-    if (!isPasswordValid) {
-      return { error: 'Incorrect password. Account deletion failed.' };
+    const cookieStore = await cookies(); // Use await
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
+    );
+    const { error: reauthError } = await supabase.auth.signInWithPassword({ email: user.email!, password: password });
+    if (reauthError) {
+        console.warn(`Password re-authentication failed for account deletion (user ${user.id}): ${reauthError.message}`);
+        return { error: 'Incorrect password. Account deletion failed.' };
     }
-
-    const userWithTeam = await getUserWithTeam(user.id);
-
-    await logActivity(userWithTeam?.teamId, user.id, ActivityType.DELETE_ACCOUNT);
-
-    await db.transaction(async (tx) => {
-        await tx
-          .update(users)
-          .set({
-            deletedAt: sql`CURRENT_TIMESTAMP`,
-            email: sql`CONCAT(${users.email}, '-${user.id}-deleted')`
-          })
-          .where(eq(users.id, user.id));
-
-        if (userWithTeam?.teamId) {
-          await tx
-            .delete(teamMembers)
-            .where( and( eq(teamMembers.userId, user.id), eq(teamMembers.teamId, userWithTeam.teamId) ));
-        }
-    });
-    const cookieStore = await cookies()
-    // Correct: Call delete directly on cookies()
-    cookieStore.delete('session')
-    redirect('/sign-in?message=Account+deleted+successfully');
+    // --- Implementing Option 3: Soft Delete in public.User ---
+    try {
+        // Use camelCase matching Drizzle schema
+        const membership = await db.query.teamMembers.findFirst({
+            where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+            columns: { teamId: true } // Corrected: camelCase
+        });
+        await logActivity(membership?.teamId ?? null, user.id, ActivityType.DELETE_ACCOUNT); // Pass teamId
+        const deletedEmail = `${user.email}-deleted-${Date.now()}`;
+        await db.update(schema.user).set({ deletedAt: new Date(), email: deletedEmail, name: 'Deleted User', passwordHash: 'deleted', pinHash: null, isPinSet: false, emailVerified: null, }).where(eq(schema.user.id, user.id));
+        await supabase.auth.signOut();
+    } catch (error) {
+        console.error(`Error during soft delete process for user ${user.id}:`, error);
+        return { error: 'An error occurred during account deletion.' };
+    }
+    redirect('/login?message=Account+deleted+successfully');
   }
 );
 
 // --- Update Account (Name/Email) Action ---
 const updateAccountSchema = z.object({
-  name: z.string().min(1, 'Name cannot be empty').max(100).trim(),
-  email: z.string().email('Invalid email address').max(255)
+  name: z.string().min(1, 'Name cannot be empty').max(255).trim(),
+  email: z.string().email('Invalid email address').max(64)
 });
-
-export const updateAccount = validatedActionWithUser(
+export const updateAccount = authenticatedAction(
   updateAccountSchema,
-  async (data, _, user) => {
+  async (data, user) => {
     const { name, email } = data;
-
+    let needsReverification = false;
     if (email !== user.email) {
-        const existingUser = await db.select({ id: users.id })
-            .from(users)
-            // Fix: Use ne operator instead of == false
-            .where(and(eq(users.email, email), isNull(users.deletedAt), ne(users.id, user.id)))
-            .limit(1);
-        if (existingUser.length > 0) {
-            return { name, email, error: 'This email address is already in use.' };
-        }
+        const existingUser = await db.query.user.findFirst({
+            where: and( eq(schema.user.email, email), isNull(schema.user.deletedAt), ne(schema.user.id, user.id) ),
+            columns: { id: true }
+        });
+        if (existingUser) { return { name, email, error: 'This email address is already in use.' }; }
+        needsReverification = true;
     }
-
-    const userWithTeam = await getUserWithTeam(user.id);
-    const needsReverification = email !== user.email;
-
-    await Promise.all([
-      db.update(users).set({
-          name,
-          email,
-          // Fix: Ensure 'emailVerified' column exists in your Drizzle schema (schema.ts)
-          // If the column name is different (e.g., email_verified), update it here.
-          emailVerified: needsReverification ? null : user.emailVerified
-       }).where(eq(users.id, user.id)),
-      logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_ACCOUNT)
-    ]);
-
-    // TODO: Trigger email verification if needsReverification is true
-
-    return { name, email, success: 'Account updated successfully.' };
+    const cookieStore = await cookies(); // Use await
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: { getAll: () => cookieStore.getAll(), setAll: (c) => c.forEach(co => cookieStore.set(co)) } }
+    );
+    const { error: updateError } = await supabase.auth.updateUser({ email: email, data: { name: name } });
+    if (updateError) { return { name, email, error: `Failed to update authentication details: ${updateError.message}` }; }
+    try {
+        await db.update(schema.user).set({ name: name, email: email, emailVerified: needsReverification ? null : user.emailVerified, updatedAt: new Date() }).where(eq(schema.user.id, user.id));
+        // Use camelCase matching Drizzle schema
+        const membership = await db.query.teamMembers.findFirst({
+            where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+            columns: { teamId: true } // Corrected: camelCase
+        });
+        await logActivity(membership?.teamId ?? null, user.id, ActivityType.UPDATE_ACCOUNT); // Pass teamId
+        if (needsReverification) { /* ... TODO: Trigger verification ... */ }
+        revalidatePath('/account');
+        return { name, email, success: 'Account updated successfully.' + (needsReverification ? ' Please check your email...' : '') };
+    } catch (dbError) {
+        console.error(`Error updating public.User table for user ${user.id}:`, dbError);
+        return { name, email, error: 'Failed to update user details in database.' };
+    }
   }
 );
-
 
 // --- Set Account PIN Action ---
 const setPinSchema = z.object({
     pin: z.string().length(4, "PIN must be exactly 4 digits").regex(/^\d{4}$/, "PIN must contain only digits"),
 });
-
-export const setAccountPin = validatedActionWithUser(
+export const setAccountPin = authenticatedAction(
     setPinSchema,
-    async (data, _, user) => {
+    async (data, user) => {
         const { pin } = data;
-
         try {
-            const pinHash = await hashPassword(pin);
-            const userWithTeam = await getUserWithTeam(user.id);
-
-            await Promise.all([
-                db.update(users).set({
-                    // Ensure these column names match your schema exactly in schema.ts
-                    pinHash: pinHash,
-                    isPinSet: true
-                }).where(eq(users.id, user.id)),
-                logActivity(userWithTeam?.teamId, user.id, ActivityType.SET_PIN) // Ensure SET_PIN exists in ActivityType
-            ]);
-
+            const salt = genSaltSync(10); const pinHash = hashSync(pin, salt);
+            await db.update(schema.user).set({ pinHash: pinHash, isPinSet: true, updatedAt: new Date() }).where(eq(schema.user.id, user.id));
+            // Use camelCase matching Drizzle schema
+            const membership = await db.query.teamMembers.findFirst({
+                where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+                columns: { teamId: true } // Corrected: camelCase
+            });
+            await logActivity(membership?.teamId ?? null, user.id, ActivityType.SET_PIN); // Pass teamId
+            revalidatePath('/account');
             return { success: 'PIN set successfully.' };
-
         } catch (error) {
-            console.error("Error setting PIN:", error);
-            return { error: 'Failed to set PIN. Please try again.' };
+             console.error(`Error setting PIN for user ${user.id}:`, error);
+             return { error: 'Failed to set PIN. Please try again.' };
         }
     }
 );
@@ -387,77 +591,101 @@ export const setAccountPin = validatedActionWithUser(
 
 // --- Remove Team Member Action ---
 const removeTeamMemberSchema = z.object({
-  memberId: z.number().int().positive("Invalid member ID")
+  memberId: z.string().uuid("Invalid member ID format")
 });
-
-export const removeTeamMember = validatedActionWithUser(
+export const removeTeamMember = authenticatedAction(
   removeTeamMemberSchema,
-  async (data, _, user) => {
+  async (data, user) => {
     const { memberId } = data;
-    const userWithTeam = await getUserWithTeam(user.id);
+    // Use camelCase matching Drizzle schema
+    const actorMembership = await db.query.teamMembers.findFirst({
+        where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+        columns: { teamId: true, role: true } // Corrected: camelCase
+    });
+    if (!actorMembership?.teamId) { return { error: 'You are not part of a team.' }; } // Corrected: camelCase
+    if (memberId === user.id) { return { error: 'You cannot remove yourself using this action.' }; }
+    if (actorMembership.role !== 'owner') { return { error: 'You do not have permission to remove team members.' }; }
 
-    if (!userWithTeam?.teamId) { return { error: 'You are not part of a team.' }; }
-    if (memberId === user.id) { return { error: 'You cannot remove yourself from the team using this option.' }; }
-    if (userWithTeam.user.role !== 'owner') {
-      return { error: 'You do not have permission to remove team members.' };
-    }
-    
-    const memberToRemove = await db.select({ id: teamMembers.userId })
-        .from(teamMembers)
-        .where(and(eq(teamMembers.userId, memberId), eq(teamMembers.teamId, userWithTeam.teamId)))
-        .limit(1);
-    if (memberToRemove.length === 0) { return { error: 'Team member not found in this team.' }; }
+    // Use camelCase matching Drizzle schema
+    const memberToRemove = await db.query.teamMembers.findFirst({
+        where: and(
+            eq(schema.teamMembers.userId, memberId), // Corrected: camelCase
+            eq(schema.teamMembers.teamId, actorMembership.teamId) // Corrected: camelCase
+        ),
+        columns: { userId: true } // Corrected: camelCase
+    });
+    if (!memberToRemove) { return { error: 'Team member not found in this team.' }; }
 
-    await db.delete(teamMembers).where( and( eq(teamMembers.userId, memberId), eq(teamMembers.teamId, userWithTeam.teamId) ));
-    await logActivity(userWithTeam.teamId, user.id, ActivityType.REMOVE_TEAM_MEMBER);
-
+    // Use camelCase matching Drizzle schema
+    await db.delete(schema.teamMembers).where(
+        and(
+            eq(schema.teamMembers.userId, memberId), // Corrected: camelCase
+            eq(schema.teamMembers.teamId, actorMembership.teamId) // Corrected: camelCase
+        )
+    );
+    await logActivity(actorMembership.teamId, user.id, ActivityType.REMOVE_TEAM_MEMBER); // Pass teamId
+    revalidatePath('/team/settings');
     return { success: 'Team member removed successfully.' };
   }
 );
 
 // --- Invite Team Member Action ---
 const inviteTeamMemberSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email('Invalid email address').max(64),
   role: z.enum(['member', 'owner'])
 });
-
-export const inviteTeamMember = validatedActionWithUser(
+export const inviteTeamMember = authenticatedAction(
   inviteTeamMemberSchema,
-  async (data, _, user) => {
+  async (data, user) => {
     const { email, role } = data;
-    const userWithTeam = await getUserWithTeam(user.id);
+    // Use camelCase matching Drizzle schema
+    const inviterMembership = await db.query.teamMembers.findFirst({
+        where: eq(schema.teamMembers.userId, user.id), // Corrected: camelCase
+        columns: { teamId: true, role: true } // Corrected: camelCase
+    });
+    if (!inviterMembership?.teamId) { return { error: 'You must be part of a team to invite members.' }; } // Corrected: camelCase
+    if (inviterMembership.role !== 'owner') { return { error: 'You do not have permission to invite team members.' }; }
 
-    if (!userWithTeam?.teamId) { return { error: 'You must be part of a team to invite members.' }; }
-    if (userWithTeam.user.role !== 'owner') {
-      return { error: 'You do not have permission to remove team members.' };
-    }
-    
-    const existingMember = await db
-      .select({ id: users.id })
-      .from(users)
-      .innerJoin(teamMembers, eq(users.id, teamMembers.userId))
-      .where( and( eq(users.email, email), eq(teamMembers.teamId, userWithTeam.teamId), isNull(users.deletedAt) )) // Use isNull
-      .limit(1);
-    if (existingMember.length > 0) { return { error: 'This user is already a member of your team.', email, role }; }
+    // Use camelCase matching Drizzle schema
+    const existingMember = await db.query.users.findFirst({
+        where: and( eq(schema.user.email, email), isNull(schema.user.deletedAt) ),
+        with: {
+            teamMembers: {
+                where: eq(schema.teamMembers.teamId, inviterMembership.teamId), // Corrected: camelCase
+                columns: { userId: true } // Corrected: camelCase
+            }
+        },
+        columns: { id: true }
+    });
+    if (existingMember && existingMember.teamMembers.length > 0) { return { error: 'This user is already a member of your team.', email, role }; }
 
-    const existingInvitation = await db
-      .select({ id: invitations.id })
-      .from(invitations)
-      .where( and( eq(invitations.email, email), eq(invitations.teamId, userWithTeam.teamId), eq(invitations.status, 'pending') ))
-      .limit(1);
-    if (existingInvitation.length > 0) { return { error: 'An invitation has already been sent to this email address.', email, role }; }
+    // Use camelCase matching Drizzle schema
+    const existingInvitation = await db.query.invitations.findFirst({
+      where: and(
+          eq(schema.invitations.email, email),
+          eq(schema.invitations.teamId, inviterMembership.teamId), // Corrected: camelCase
+          eq(schema.invitations.status, 'pending')
+      ),
+      columns: { id: true }
+    });
+    if (existingInvitation) { return { error: 'An invitation has already been sent to this email address for this team.', email, role }; }
 
-    const [newInvitation] = await db.insert(invitations).values({
-      teamId: userWithTeam.teamId, email, role, invitedBy: user.id, status: 'pending'
-    }).returning();
-    if (!newInvitation) { return { error: 'Failed to create invitation. Please try again.', email, role }; }
+    // Use camelCase matching Drizzle schema
+    const newInvitationData: NewInvitation = {
+      teamId: inviterMembership.teamId, // Corrected: camelCase
+      email: email,
+      role: role,
+      invitedBy: user.id, // Corrected: camelCase
+      status: 'pending'
+    };
+    const [createdInvitation] = await db.insert(schema.invitations).values(newInvitationData).returning();
+    if (!createdInvitation) { return { error: 'Failed to create invitation. Please try again.', email, role }; }
 
-    await logActivity(userWithTeam.teamId, user.id, ActivityType.INVITE_TEAM_MEMBER);
-
-    // TODO: Implement Email Sending
-    // const teamNameForEmail = userWithTeam.team?.name ?? 'your team'; // Ensure userWithTeam includes team object if needed
-    // console.log(`TODO: Send invitation email to ${email} for team ${teamNameForEmail} with role ${role}`);
-
+    await logActivity(inviterMembership.teamId, user.id, ActivityType.INVITE_TEAM_MEMBER); // Pass teamId
+    /* ... TODO: Send email ... */
+    revalidatePath('/team/settings');
     return { success: 'Invitation sent successfully.' };
   }
 );
+
+// --- Add other actions for designs, webshops, customers, campaigns as needed ---
