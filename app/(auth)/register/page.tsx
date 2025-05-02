@@ -1,69 +1,146 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { supabaseBrowser } from '@/lib/supabase-browser';
+import {
+  Input,
+  Button,
+  Checkbox,
+  Alert,
+} from '@heroui/react';  
+import { Icon } from '@iconify/react';
 
-import { AuthForm } from '@/components/auth-form';
-import { SubmitButton } from '@/components/submit-button';
-
-import { register, type RegisterActionState } from '../actions';
-
-export default function Page() {
+export default function RegisterPage() {
   const router = useRouter();
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
+  const [confirm, setConfirm]       = useState('');
+  const [showPassword, setShowPwd]  = useState(false);
+  const [showConfirm, setShowCnf]   = useState(false);
+  const [agree, setAgree]           = useState(false);
+  const [errorMessage, setError]    = useState<string | null>(null);
+  const [loading, setLoading]       = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [isSuccessful, setIsSuccessful] = useState(false);
-
-  const [state, formAction] = useActionState<RegisterActionState, FormData>(
-    register,
-    {
-      status: 'idle',
-    },
-  );
-
-  useEffect(() => {
-    if (state.status === 'user_exists') {
-      toast.error('Account already exists');
-    } else if (state.status === 'failed') {
-      toast.error('Failed to create account');
-    } else if (state.status === 'invalid_data') {
-      toast.error('Failed validating your submission!');
-    } else if (state.status === 'success') {
-      toast.success('Account created successfully');
-      setIsSuccessful(true);
-      router.refresh();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirm) {
+      setError('Passwords do not match'); 
+      return;
     }
-  }, [state, router]);
+    if (!agree) {
+      setError('You must agree to Terms & Privacy');
+      return;
+    }
+    setLoading(true);
+    setError(null);
 
-  const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
+    const { error } = await supabaseBrowser.auth.signUp({ email, password });
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      router.push('/login');
+    }
   };
 
   return (
-    <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl gap-12 flex flex-col">
-        <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
-          <h3 className="text-xl font-semibold dark:text-zinc-50">Sign Up</h3>
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Create an account with your email and password
-          </p>
-        </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign Up</SubmitButton>
-          <p className="text-center text-sm text-gray-600 mt-4 dark:text-zinc-400">
-            {'Already have an account? '}
-            <Link
-              href="/login"
-              className="font-semibold text-gray-800 hover:underline dark:text-zinc-200"
-            >
-              Sign in
-            </Link>
-            {' instead.'}
-          </p>
-        </AuthForm>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md space-y-6 rounded-xl bg-white p-8 shadow-lg">
+          Create an Account
+
+        {errorMessage && (
+          <Alert severity="error" onClose={() => setError(null)}>
+            {errorMessage}
+          </Alert>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <Input
+            isRequired
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            labelPlacement="outside"
+            variant="bordered"
+          />
+
+          <Input
+            isRequired
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            labelPlacement="outside"
+            variant="bordered"
+            endContent={
+              <button
+                type="button"
+                onClick={() => setShowPwd((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="p-1"
+              >
+                <Icon
+                  icon={showPassword ? 'solar:eye-closed-bold' : 'solar:eye-bold'}
+                  className="text-lg text-gray-500"
+                />
+              </button>
+            }
+          />
+
+          <Input
+            isRequired
+            label="Confirm Password"
+            type={showConfirm ? 'text' : 'password'}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="••••••••"
+            labelPlacement="outside"
+            variant="bordered"
+            endContent={
+              <button
+                type="button"
+                onClick={() => setShowCnf((v) => !v)}
+                aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                className="p-1"
+              >
+                <Icon
+                  icon={showConfirm ? 'solar:eye-closed-bold' : 'solar:eye-bold'}
+                  className="text-lg text-gray-500"
+                />
+              </button>
+            }
+          />
+
+          <Checkbox
+            isRequired
+            isSelected={agree}
+            onChange={(val) => setAgree(val)}
+            size="sm"
+          >
+            I agree to the{' '}
+            <a href="/terms" className="font-medium text-primary-600 hover:underline">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" className="font-medium text-primary-600 hover:underline">
+              Privacy Policy
+            </a>
+          </Checkbox>
+
+          <Button disabled={loading} fullWidth size="lg" type="submit">
+            {loading ? 'Creating Account…' : 'Sign Up'}
+          </Button>
+        </form>
+
+          Already have an account?{' '}
+          <a href="/login" className="font-medium text-primary-600 hover:underline">
+            Log In
+          </a>
       </div>
     </div>
   );
