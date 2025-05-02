@@ -57,7 +57,7 @@ export const Navbar = () => {
             href="/"
           >
             <Logo />
-            <p className="font-bold text-inherit">RANKED</p>
+            <p className="font-bold text-inherit">RANKED BETA V0.1</p>
           </Link>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">

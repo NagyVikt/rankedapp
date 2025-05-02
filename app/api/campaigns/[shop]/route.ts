@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db, campaigns } from '@/lib/db'
-import { eq, sql } from 'drizzle-orm'
+import { db, campaigns }           from '@/lib/db'
+import { eq, sql }                 from 'drizzle-orm'
 
 export async function GET(
   req: NextRequest,
@@ -8,18 +8,17 @@ export async function GET(
 ) {
   const { shop } = await params
 
-  // look up existing campaign
   const [row] = await db
     .select()
     .from(campaigns)
-    .where(eq(campaigns.shop, shop))
+    .where(eq(campaigns.shopIdentifier, shop))
 
   if (!row) {
-    // nothing saved yet: return empty defaults
     return NextResponse.json({ send_now: [], weekly: [], assignments: {} })
   }
+
   return NextResponse.json({
-    send_now:    row.send_now,
+    send_now:    row.sendNow,
     weekly:      row.weekly,
     assignments: row.assignments,
   })
@@ -31,17 +30,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
-  // upsert via ON CONFLICT(shop)
   await db
     .insert(campaigns)
-    .values({ shop, send_now, weekly, assignments })
+    .values({
+      shopIdentifier: shop,
+      sendNow:        send_now,
+      weekly,
+      assignments,
+    })
     .onConflictDoUpdate({
-      target: campaigns.shop,
+      target: campaigns.shopIdentifier,
       set: {
-        send_now:    sql`EXCLUDED.send_now`,
-        weekly:      sql`EXCLUDED.weekly`,
-        assignments: sql`EXCLUDED.assignments`,
-        updated_at:  sql`now()`,
+        sendNow:     sql.raw(`EXCLUDED.${campaigns.sendNow.name}`),
+        weekly:      sql.raw(`EXCLUDED.${campaigns.weekly.name}`),
+        assignments: sql.raw(`EXCLUDED.${campaigns.assignments.name}`),
+        updatedAt:   sql`now()`,
       },
     })
 

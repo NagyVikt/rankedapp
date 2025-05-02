@@ -50,41 +50,47 @@ const db = drizzle(client, { schema, logger: process.env.NODE_ENV === 'developme
  * Gets the authenticated Supabase user for the current request.
  * Returns null if not authenticated or on error.
  */
-async function getCurrentSupabaseUser(): Promise<schema.User | null> {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll: () => cookieStore.getAll(),
-                setAll: (cookiesToSet) => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
-            },
-        }
-    );
-
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) {
-            console.error("Supabase getUser error:", error.message);
-            return null;
-        }
-        if (!user) {
-            return null; // Not authenticated
-        }
-        // Now, verify this user exists in *your* public.User table
-        // This assumes your public.User.id matches Supabase auth.users.id (UUID)
-        const appUser = await db.query.user.findFirst({
-            where: eq(schema.user.id, user.id)
-        });
-        return appUser || null; // Return the user from your table, or null if not found/synced
-
-    } catch (err) {
-        console.error("Error fetching Supabase user or verifying in app DB:", err);
-        return null;
+export async function getAuthenticatedUser(): Promise<schema.User | null> {
+  // 1) Create a Supabase SSR client that reads Next.js cookies
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (tos) =>
+          tos.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          ),
+      },
     }
-}
+  );
 
+  // 2) Get the authenticated user object from Supabase
+  const {
+    data: { user },
+    error: supabaseError,
+  } = await supabase.auth.getUser();
+
+  if (supabaseError) {
+    console.error('Supabase Auth error:', supabaseError.message);
+    return null;
+  }
+  if (!user) {
+    // no session = not signed in
+    return null;
+  }
+
+  // 3) Query your Drizzle User table for the matching ID
+  const [appUser] = await db
+    .select()
+    .from(schema.user)
+    .where(eq(schema.user.id, user.id))
+    .limit(1);
+
+  return appUser ?? null;
+}
 
 // === User and Auth Related Functions ===
 
@@ -96,7 +102,7 @@ export async function getUser(): Promise<User | null> {
   // Note: This function name conflicts with the schema import 'user'.
   // Consider renaming this function, e.g., `getAuthenticatedUser`.
   // For now, keeping original name but implementation uses helper.
-  return getCurrentSupabaseUser();
+  return getAuthenticatedUser();
 }
 
 /**
@@ -212,7 +218,7 @@ export async function getTeamById(teamId: number): Promise<Team | null> {
  * Returns the Team data along with members and their user details.
  */
 export async function getTeamDataForCurrentUser(): Promise<TeamDataWithMembers | null> {
-  const user = await getCurrentSupabaseUser(); // Use Supabase auth helper
+  const user = await getAuthenticatedUser(); // Use Supabase auth helper
   if (!user?.id) { // Check for user and user.id
     return null;
   }
@@ -884,7 +890,7 @@ export async function getActivityLogsByTeamId(teamId: number, limit: number = 20
 
 export async function getTeamForUser(): Promise<TeamDataWithMembers | null> {
  console.log("getTeamForUser() called..."); // Debug Log
- const user = await getCurrentSupabaseUser(); // Use Supabase auth helper
+ const user = await getAuthenticatedUser(); // Use Supabase auth helper
  if (!user?.id) { // Check for user and user.id
    console.log("getTeamForUser: No authenticated user found."); // Debug Log
    return null;

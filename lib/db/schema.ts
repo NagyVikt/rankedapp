@@ -163,7 +163,8 @@ export const webshops = pgTable('webshops', {
   // Foreign key to the User table (UUID)
   userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
-  url: text('url'), // Optional URL for the webshop
+  url: text('url'), // Optional URL for the webshop7
+  slug:     varchar('slug', { length: 100 }).notNull().unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   platform: varchar('platform', { length: 50 }), // e.g., Shopify, WooCommerce

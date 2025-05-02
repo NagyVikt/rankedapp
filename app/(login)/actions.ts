@@ -32,7 +32,7 @@ const db = drizzle(client, { schema, logger: process.env.NODE_ENV === 'developme
  * and verifies they exist in the local public.User table.
  * Returns the user record from public.User, or null if not authenticated/found/synced.
  */
-async function getCurrentSupabaseUser(): Promise<schema.User | null> {
+async function getAuthenticatedUser(): Promise<schema.User | null> {
     const cookieStore = await cookies(); // Use await here as cookies() returns a promise-like object
     // Ensure Supabase URL and Anon Key are correctly set in environment variables
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -138,7 +138,7 @@ function authenticatedAction<TInput extends z.ZodTypeAny, TOutput extends Action
   action: (data: z.infer<TInput>, user: User, formData?: FormData) => Promise<TOutput>
 ): (currentState: TOutput, formData: FormData) => Promise<TOutput> {
   return async (currentState: TOutput, formData: FormData): Promise<TOutput> => {
-      const user = await getCurrentSupabaseUser();
+      const user = await getAuthenticatedUser();
       if (!user) {
           // Return previous state merged with new error
           return { ...currentState, error: 'Authentication required.' } as TOutput;
