@@ -326,6 +326,9 @@ importers:
       styled-components:
         specifier: ^6.1.17
         version: 6.1.17(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      supabase-server:
+        specifier: link:@/lib/supabase-server
+        version: link:@/lib/supabase-server
       swr:
         specifier: ^2.2.5
         version: 2.2.5(react@19.1.0)

@@ -1,73 +1,45 @@
-// /app/(auth)/auth.ts
-
-import { compare } from 'bcrypt-ts'; // Or import { compare } from 'bcrypt';
+// auth.ts
+import { compare } from 'bcrypt-ts';
 import NextAuth, { type User, type Session } from 'next-auth';
-import type { AdapterSession, AdapterUser } from "next-auth/adapters"; // Import adapter types if needed, or remove if not using an adapter
-import type { JWT } from "next-auth/jwt"; // Import JWT type
 import Credentials from 'next-auth/providers/credentials';
 
-// Make sure these imports point to the correct functions in your queries file
-import { getUserByEmail, createUser } from '@/lib/db/queries';
+import { getUser, createUser } from '@/lib/db/queries'; // Assuming these are correct
 import { authConfig } from './auth.config';
 
-// Define the User type based on your actual schema if possible
-interface AppUser extends User {
-  id: string; // Must be string for NextAuth compatibility
-  name: string | null;
-  email: string;
-  // Add other relevant user fields you might want in the session/token
-  // role?: string;
-}
-
-// Define the type returned by your database query
-interface DbUser {
-    id: number; // Assuming DB uses number for ID
-    name: string | null;
-    email: string;
-    passwordHash: string; // *** ADJUST THIS NAME if your field is different (e.g., password) ***
-    role?: string;
-    // Add other fields from your users table as needed
-}
-
-
 interface ExtendedSession extends Session {
-  // Ensure user here matches AppUser which now has id: string
-  user: AppUser;
-  // Add any other custom session properties if needed
-  // accessToken?: string;
+  // Ensure your User type includes id and email if not default
+  user: User & {
+    id?: string | null;
+    email?: string | null;
+  };
 }
 
-// This function now needs to return a user matching AppUser (id: string)
-async function createAnonymousUser(): Promise<AppUser | null> {
+// Function to explicitly create an anonymous user IF NEEDED elsewhere
+// Note: This is no longer called automatically by the JWT callback
+async function createAnonymousUserExplicitly() {
   const anonymousEmail = `anon_${Date.now()}@anonymous.user`;
+  // Consider a more secure way to handle potential "password" for anon users if needed
   const anonymousPassword = `anon_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
   try {
-    // Assuming createUser handles hashing. If not, hash anonymousPassword first.
+    // First create the user
     await createUser(anonymousEmail, anonymousPassword);
 
-    const usersResult: DbUser[] = await getUserByEmail(anonymousEmail); // Expects DbUser array
-
-    if (usersResult.length === 0) {
-        console.error('Failed to retrieve anonymous user immediately after creation.');
-        throw new Error('Anonymous user creation verification failed');
+    // Then verify the user was created by fetching it
+    const [user] = await getUser(anonymousEmail);
+    if (!user) {
+        throw new Error('Failed to fetch newly created anonymous user.');
     }
-
-    const dbUser = usersResult[0];
-
-    // Convert DbUser to AppUser format for NextAuth (especially id to string)
-    const appUser: AppUser = {
-        id: dbUser.id.toString(), // Convert number ID to string
-        name: dbUser.name,
-        email: dbUser.email,
-    };
-    return appUser;
+    console.log(`Explicitly created anonymous user: ${user.id}`);
+    return user;
 
   } catch (error) {
-    console.error('Failed to create anonymous user:', error);
+    console.error('Failed to explicitly create anonymous user:', error);
+    // Instead of returning null, throw an error
     throw new Error('Anonymous user creation failed');
   }
 }
+
 
 export const {
   handlers: { GET, POST },
@@ -78,112 +50,113 @@ export const {
   ...authConfig,
   providers: [
     Credentials({
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      // Authorize must return a type compatible with NextAuth's User (id: string)
-      async authorize(credentials): Promise<AppUser | null> {
-        if (!credentials?.email || !credentials?.password) {
-            console.log('Authorize called without email/password');
-             return null;
-        }
-
-        const email = credentials.email as string;
-        const password = credentials.password as string;
-
+      // Optional: Define credentials fields if you want NextAuth to generate a form
+      // credentials: {
+      //   email: { label: "Email", type: "email" },
+      //   password: { label: "Password", type: "password" }
+      // },
+      async authorize(credentials: any) { // Use 'credentials' directly
         try {
-          // Fetch user data including the password hash field
-          const users: DbUser[] = await getUserByEmail(email); // Expects DbUser array
+          const { email, password } = credentials ?? {}; // Safely destructure
 
-          if (users.length === 0) {
-            console.log(`Authentication failed: No user found for email ${email}`);
-            return null;
+          // --- Handle regular authentication ---
+          if (email && password) {
+            console.log(`Authorizing user: ${email}`); // Debug log
+            const users = await getUser(email);
+            if (users.length === 0) {
+                console.log(`Authorization failed: User ${email} not found.`);
+                return null; // User not found
+            }
+
+            // biome-ignore lint: Forbidden non-null assertion (consider checking if password exists)
+            const user = users[0];
+            if (!user.password) {
+                console.log(`Authorization failed: User ${email} has no password set.`);
+                return null; // User exists but has no password
+            }
+
+            const passwordsMatch = await compare(password, user.password);
+            if (!passwordsMatch) {
+                console.log(`Authorization failed: Password mismatch for ${email}.`);
+                return null; // Passwords don't match
+            }
+
+            console.log(`Authorization successful for ${email}, user ID: ${user.id}`);
+            // Return the user object expected by NextAuth (must include id)
+            return { id: user.id, email: user.email, name: user.name }; // Adjust fields as needed
           }
 
-          const dbUser = users[0];
-
-          // *** CRITICAL: Use the correct field name for the password hash ***
-          const storedPasswordHash = dbUser.passwordHash; // Adjust if needed
-
-          if (!storedPasswordHash) {
-             console.error(`Authentication failed: User object for ${email} missing password hash field.`);
-             return null;
-          }
-
-          // Compare the provided password with the stored hash
-          const passwordsMatch = await compare(password, storedPasswordHash);
-
-          if (!passwordsMatch) {
-            console.log(`Authentication failed: Incorrect password for email ${email}`);
-            return null;
-          }
-
-          console.log(`Authentication successful for email ${email}`);
-
-          // Return user object in AppUser format (id as string, no password hash)
-          const appUser: AppUser = {
-              id: dbUser.id.toString(), // Convert number ID to string
-              name: dbUser.name,
-              email: dbUser.email,
-              // role: dbUser.role // Include other needed fields
-          };
-          return appUser;
+          // --- Handle Anonymous/Guest Access ---
+          // If NO email/password provided, previously created anonymous user.
+          // NOW: We explicitly DO NOT create an anonymous user here during authorize.
+          // Returning null signifies failed credential login.
+          // If you want a specific "Sign in as Guest" button, it would call
+          // signIn with specific parameters, or you'd handle guest session differently.
+          console.log("Authorize called without email/password - denying credential auth.");
+          return null;
 
         } catch (error) {
-          console.error(`Authentication error for email ${email}:`, error);
-          return null;
+          console.error('Error during authorization:', error);
+          return null; // Return null on any error
         }
       },
     }),
+    // Add other providers like Google, GitHub here if needed
   ],
+  // Add proxy configuration for Docker environment if needed
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `next-auth.session-token`, // Or your preferred cookie name
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production',
+        // Consider setting domain and maxAge/expires
       },
     },
+    // Add other cookies (CSRF, callbackUrl) if customizing them
   },
-  trustHost: true,
+  trustHost: true, // Useful for reverse proxies/deployments
   callbacks: {
-    async jwt({ token, user }) {
-      // 'user' here is the object returned by 'authorize' (AppUser type)
-      if (user) {
-        // Persist required info to the token
-        token.id = user.id; // user.id is string here
-        // Add other fields from AppUser to token if needed for session
-        // token.name = user.name; // Example
-        // token.email = user.email; // Example
-        // token.role = user.role; // Example
+    // --- MODIFIED JWT Callback ---
+    async jwt({ token, user, account, profile, isNewUser }) {
+      // 'user' is only passed on sign-in/sign-up
+      if (user?.id) {
+        // Successful sign-in, update token with user ID and email
+        console.log(`JWT Callback: User object present (sign-in). Assigning ID: ${user.id}`);
+        token.id = user.id;
+        token.email = user.email; // Add email to token
+        // Add other user details to token if needed (e.g., name, role)
+        // token.name = user.name;
+      } else {
+        // This runs on subsequent requests when user is not logging in.
+        // We simply return the existing token.
+        // DO NOT create anonymous user here.
+        console.log(`JWT Callback: No user object (subsequent request). Token ID: ${token.id}`);
       }
-      return token;
+      return token; // Return the token (might lack 'id' if user never logged in)
     },
-    // Corrected session callback signature
-    async session(params: { session: Session; token: JWT; user: User /* May differ if using adapter */ }) {
-        // Destructure for convenience, respecting the input param structure
-        const { session, token } = params;
-
-        // Ensure session.user exists and token has the id we added in jwt callback
-        // Assign properties from the token to the session.user object
-        // This ensures the session reflects the data stored in the secure JWT
-        if (token && session.user) {
-            // Assign the id (which should be a string from the token)
-            session.user.id = token.id as string;
-
-            // Assign other properties persisted in the token back to the session user
-            // Make sure these properties exist on your AppUser/ExtendedSession['user'] type
-            // session.user.name = token.name as string | null; // Example
-            // session.user.email = token.email as string; // Example
-            // session.user.role = token.role as string; // Example
-        }
-        // Return the potentially modified session object
-        // Ensure the returned object structure matches what NextAuth expects
-        // (TypeScript might still complain if ExtendedSession differs too much from base Session)
-        return session as ExtendedSession; // Cast back to your extended type if needed, be cautious
+    // --- Session Callback ---
+    async session({ session, token }: { session: ExtendedSession; token: any }) {
+      // Assign the user ID from the token (if it exists) to the session object
+      if (token?.id && session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string; // Assign email from token
+        // Assign other details from token if needed
+        // session.user.name = token.name as string;
+        console.log(`Session Callback: Assigning user ID ${token.id} to session.`);
+      } else {
+        // If no token.id, the user is not authenticated
+        console.log("Session Callback: No token ID found, user is unauthenticated.");
+        // Ensure session.user reflects unauthenticated state if necessary
+        // session.user = undefined; // Or adjust based on your needs
+      }
+      return session;
     },
   },
+  // Optional: Add session strategy (jwt is default and recommended)
+  // session: { strategy: "jwt" },
+  // Optional: Add debug flag for development
+  // debug: process.env.NODE_ENV === 'development',
 });

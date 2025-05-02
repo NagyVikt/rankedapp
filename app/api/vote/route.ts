@@ -1,78 +1,108 @@
-import { auth, signIn } from '@/app/(auth)/auth';
-import { getVotesByChatId, voteMessage } from '@/lib/db/queries';
+// app/api/vote/route.ts (or relevant path)
 
-async function getOrCreateSession() {
-  let session = await auth();
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 
-  // If no session exists, create an anonymous session
-  if (!session?.user) {
-    try {
-      const result = await signIn('credentials', {
-        redirect: false,
-      });
+import { getVotesByChatId, voteMessage } from '@/lib/db/queries'; // Ensure these queries exist
 
-      if (result?.error) {
-        console.error('Failed to create anonymous session:', result.error);
-        return null;
-      }
-
-      session = await auth();
-
-      if (!session?.user) {
-        console.error('Failed to get session after creation');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error creating anonymous session:', error);
-      return null;
+// Helper function to get Supabase user (avoids repetition)
+async function getSupabaseUser() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+      },
     }
-  }
-
-  return session;
+  );
+  return supabase.auth.getUser();
 }
 
+// --- GET Handler: Fetch votes for a chat ---
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const chatId = searchParams.get('chatId');
 
   if (!chatId) {
-    return new Response('chatId is required', { status: 400 });
+    return NextResponse.json({ error: 'chatId is required' }, { status: 400 });
   }
 
-  const session = await getOrCreateSession();
+  // --- Authentication Check (Optional for GET, depends on requirements) ---
+  // You might allow anyone to GET votes, or require login.
+  // Here, we check auth but don't use the user ID.
+  console.log("--- Vote GET: Attempting supabase.auth.getUser() ---");
+  const { data: { user }, error: authError } = await getSupabaseUser();
 
-  if (!session?.user) {
-    return new Response('Failed to create session', { status: 500 });
+  if (authError) {
+     console.error("--- Vote GET: Supabase auth error:", authError.message);
+     // Decide if auth errors should prevent fetching votes
+     // return NextResponse.json({ error: 'Failed to verify authentication.' }, { status: 500 });
   }
+  // Proceed even if user is null or authError occurred, depending on requirements.
+  // If login is required to view votes, uncomment the error return above and add:
+  // if (!user) {
+  //   return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+  // }
+  console.log(`--- Vote GET: User state: ${user ? `Authenticated (${user.id})` : 'Not Authenticated'}`);
 
-  const votes = await getVotesByChatId({ id: chatId });
 
-  return Response.json(votes, { status: 200 });
+  try {
+    // Fetch votes regardless of user login status (adjust if needed)
+    const votes = await getVotesByChatId({ id: chatId });
+    console.log(`--- Vote GET: Found votes for chat ${chatId}.`);
+    return NextResponse.json(votes, { status: 200 });
+  } catch (dbError: any) {
+     console.error(`--- Vote GET: Database error fetching votes for chat ${chatId}:`, dbError);
+     return NextResponse.json({ error: 'Failed to fetch votes.' }, { status: 500 });
+  }
 }
 
+// --- PATCH Handler: Submit a vote ---
 export async function PATCH(request: Request) {
-  const {
-    chatId,
-    messageId,
-    type,
-  }: { chatId: string; messageId: string; type: 'up' | 'down' } =
-    await request.json();
+  const { chatId, messageId, type }: {
+    chatId: string; messageId: string; type: 'up' | 'down';
+  } = await request.json();
 
   if (!chatId || !messageId || !type) {
-    return new Response('messageId and type are required', { status: 400 });
+    return NextResponse.json({ error: 'chatId, messageId, and type are required' }, { status: 400 });
   }
 
-  const session = await getOrCreateSession();
+  // --- Authentication Check (Required for PATCH) ---
+  console.log("--- Vote PATCH: Attempting supabase.auth.getUser() ---");
+  const { data: { user }, error: authError } = await getSupabaseUser();
 
-  if (!session?.user) {
-    return new Response('Failed to create session', { status: 500 });
+  if (authError) {
+    console.error("--- Vote PATCH: Supabase auth error:", authError.message);
+    return NextResponse.json({ error: 'Failed to verify authentication.' }, { status: 500 });
   }
 
-  await voteMessage({
-    chatId,
-    messageId,
-    type: type,
-  });
+  if (!user) {
+    console.error('--- Vote PATCH: No authenticated user found via Supabase SSR.');
+    return NextResponse.json({ error: 'Authentication required to vote.' }, { status: 401 }); // Unauthorized
+  }
 
-  return new Response('Message voted', { status: 200 });
+  // --- User is authenticated ---
+  const currentUserId = user.id;
+  console.log(`--- Vote PATCH: User ${currentUserId} attempting to vote on message ${messageId} in chat ${chatId}`);
+
+  try {
+    // Perform the vote operation
+    // Note: voteMessage might need the userId if you track who voted
+    await voteMessage({
+      chatId,
+      messageId,
+      type: type,
+      // userId: currentUserId, // Pass userId if your DB schema/query needs it
+    });
+    console.log(`--- Vote PATCH: Vote recorded successfully for user ${currentUserId}.`);
+    // Use NextResponse for consistency
+    return NextResponse.json({ message: 'Message voted' }, { status: 200 });
+  } catch (dbError: any) {
+     console.error(`--- Vote PATCH: Database error voting for user ${currentUserId}:`, dbError);
+     return NextResponse.json({ error: 'Failed to record vote.' }, { status: 500 });
+  }
 }

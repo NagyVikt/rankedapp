@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button, Input, Checkbox, Link, Divider } from '@heroui/react'; // Added Link, Divider
 import { Icon } from '@iconify/react';
 import toast, { Toaster } from 'react-hot-toast'; // Import toast
@@ -10,6 +10,7 @@ import toast, { Toaster } from 'react-hot-toast'; // Import toast
 export default function LoginPageImproved() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const pathname = usePathname(); // <-- Get the pathname here
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false); // Changed default state behavior slightly
@@ -39,33 +40,37 @@ export default function LoginPageImproved() {
 
       // Dismiss the loading toast
       toast.dismiss(loadingToastId);
-
       if (!res.ok) {
+        // Attempt to parse error, provide fallback
         const errorData = await res.json().catch(() => ({ error: 'Login failed. Please try again.' }));
-        // Show error toast
-        toast.error(errorData?.error || 'Login failed. Invalid credentials.');
+        const errorMessage = errorData?.error || `Login failed (Status: ${res.status})`;
+        console.error("Login API Error:", errorMessage);
+        toast.error(errorMessage);
       } else {
-        // Show success toast
+        // Login successful via API route
         toast.success('Login successful! Redirecting...');
-        // Redirect after a short delay to allow toast visibility
+        // Redirect after a short delay
         setTimeout(() => {
-          router.push('/chat'); // Or your desired dashboard/protected route
-          router.refresh(); // Ensures layout reflects logged-in state if using server components
+          // Redirect to the chat page (or dashboard)
+          router.push('/chat');
+          // Refresh the page to ensure server components re-render with the new auth state
+          // This is important when relying on server-side auth checks
+          router.refresh();
         }, 1000);
+        // Don't setLoading(false) here as we are redirecting
+        return; // Prevent setLoading(false) in finally block after successful redirect starts
       }
     } catch (error) {
         toast.dismiss(loadingToastId);
-        console.error("Login error:", error);
-        toast.error('An unexpected error occurred. Please try again.');
+        console.error("Login submit fetch error:", error);
+        toast.error('An unexpected network error occurred. Please try again.');
     } finally {
-        // Ensure loading is set to false even if redirection happens quickly
-        // Though state might be lost on redirect anyway
-       if (!router.pathname.startsWith('/chat')) { // Basic check to avoid state update post-redirect attempt
+        // Only set loading false if not successful redirecting
+       if (!pathname.startsWith('/chat')) { // Avoid state update if redirect might have happened
          setLoading(false);
        }
     }
   }
-
   // Placeholder handlers for social logins
   const handleGoogleLogin = () => {
     toast.loading('Redirecting to Google...');
