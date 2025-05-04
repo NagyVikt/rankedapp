@@ -10,6 +10,7 @@ import {
   CardFooter,
   Button,
   Spacer,
+  Image, // Using Image component for consistency if needed, or simple img tag
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
@@ -40,24 +41,18 @@ export interface WebshopCardComponentProps extends CardProps {
 export default function WebshopCard({
   name,
   url,
-  imageUrl, // Use the prop
-  isLoadingImage, // Use the prop
+  imageUrl,
+  isLoadingImage,
   onRemove,
   ...cardProps
 }: WebshopCardComponentProps) {
 
-  // State only needed for Woo connection status
   const [wooSettings, setWooSettings] = useState<{ selectedShopUrl?: string } | null>(null);
-
   const slug = useMemo(() => slugify(url), [url]);
-
-  // *** REMOVED the useEffect hook that fetched the screenshot here ***
-  // The parent component (WebshopsPage) now handles fetching the imageUrl.
 
   // Effect to load WooCommerce connection status (remains the same)
   useEffect(() => {
      let isMounted = true;
-     console.log(`[Effect Woo] Checking WooConnections for: ${url}`);
      const raw = localStorage.getItem("wooConnections");
      if (raw) {
        try {
@@ -65,10 +60,8 @@ export default function WebshopCard({
          if (isMounted) {
              if (conns.find((c) => c.selectedShopUrl === url)) {
                setWooSettings({ selectedShopUrl: url });
-               console.log(`[Effect Woo] Woo connection found for: ${url}`);
              } else {
                setWooSettings(null);
-               console.log(`[Effect Woo] No Woo connection found for: ${url}`);
              }
          }
        } catch (e) {
@@ -79,48 +72,56 @@ export default function WebshopCard({
        }
      } else {
          if (isMounted) {
-             console.log("[Effect Woo] No 'wooConnections' found in localStorage.");
              setWooSettings(null);
          }
      }
      return () => { isMounted = false; };
-   }, [url]); // Only depends on URL
+   }, [url]);
 
   const isWooConnected = wooSettings?.selectedShopUrl === url;
 
-  // Handler for the remove button click (remains the same)
   const handleRemoveClick = () => {
     if (window.confirm(`Are you sure you want to remove the webshop "${name}"?`)) {
       onRemove(url);
     }
   };
 
-  // Determine what text to show based on props
   const getLoadingText = () => {
       if (isLoadingImage) return 'Loading preview...';
-      if (!imageUrl) return 'Preview not available.'; // Show if loading is false but no URL
-      return ''; // No text if loaded or idle without loading
+      if (!imageUrl) return 'Preview not available.';
+      return '';
   };
 
-  // Render the card component
+  // Render the card component using HeroUI styles primarily
   return (
-    <Card className="w-full max-w-sm shadow-md rounded-lg overflow-hidden flex flex-col border border-gray-200" {...cardProps}>
+    // Rely on HeroUI default Card styling, add necessary layout/sizing
+    <Card className="w-full max-w-sm flex flex-col" {...cardProps}>
       {/* Card Body: Contains the image and text info */}
-      <CardBody className="p-0 bg-white flex-grow">
+      {/* Use default CardBody padding or specify if needed */}
+      <CardBody className="p-0 flex-grow"> {/* Resetting padding, relying on inner divs */}
          {/* --- IMAGE AREA --- */}
-         <div className="relative h-48 bg-gray-100 rounded-t">
-           {/* Display Image if imageUrl is available */}
+         {/* Using a simple div for background placeholder */}
+         <div className="relative h-48 bg-gray-100"> {/* Light placeholder background */}
            {imageUrl ? (
+             // Use HeroUI Image component or standard img
+             <Image
+               removeWrapper // Optional: removes the extra div HeroUI Image might add
+               src={imageUrl}
+               alt={`${name} front page screenshot`}
+               className="absolute inset-0 w-full h-full object-cover object-top" // Tailwind for positioning/fit
+             />
+             /* Alternative: Standard img tag
              <img
                src={imageUrl}
                alt={`${name} front page screenshot`}
-               // Apply Tailwind classes for styling and object-fit
-               className="absolute inset-0 w-full h-full object-cover object-top rounded-t"
+               className="absolute inset-0 w-full h-full object-cover object-top"
              />
+             */
            ) : (
              // Show loading/placeholder text if no imageUrl or if loading
              <div className="absolute inset-0 flex items-center justify-center h-full">
-               <span className="text-gray-400 px-4 text-center text-sm">
+               {/* Using text-default-500 might align with HeroUI's theme scale */}
+               <span className="text-default-500 px-4 text-center text-sm">
                  {getLoadingText()}
                </span>
              </div>
@@ -128,42 +129,75 @@ export default function WebshopCard({
          </div>
          {/* --- END IMAGE AREA --- */}
 
-        {/* Spacer and Text Info */}
+        {/* Spacer and Text Info - Add padding here */}
         <div className="p-3">
             <Spacer y={2} />
+            {/* Using standard text styling, consider HeroUI Text component if available/needed */}
             <div className="flex flex-col gap-1 px-2">
               <a
                 href={url} target="_blank" rel="noopener noreferrer"
-                className="text-lg font-semibold text-gray-800 hover:underline truncate" title={name}
-              > {name} </a>
-              <p className="text-sm text-gray-500 truncate" title={url}>
+                 // Using common Tailwind text classes, assuming HeroUI doesn't override heavily
+                className="text-lg font-semibold text-foreground hover:underline truncate"
+                title={name}
+              >
+                 {name}
+               </a>
+              <p className="text-sm text-foreground-500 truncate" title={url}> {/* text-foreground-xxx is common in NextUI/HeroUI themes */}
                 {url.replace(/^https?:\/\//, "")}
               </p>
             </div>
         </div>
       </CardBody>
 
-      {/* Card Footer (remains the same) */}
-      <CardFooter className="flex flex-wrap justify-between items-center bg-gray-50 px-4 py-3 border-t border-gray-200 gap-2">
-        {/* Woo status pill */}
-        <div className="flex items-center space-x-2 px-3 py-1 border border-gray-300 rounded-full text-xs">
+      {/* Card Footer - Rely on HeroUI Footer styling, add layout classes */}
+      <CardFooter className="flex flex-wrap justify-between items-center gap-2 px-4 py-3 border-t border-divider">
+         {/* Woo status pill - Basic Tailwind styling for the pill itself */}
+        <div className="flex items-center space-x-2 px-3 py-1 border border-divider rounded-full text-xs">
           <span
-            className={`h-2 w-2 rounded-full ${isWooConnected ? "bg-green-500" : "bg-red-500"}`}
+            className={`h-2 w-2 rounded-full ${isWooConnected ? "bg-success" : "bg-danger"}`} // Using semantic colors if defined in HeroUI/Tailwind config
             title={isWooConnected ? "WooCommerce Connected" : "WooCommerce Plugin/Connection Missing"}
           />
-          <span className="font-medium text-gray-700">
+           {/* Using semantic text colors */}
+          <span className="font-medium text-foreground-700">
             {isWooConnected ? "Woo Connected" : "Woocommerce API Missing"}
           </span>
         </div>
+
+           {/* Woo status pill - Basic Tailwind styling for the pill itself */}
+           <div className="flex items-center space-x-2 px-3 py-1 border border-divider rounded-full text-xs">
+          <span
+            className={`h-2 w-2 rounded-full ${isWooConnected ? "bg-danger" : "bg-success"}`} // Using semantic colors if defined in HeroUI/Tailwind config
+            title={isWooConnected ? "WooCommerce Connected" : "WooCommerce Plugin/Connection Missing"}
+          />
+           {/* Using semantic text colors */}
+          <span className="font-medium text-foreground-700">
+            {isWooConnected ? "PLugin Connected" : "Plugin Missing"}
+          </span>
+        </div>
+
         {/* Action buttons */}
         <div className="flex flex-wrap gap-2">
           <Link href={`/dashboard/webshops/${slug}/products`}>
-            <Button size="sm" variant="light" className="flex items-center space-x-1 px-3 py-1 border border-gray-300 rounded hover:bg-gray-100" aria-label={`View products for ${name}`}>
-              <Icon icon="mdi:tag-outline" width={16} className="text-gray-600" />
-              <span className="text-xs text-gray-700">Products</span>
+             {/* Use Button variant="light" for subtle styling */}
+            <Button
+                size="sm"
+                variant="light" // Use HeroUI light variant
+                className="flex items-center space-x-1" // Add layout class
+                aria-label={`View products for ${name}`}
+            >
+              <Icon icon="mdi:tag-outline" width={16} />
+              <span className="text-xs">Products</span>
             </Button>
           </Link>
-          <Button size="sm" variant="light" color="danger" className="flex items-center space-x-1 px-3 py-1 border border-red-300 rounded hover:bg-red-50 text-red-600" onClick={handleRemoveClick} aria-label={`Remove webshop ${name}`}>
+           {/* Use Button variant="light" and color="danger" */}
+          <Button
+            size="sm"
+            variant="light" // Use light variant for less emphasis
+            color="danger" // Use HeroUI danger color semantic
+            className="flex items-center space-x-1" // Add layout class
+            onClick={handleRemoveClick}
+            aria-label={`Remove webshop ${name}`}
+           >
             <Icon icon="mdi:trash-can-outline" width={16} />
             <span className="text-xs">Remove</span>
           </Button>

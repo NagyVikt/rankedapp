@@ -1,33 +1,49 @@
-"use client"; // Added directive
+"use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Avatar, Button, Card, CardBody, CardFooter, ScrollShadow, Spacer } from '@heroui/react';
+import {
+  Avatar,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  ScrollShadow,
+  Spacer,
+  Skeleton, // Import Skeleton
+  Modal,      // Import Modal components
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure, // Hook for Modal state
+  Input       // Import Input
+} from '@heroui/react';
 import { Icon } from '@iconify/react';
 import useSWR from 'swr';
 import { items } from './sidebar-items'; // Assuming this file exists
-import { AcmeIcon } from './acme'; // Assuming this file exists
+import { AcmeIcon } from './acme';       // Assuming this file exists
 import { useShops } from '@/context/shops'; // Assuming this context exists
 
 const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then(res => res.json());
 
-// Define User type, assuming avatarUrl might be part of the response
+// Define User type
 interface User {
-    name: string;
-    email: string;
-    role: string;
-    avatarUrl?: string | null; // Add avatarUrl if your API provides it
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string | null;
 }
 
 export default function SidebarComponent() {
   const pathname = usePathname();
-  const { shops, addShop } = useShops(); // Assuming context provides these
-  const [showModal, setShowModal] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newUrl, setNewUrl] = useState('');
+  const { addShop } = useShops(); // Assuming context provides addShop
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure(); // Hook for Modal
+  const [newName, setNewName] = React.useState('');
+  const [newUrl, setNewUrl] = React.useState('');
 
-  // Fetch current user - Use the defined User interface
+  // Fetch current user
   const { data, error } = useSWR<{ user: User }>('/api/user', fetcher);
   const isLoading = !data && !error;
   const user = data?.user;
@@ -36,213 +52,202 @@ export default function SidebarComponent() {
     const trimmedName = newName.trim();
     const trimmedUrl = newUrl.trim();
     if (!trimmedName || !trimmedUrl) return;
-    // Ensure addShop expects { name: string, url: string }
     if (addShop) {
-       addShop({ name: trimmedName, url: trimmedUrl });
+      addShop({ name: trimmedName, url: trimmedUrl });
     }
     setNewName('');
     setNewUrl('');
-    setShowModal(false);
+    onClose(); // Close modal using hook function
   };
 
   // --- Logout Handler Placeholder ---
   const handleLogout = () => {
     console.log("Logout clicked");
-    // Add your actual logout logic here (e.g., call an API endpoint, redirect)
-    // Example: window.location.href = '/api/auth/logout';
+    // Add your actual logout logic here
   };
 
   return (
     <>
-      <div className="h-full min-h-[48rem]"> {/* Consider setting min-h via viewport units like min-h-screen if needed */}
-          {" "}
-          {/* Brand */}
-          <div className="flex items-center gap-2 px-2">
+      {/* Main Sidebar Container: Use Flex column and full height */}
+      <div className="flex h-screen flex-col p-4 border-r border-divider bg-background"> {/* Added padding, border, bg */}
 
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground">
-              <AcmeIcon className="text-background" />
-            </div>
-            <span className="text-small font-bold uppercase"> RANKED BETA v0.1</span>
+        {/* Brand */}
+        <div className="flex items-center gap-2 px-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground">
+            <AcmeIcon className="text-background" />
           </div>
+          <span className="text-small font-bold uppercase text-foreground">RANKED BETA v0.1</span>
+        </div>
 
-          <Spacer y={12} />
+        <Spacer y={8} /> {/* Adjusted Spacer */}
 
-          {/* User Section */}
-          <div className="flex items-center gap-3 px-4">
-            {isLoading ? (
-              // Skeleton avatar
-              <div className="h-10 w-10 rounded-full bg-default-200 animate-pulse" />
-            ) : (
-              // --- Corrected Avatar ---
+        {/* User Section with Skeleton */}
+        <div className="flex items-center gap-3 px-2"> {/* Adjusted padding */}
+           <Skeleton isLoaded={!isLoading} className="flex rounded-full w-10 h-10">
               <Avatar
                 isBordered
-                size="sm"
-                // Pass the actual avatarUrl from your user data if available
+                size="md" // Slightly larger avatar
                 src={user?.avatarUrl ?? undefined}
-                // Always pass the name. Avatar component should show initials if src fails/is missing.
-                // Use email as a fallback for the name if name is also missing.
-                name={user?.name ?? user?.email ?? 'User'}
+                name={user?.name ?? user?.email ?? 'U'} // Provide fallback initial
               />
-              // --- End Corrected Avatar ---
-            )}
-
-            {isLoading ? (
-              // Skeleton text
-              <div className="flex flex-col gap-1"> {/* Use gap for spacing */}
-                <div className="h-4 w-24 rounded bg-default-200 animate-pulse" />
-                <div className="h-3 w-16 rounded bg-default-300 animate-pulse" /> {/* Use different shade */}
-              </div>
-            ) : (
-              <div className="flex flex-col">
-                <p className="text-small font-medium text-default-600">
-                  {/* Display name or email if name is missing */}
-                  {user?.name ?? user?.email ?? 'Unknown User'}
-                </p>
-                <p className="text-tiny text-default-400">
-                  {user?.role ?? 'No Role'}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Navigation */}
-          <ScrollShadow className="-mr-6 h-full flex-1 py-6 pr-6"> {/* Adjust max-h if needed, ensure h-full */}
-            <nav className="flex flex-col gap-1 px-2"> {/* Use gap for consistent spacing */}
-              {items.map((item) => {
-                // Ensure item structure is consistent (e.g., has key, title, optional href/icon/endContent)
-                if (!item || !item.key || !item.title) return null; // Basic check for valid item data
-
-                const isActive = item.href ? pathname === item.href : false;
-                const isWebshops = item.key === 'webshops'; // Check if this key is correct
-
-                return (
-                  <div key={item.key} className="flex items-center">
-                    {/* Use Button component for better accessibility and consistent styling */}
-                    <Button
-                      as={item.href ? Link : 'div'} // Render as Link if href exists
-                      href={item.href} // Pass href only if it exists
-                      fullWidth
-                      variant={isActive ? "flat" : "light"} // Style based on active state
-                      className={`h-auto justify-start gap-3 px-4 py-2 ${ isActive ? 'bg-default-100 text-foreground' : 'text-default-700' }`} // Adjust styling
-                      startContent={item.icon && <Icon icon={item.icon} width={24} />}
-                      endContent={item.endContent}
-                    >
-                      <span className="text-small font-medium">{item.title}</span>
-                    </Button>
-
-                    {/* Add Webshop Button - positioned relative to the nav item */}
-                    {isWebshops && (
-                      <Button
-                        isIconOnly
-                        size="sm"
-                        variant="light"
-                        className="ml-2 text-default-500 hover:text-foreground" // Adjust margin and styling
-                        aria-label="Add Webshop"
-                        onPress={() => setShowModal(true)} // Use onPress for HeroUI
-                      >
-                        <Icon icon="mdi:plus" width={18} />
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-            </nav>
-
-            {/* Spacer before Upgrade Card if needed */}
-            <Spacer y={8} />
-
-            {/* Upgrade Card - Ensure it doesn't overflow awkwardly */}
-            <Card className="mx-2 overflow-visible" shadow="sm">
-               {/* ... Card content ... */}
-                 <CardBody className="items-center py-5 text-center">
-                    <h3 className="text-medium font-medium text-default-700">
-                    Download Our plugin 🚀
-                    </h3>
-                    <p className="p-4 text-small text-default-500">
-                    Download our plugin to get the most out of your Webshop.
-                    </p>
-                </CardBody>
-                <CardFooter className="absolute -bottom-8 justify-center">
-                    <Button
-                    className="px-10 shadow-md"
-                    color="primary"
-                    radius="full"
-                    variant="shadow"
-                    // Add onPress handler if this button should do something
-                    onPress={() => console.log("Download plugin clicked")}
-                    >
-                    Download
-                    </Button>
-                </CardFooter>
-            </Card>
-          </ScrollShadow>
-
-          {/* Actions at the bottom */}
-          <div className="mt-auto flex flex-col pt-6"> {/* Added padding-top */}
-            <Button
-              fullWidth
-              className="justify-start text-default-500 hover:text-foreground"
-              startContent={<Icon icon="solar:info-circle-line-duotone" width={24} className="text-default-500" />}
-              variant="light"
-              onPress={() => console.log("Help clicked")} // Add onPress handler
-            >
-              Help & Information
-            </Button>
-            <Button
-              fullWidth
-              className="justify-start text-danger hover:bg-danger-50" // Use danger color for logout
-              startContent={<Icon icon="solar:logout-3-line-duotone" width={24} />} // More appropriate logout icon
-              variant="light"
-              onPress={handleLogout} // Use the logout handler
-            >
-              Log Out
-            </Button>
-          </div>
+           </Skeleton>
+           <div className="w-full"> {/* Container for text skeletons */}
+              <Skeleton isLoaded={!isLoading} className="h-4 w-3/5 rounded-lg mb-1"> {/* Name/Email Skeleton */}
+                 <p className="text-small font-semibold text-foreground">
+                   {user?.name ?? user?.email ?? 'Unknown User'}
+                 </p>
+               </Skeleton>
+               <Skeleton isLoaded={!isLoading} className="h-3 w-2/5 rounded-lg"> {/* Role Skeleton */}
+                  <p className="text-tiny text-default-500"> {/* Adjusted color */}
+                    {user?.role ?? 'No Role'}
+                  </p>
+               </Skeleton>
+           </div>
         </div>
-      
 
-      {/* Add Webshop Modal */}
-      {showModal && (
-        // Use HeroUI Modal component if available, otherwise style the div
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-background rounded-lg p-6 w-full max-w-sm shadow-xl"> {/* Use background color, max-width */}
-            <h3 className="text-lg font-medium mb-4">Add New Webshop</h3> {/* Slightly larger title */}
-            {/* Consider using HeroUI Input components for consistency */}
-            <label className="block mb-3">
-              <span className="text-sm text-default-700">Shop Name</span>
-              <input
-                type="text"
-                value={newName}
-                onChange={e => setNewName(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-default-200 bg-default-100 p-2 focus:border-primary focus:ring-primary" // Basic input styling
-                placeholder="e.g., My Awesome Store"
-              />
-            </label>
-            <label className="block mb-4">
-              <span className="text-sm text-default-700">Shop URL</span>
-              <input
-                type="text"
-                value={newUrl}
-                onChange={e => setNewUrl(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-default-200 bg-default-100 p-2 focus:border-primary focus:ring-primary" // Basic input styling
-                placeholder="https://example.com"
-              />
-            </label>
-            <div className="flex justify-end gap-2"> {/* Use gap */}
-              <Button variant="flat" onPress={() => setShowModal(false)}> {/* Use flat for secondary actions */}
-                Cancel
-              </Button>
-              <Button
-                color="primary" // Use primary color for main action
-                onPress={handleAdd}
-                isDisabled={!newName.trim() || !newUrl.trim()} // Use isDisabled prop
-              >
-                Add Shop
-              </Button>
-            </div>
-          </div>
+        <Spacer y={4} /> {/* Spacer before nav */}
+
+        {/* Navigation & Content Area: Takes remaining space and scrolls */}
+        <ScrollShadow className="flex-1 -mr-4 pr-4 py-4" hideScrollBar> {/* Takes up space, adjust padding */}
+          <nav className="flex flex-col gap-1"> {/* Removed px-2, handled by Button padding */}
+            {items.map((item) => {
+              if (!item || !item.key || !item.title) return null;
+
+              const isActive = item.href ? pathname === item.href : false;
+              const isWebshops = item.key === 'webshops';
+
+              return (
+                <div key={item.key} className="flex items-center gap-1"> {/* Reduced gap */}
+                  <Button
+                    as={item.href ? Link : 'button'} // Use button if no href for semantics
+                    href={item.href}
+                    fullWidth
+                    variant={isActive ? "flat" : "light"} // Use flat for active state
+                    color={isActive ? "primary" : "default"} // Use primary color for active
+                    radius="sm" // Slightly rounded corners
+                    className={`h-11 justify-start gap-3 px-3 ${ // Adjusted height, padding, gap
+                      isActive ? 'font-medium' : 'text-default-700' // Ensure text color contrast
+                    }`}
+                    startContent={item.icon && <Icon icon={item.icon} width={20} />} // Slightly smaller icon
+                    endContent={item.endContent}
+                  >
+                    <span className="text-small">{item.title}</span>
+                  </Button>
+
+                  {isWebshops && (
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      radius="sm" // Consistent radius
+                      className="text-default-500 hover:text-primary" // Use primary on hover
+                      aria-label="Add Webshop"
+                      onPress={onOpen} // Open HeroUI modal
+                    >
+                      <Icon icon="mdi:plus" width={18} />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          <Spacer y={8} />
+
+          {/* Upgrade Card */}
+           {/* NOTE: Absolute positioning on footer can be tricky. Consider simpler layout if issues arise. */}
+          <Card className="mx-2 overflow-visible" shadow="sm" isBlurred>
+             <CardBody className="items-center py-5 text-center">
+                <h3 className="text-medium font-medium text-default-700">
+                 Download Our plugin 🚀
+                </h3>
+                <p className="p-4 text-small text-default-500">
+                 Download our plugin to get the most out of your Webshop.
+                </p>
+            </CardBody>
+            <CardFooter className="absolute -bottom-5 justify-center"> {/* Adjusted bottom offset */}
+                <Button
+                 className="px-10 shadow-lg" // Slightly larger shadow
+                 color="primary"
+                 radius="full"
+                 variant="shadow"
+                 onPress={() => console.log("Download plugin clicked")}
+                >
+                 Download
+                </Button>
+            </CardFooter>
+          </Card>
+          {/* Add Spacer to prevent content overlap due to absolute positioned footer */}
+          <Spacer y={10}/>
+
+        </ScrollShadow> {/* End Scrollable Area */}
+
+        {/* Bottom Actions: Fixed at the bottom */}
+        <div className="flex flex-col gap-1 mt-4 pt-4 border-t border-divider"> {/* Added border-t */}
+          <Button
+            fullWidth
+            radius="sm" // Consistent radius
+            className="justify-start text-default-600" // Adjusted color
+            startContent={<Icon icon="solar:info-circle-line-duotone" width={20} />}
+            variant="light"
+            onPress={() => console.log("Help clicked")}
+          >
+            Help & Information
+          </Button>
+          <Button
+            fullWidth
+            radius="sm" // Consistent radius
+            className="justify-start" // Let color prop handle text
+            color="danger" // Use danger color directly
+            startContent={<Icon icon="solar:logout-3-line-duotone" width={20} />}
+            variant="light"
+            onPress={handleLogout}
+          >
+            Log Out
+          </Button>
         </div>
-      )}
+      </div> {/* End Main Sidebar Container */}
+
+
+      {/* Add Webshop Modal (Using HeroUI Modal) */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center">
+        <ModalContent>
+          {(onCloseModal) => ( // Use onClose provided by ModalContent if needed, else use `onClose` from hook
+            <>
+              <ModalHeader className="flex flex-col gap-1">Add New Webshop</ModalHeader>
+              <ModalBody>
+                <Input
+                  autoFocus // Focus first input
+                  label="Shop Name"
+                  placeholder="e.g., My Awesome Store"
+                  variant="bordered"
+                  value={newName}
+                  onValueChange={setNewName} // Use onValueChange for HeroUI Input
+                />
+                <Input
+                  label="Shop URL"
+                  placeholder="https://example.com"
+                  variant="bordered"
+                  value={newUrl}
+                  onValueChange={setNewUrl} // Use onValueChange
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="flat" color="default" onPress={onCloseModal}> {/* Use color prop */}
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={handleAdd}
+                  isDisabled={!newName.trim() || !newUrl.trim()}
+                >
+                  Add Shop
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 }

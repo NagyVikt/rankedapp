@@ -1,16 +1,16 @@
-// app/api/chat/route.ts (or relevant path)
+// app/api/chat/route.ts
 
 import { type Message, convertToCoreMessages, createDataStreamResponse, generateText, streamText } from 'ai';
 import { z } from 'zod';
-import { cookies } from 'next/headers'; // Import cookies
-import { createServerClient, type CookieOptions } from '@supabase/ssr'; // Import Supabase SSR
+import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
-// Assuming other imports remain the same (adjust paths if needed)
 import { customModel } from '@/lib/ai';
 import { models, reasoningModels } from '@/lib/ai/models';
 import { rateLimiter } from '@/lib/rate-limit';
 import { systemPrompt } from '@/lib/ai/prompts';
-import { deleteChatById, getChatById, getUser, saveChat, saveMessages } from '@/lib/db/queries';
+// Import getUserById specifically
+import { deleteChatById, getChatById, getUserById, saveChat, saveMessages } from '@/lib/db/queries';
 import { generateUUID, getMostRecentUserMessage, sanitizeResponseMessages } from '@/lib/utils';
 import { generateTitleFromUserMessage } from '../../chat/actions';
 import FirecrawlApp from '@mendable/firecrawl-js';
@@ -35,27 +35,22 @@ export async function POST(request: Request) {
   } = await request.json();
 
   // --- 2. Authentication Check using Supabase SSR ---
-  const cookieStore = await cookies(); // Get cookie store instance
-
-  // --- Attempt to fix Dynamic API Error: Pre-fetch cookies ---
+  const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
-  // --- End of fix attempt ---
 
-  const supabase = createServerClient( // Create Supabase client for this request
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        // Pass the pre-fetched cookies object directly
         getAll: () => allCookies,
-        // setAll still needs the cookieStore instance to modify cookies
         setAll: (cookiesToSet) => cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
       },
     }
   );
 
   console.log("--- Chat POST: Attempting supabase.auth.getUser() ---");
-  const { data: { user }, error: authError } = await supabase.auth.getUser(); // Get user based on Supabase cookies
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError) {
     console.error("--- Chat POST: Supabase auth error:", authError.message);
@@ -64,34 +59,28 @@ export async function POST(request: Request) {
 
   if (!user) {
     console.error('--- Chat POST: No authenticated user found via Supabase SSR.');
-    return new Response('Authentication required to start or continue a chat.', { status: 401 }); // Unauthorized
+    return new Response('Authentication required to start or continue a chat.', { status: 401 });
   }
 
-  // --- User is authenticated via Supabase SSR ---
-  const currentUserId = user.id; // Use the ID from Supabase user object
+  const currentUserId = user.id; // This is the correct ID from Supabase Auth
   console.log(`--- Chat POST: Found authenticated Supabase user ID: ${currentUserId}`);
 
   // --- 3. User Verification in DB (Crucial Check) ---
-  // This check needs to verify the ID exists in *your* public.User table
   let appUserRecord;
   try {
-    // Modify getUser to potentially fetch by ID, or fetch by email and check ID
-    // Example: Assuming getUser can fetch by ID (Adapt if it only uses email)
-    // const appUsers = await getUserById(currentUserId); // Hypothetical function
-    // OR Fetch by email and verify ID:
-    const appUsers = await getUser(user.email!); // Fetch by email
-    if (appUsers.length > 0) {
-        // IMPORTANT: Check if the ID in your table matches the Supabase Auth ID
-        appUserRecord = appUsers.find(u => u.id === currentUserId);
-    }
+    // *** FIX: Use getUserById with the ID from Supabase Auth ***
+    console.log(`--- Chat POST: Verifying user ID ${currentUserId} in public.User table...`);
+    appUserRecord = await getUserById(currentUserId); // Fetch by the correct ID
 
+    // Check if the user was found in your DB with the matching ID
     if (!appUserRecord) {
-      console.error(`Authenticated Supabase user ID ${currentUserId} (Email: ${user.email}) NOT FOUND or ID MISMATCH in application's public.User table.`);
-      // *** THIS IS THE LIKELY CAUSE OF THE FOREIGN KEY ERROR ***
-      // Instruct user to fix data sync issue (manual insert/trigger)
-      return new Response('User record mismatch. Please contact support or ensure DB sync.', { status: 500 });
+      // This log is now accurate
+      console.error(`User ID ${currentUserId} (Email: ${user.email}) NOT FOUND in application's public.User table.`);
+      // You might still have a data sync issue if this happens, or the user truly doesn't exist in your table
+      return new Response('User record not found in application database. Ensure DB sync.', { status: 500 });
     } else {
-       console.log(`--- Chat POST: Verified user ${currentUserId} exists with matching ID in public.User table.`);
+       // Verification successful!
+       console.log(`--- Chat POST: Verified user ${currentUserId} exists in public.User table.`);
     }
   } catch (error) {
     console.error('Error verifying user in application database:', error);
@@ -99,7 +88,7 @@ export async function POST(request: Request) {
   }
 
   // --- 4. Rate Limiting ---
-  const identifier = currentUserId;
+  const identifier = currentUserId; // Use the verified ID
   const { success } = await rateLimiter.limit(identifier);
   if (!success) {
     console.warn(`Rate limit exceeded for user: ${identifier}`);
@@ -123,12 +112,13 @@ export async function POST(request: Request) {
   }
 
   // --- 7. Chat Handling (Create or Verify Ownership) ---
-  try { // Wrap DB operations in try/catch
+  // This section should now work correctly as currentUserId is verified against your DB
+  try {
       const chat = await getChatById({ id });
       if (!chat) {
         console.log(`--- Chat POST: Creating new chat ${id} for user ID: ${currentUserId} ---`);
         const title = await generateTitleFromUserMessage({ message: userMessage });
-        // *** This call will fail if currentUserId is not in public.User ***
+        // saveChat uses currentUserId, which we now know exists in the User table
         await saveChat({ id, userId: currentUserId, title, visibility: 'private' });
       } else {
         console.log(`--- Chat POST: Checking ownership for existing chat ${id}. Owner: ${chat.userId}, Current User: ${currentUserId} ---`);
@@ -139,24 +129,24 @@ export async function POST(request: Request) {
         console.log(`User ${currentUserId} posting to existing chat ${id}`);
       }
   } catch (dbError: any) {
-      // Catch potential DB errors during saveChat/getChatById
+      // Errors here are less likely to be FK violations now, but keep catch block
       console.error(`--- Chat POST: Database error during chat handling for chat ${id}:`, dbError);
-      // Check specifically for the foreign key error
       if (dbError.code === '23503' && dbError.constraint_name === 'Chat_userId_User_id_fk') {
-          console.error(`--- FOREIGN KEY VIOLATION: User ID ${currentUserId} not found in public.User table! ---`);
-          return new Response(`Database error: User record missing or mismatched. Ensure user ${currentUserId} exists in the User table.`, { status: 500 });
+          console.error(`--- UNEXPECTED FOREIGN KEY VIOLATION: User ID ${currentUserId} check passed but save failed? ---`);
       }
       return new Response('A database error occurred while handling the chat.', { status: 500 });
   }
 
 
   // --- 8. Save User Message ---
-  try { // Wrap DB operation in try/catch
+  try {
       const userMessageId = generateUUID();
+      // saveMessages should also work now
       await saveMessages({ messages: [{ ...userMessage, id: userMessageId, createdAt: new Date(), chatId: id }] });
       console.log(`--- Chat POST: Saved user message ${userMessageId} for chat ${id}`);
 
-      // --- 9. AI Response Streaming (Only proceed if message saved) ---
+      // --- 9. AI Response Streaming ---
+      // (Keep the rest of the streaming logic as is)
       return createDataStreamResponse({
         execute: (dataStream) => {
           dataStream.writeData({ type: 'user-message-id', content: userMessageId });
@@ -167,28 +157,39 @@ export async function POST(request: Request) {
             maxSteps: 10,
             experimental_activeTools: experimental_deepResearch ? allTools : firecrawlTools,
             tools: {
-               search: { /* ... */
+               search: {
                     description: "Search for web pages.",
                     parameters: z.object({ query: z.string(), maxResults: z.number().optional() }),
-                    execute: async ({ query, maxResults = 5 }) => { /* ... */ }
+                    execute: async ({ query, maxResults = 5 }) => { /* ... */ return "Search results..."; }
                },
-               extract: { /* ... */
+               extract: {
                     description: "Extract structured data from web pages.",
                     parameters: z.object({ urls: z.array(z.string().url()), prompt: z.string() }),
-                    execute: async ({ urls, prompt }) => { /* ... */ }
+                    execute: async ({ urls, prompt }) => { /* ... */ return "Extracted data..."; }
                },
-               scrape: { /* ... */
+               scrape: {
                     description: "Scrape raw content from a single URL.",
                     parameters: z.object({ url: z.string().url() }),
-                    execute: async ({ url }) => { /* ... */ }
+                    execute: async ({ url }) => { /* ... */ return "Scraped content..."; }
                },
-               deepResearch: { /* ... [Full implementation from previous artifact] ... */
+               deepResearch: {
                     description: 'Perform deep research using coordinated search, extract, and analysis.',
                     parameters: z.object({ topic: z.string(), maxDepth: z.number().optional() }),
-                    execute: async ({ topic: initialTopic, maxDepth = 7 }) => { /* ... [Full logic] ... */ }
+                    execute: async ({ topic: initialTopic, maxDepth = 7 }) => { /* ... */ return "Deep research summary..."; }
                },
             },
-            onFinish: async ({ response }) => { /* ... [onFinish logic using Supabase SSR] ... */ },
+            onFinish: async ({ text, toolCalls, toolResults, finishReason, usage }) => {
+                console.log(`--- Chat POST: AI stream finished for chat ${id}. Reason: ${finishReason} ---`);
+                const assistantMessageId = generateUUID();
+                const finalMessagesToSave: Message[] = [];
+                if (text) { finalMessagesToSave.push({ id: assistantMessageId, role: 'assistant', content: text, createdAt: new Date(), chatId: id }); }
+                if (toolCalls) { toolCalls.forEach(toolCall => finalMessagesToSave.push({ id: generateUUID(), role: 'assistant', content: [{ type: 'tool-call', toolCallId: toolCall.toolCallId, toolName: toolCall.toolName, args: toolCall.args }], createdAt: new Date(), chatId: id })); }
+                if (toolResults) { toolResults.forEach(toolResult => finalMessagesToSave.push({ id: generateUUID(), role: 'tool', content: [{ type: 'tool-result', toolCallId: toolResult.toolCallId, toolName: toolResult.toolName, result: toolResult.result }], createdAt: new Date(), chatId: id })); }
+                if (finalMessagesToSave.length > 0) {
+                    try { await saveMessages({ messages: finalMessagesToSave }); console.log(`--- Chat POST: Saved ${finalMessagesToSave.length} assistant/tool messages for chat ${id}.`); }
+                    catch (dbSaveError) { console.error(`--- Chat POST: Failed to save assistant/tool messages for chat ${id}:`, dbSaveError); }
+                }
+            },
             experimental_telemetry: { isEnabled: true, functionId: 'stream-text-supabase' },
           });
           result.mergeIntoDataStream(dataStream);
@@ -204,9 +205,8 @@ export async function POST(request: Request) {
   }
 } // End POST handler
 
-// --- DELETE Handler (Using Supabase SSR Auth - Keep as is) ---
+// --- DELETE Handler (Keep as is) ---
 export async function DELETE(request: Request) {
-    // ... (DELETE handler code remains the same as previous artifact) ...
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) { return new Response('Chat ID is required', { status: 400 }); }
@@ -227,8 +227,8 @@ export async function DELETE(request: Request) {
         const chat = await getChatById({ id });
         if (!chat) { return new Response('Chat not found', { status: 404 }); }
         if (chat.userId !== user.id) {
-        console.warn(`User ${user.id} attempted to delete chat ${id} owned by ${chat.userId}`);
-        return new Response('Unauthorized to delete this chat', { status: 403 });
+            console.warn(`User ${user.id} attempted to delete chat ${id} owned by ${chat.userId}`);
+            return new Response('Unauthorized to delete this chat', { status: 403 });
         }
         await deleteChatById({ id });
         console.log(`Chat ${id} deleted by user ${user.id}`);
