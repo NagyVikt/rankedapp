@@ -175,7 +175,7 @@ export const webshops = pgTable('webshops', {
 export const designs = pgTable('designs', {
   id: serial('id').primaryKey(),
   // Foreign key to the User table (UUID)
-  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }), // <--- Defined as NOT NULL
   name: text('name').notNull(),
   design: jsonb('design').notNull(), // Stores the design data/configuration
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
