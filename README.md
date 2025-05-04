@@ -85,8 +85,8 @@ Ez a projekt egy TypeScript alapú intelligens marketing automatizálási platfo
 
 1.  **Klónozd a repository-t:**
     ```bash
-    git clone <repository_url> # Helyettesítsd be a saját repository URL-eddel
-    cd <projekt_mappa_neve>
+    git clone https://github.com/NagyVikt/rankedapp.git # Helyettesítsd be a saját repository URL-eddel
+    cd rankedapp
     ```
 
 2.  **Telepítsd a függőségeket:**
