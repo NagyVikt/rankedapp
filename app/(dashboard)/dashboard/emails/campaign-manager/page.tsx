@@ -17,16 +17,15 @@ import {
     CardHeader,
     CardBody,
     CardFooter,
-    Select,        // Use HeroUI Select
-    SelectItem,    // Use HeroUI SelectItem
+    Select,
+    SelectItem,
     Button,
-    Chip,          // Use HeroUI Chip
+    Chip,
     Tooltip,
     Skeleton,
-    Switch,        // Use HeroUI Switch
-    // Consider using Modal for notifications/errors if desired
-} from '@heroui/react'; // Assuming HeroUI components are imported
-import { Icon } from '@iconify/react'; // Keep Iconify
+    Switch,
+} from '@heroui/react';
+import { Icon } from '@iconify/react';
 
 // --- Type Definitions ---
 type DesignItem = { id: number; name: string; }
@@ -38,14 +37,12 @@ type PoolColumnId = 'pool';
 type DroppableColumnId = PoolColumnId | CampaignColumnId;
 type CampaignEmails = Record<CampaignColumnId, string[]>;
 type SuggestionType = 'coupon' | 'loyalty' | 'abandoned' | 'welcome' | 'none';
-// Use semantic color names for badges, let Chip handle styling
 type EmailSuggestion = { text: string; type: SuggestionType; badgeColor: "default" | "primary" | "secondary" | "success" | "warning" | "danger"; description: string; icon: string; };
 
 // --- Constants ---
 const POOL_PAGE_SIZE = 20;
 const CAMPAIGN_PAGE_SIZE = 20;
 
-// Column Metadata - Simplified bg/border, rely on Card component
 const CAMPAIGN_COLUMNS_METADATA: Record<CampaignColumnId, { name: string; supportsDesignAssignment: boolean; supportsPagination: boolean }> = {
     now:           { name: 'Send Now',           supportsDesignAssignment: true,  supportsPagination: true },
     weekly:        { name: 'Scheduled Weekly',   supportsDesignAssignment: false, supportsPagination: false },
@@ -60,11 +57,10 @@ const POOL_COLUMN_METADATA = {
 
 const BULK_MOVE_DRAGGABLE_PREFIX = 'bulk-move-';
 
-// Suggestion Metadata with Semantic Colors for Chip
 const SUGGESTION_METADATA: Record<SuggestionType, EmailSuggestion> = {
     coupon:    { text: 'Send Coupon',    type: 'coupon',    badgeColor: 'warning', description: 'Customer might respond well to a discount offer.', icon: '🏷️' },
     loyalty:   { text: 'Loyalty Offer',  type: 'loyalty',   badgeColor: 'secondary', description: 'Recognize a returning or high-value customer.', icon: '⭐' },
-    abandoned: { text: 'Abandoned Cart', type: 'abandoned', badgeColor: 'warning', description: 'Customer added items to cart but did not complete purchase.', icon: '🛒' }, // Changed to warning
+    abandoned: { text: 'Abandoned Cart', type: 'abandoned', badgeColor: 'warning', description: 'Customer added items to cart but did not complete purchase.', icon: '🛒' },
     welcome:   { text: 'Welcome Email',  type: 'welcome',   badgeColor: 'primary',    description: 'New customer or recent signup.', icon: '👋' },
     none:      { text: '',               type: 'none',      badgeColor: 'default',                              description: '', icon: '' },
 };
@@ -100,11 +96,11 @@ const SuggestionBadge: React.FC<{ suggestion: EmailSuggestion }> = ({ suggestion
     return (
         <Chip
             size="sm"
-            variant="flat" // Flat often looks better
+            variant="flat"
             color={suggestion.badgeColor}
-            className="ml-2 whitespace-nowrap" // Ensure it doesn't wrap
-            title={suggestion.description} // Tooltip via title
-            startContent={<span className="mr-1">{suggestion.icon}</span>} // Icon inside chip
+            className="ml-2 whitespace-nowrap"
+            title={suggestion.description}
+            startContent={<span className="mr-1">{suggestion.icon}</span>}
         >
             {suggestion.text}
         </Chip>
@@ -293,7 +289,7 @@ function CampaignEditor() {
       .finally(() => { setIsSaving(false); });
   }, [selectedShop, campaignEmails, assignments, slugify, showNotification]);
 
-  // Render Logic for the Editor part (Using HeroUI Components)
+  // Render Logic for the Editor part (Using HeroUI Components & Semantic Text)
   return (
     <div className="mt-6">
         {/* Shop Selector - Use HeroUI Select */}
@@ -301,39 +297,40 @@ function CampaignEditor() {
             <Select
                 label="Select Shop"
                 placeholder="-- Select a Shop --"
-                variant="bordered" // Example variant
+                variant="bordered"
                 selectedKeys={selectedShop ? [selectedShop.url] : []}
                 onSelectionChange={(keys) => {
-                    // @ts-ignore - Key is Set<string> or similar
+                    // @ts-ignore
                     const newUrl = Array.from(keys)[0] as string | undefined;
                     setSelectedShop(shops.find((s) => s.url === newUrl) ?? null);
                 }}
                 isDisabled={isSectionLoading || isSaving || shops.length === 0}
-                className="max-w-xs" // Control width
-                classNames={{ // Ensure bright text in dark mode
-                    label: "text-foreground-700 dark:text-foreground-200",
-                    value: "text-foreground dark:text-foreground-100",
+                className="max-w-xs"
+                // Use classNames to ensure text contrast
+                classNames={{
+                    label: "text-foreground-600", // Slightly muted label
+                    value: "text-foreground", // Main text color for value
                 }}
             >
                 {shops.map((s) => (
                     <SelectItem key={s.url} value={s.url} textValue={s.name}>
-                        {/* Ensure item text is bright */}
-                        <span className="text-foreground dark:text-foreground-100">{s.name}</span>
+                        {/* Item text uses foreground */}
+                        <span className="text-foreground">{s.name}</span>
                     </SelectItem>
                 ))}
             </Select>
         </div>
 
-       {/* Notification Area - Consider HeroUI Modal or external toast library */}
+       {/* Notification Area */}
        {notification && ( <div className={`fixed top-5 right-5 p-4 rounded-md shadow-lg text-white dark:text-gray-900 text-sm z-50 ${notification.type === 'success' ? 'bg-green-500 dark:bg-green-400' : 'bg-red-600 dark:bg-red-500'}`}> {notification.message} </div> )}
 
-       {/* Error Display - Consider HeroUI Alert component if available */}
+       {/* Error Display */}
        {error && ( <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded relative mb-4" role="alert"> Error: {error} </div> )}
 
         {/* Placeholder */}
         {!selectedShop && !isSectionLoading && (
-            <Card className="text-center mt-10 p-8"> {/* Use Card */}
-                <CardBody className="text-foreground-400 dark:text-foreground-300">
+            <Card className="text-center mt-10 p-8">
+                <CardBody className="text-foreground-500"> {/* Muted placeholder text */}
                      {shops.length > 0 ? "Please select a shop from the dropdown above to start." : "No shops loaded."}
                 </CardBody>
             </Card>
@@ -343,7 +340,7 @@ function CampaignEditor() {
             <>
                 {/* === Email Assignment Section === */}
                 <section className="relative">
-                    <h2 className="text-xl font-semibold text-foreground-700 dark:text-foreground-100 mb-4">Assign Customer Emails</h2>
+                    <h2 className="text-xl font-semibold text-foreground mb-4">Assign Customer Emails</h2> {/* Primary text color */}
                     {isSectionLoading ? (
                         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-${ALL_CAMPAIGN_COLUMN_IDS.length + 1} gap-4`}>
                             <SkeletonColumn /> {ALL_CAMPAIGN_COLUMN_IDS.map(id => <SkeletonColumn key={id} />)}
@@ -357,21 +354,20 @@ function CampaignEditor() {
                                         <Card
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
-                                            className={`p-0 flex flex-col min-h-[300px] border ${snapshot.isDraggingOver ? 'border-primary' : 'border-divider'} ${snapshot.isDraggingOver ? POOL_COLUMN_METADATA.pool.hoverBgColor : 'bg-content1'}`} // Use Card classes, adjust padding
+                                            className={`p-0 flex flex-col min-h-[300px] border ${snapshot.isDraggingOver ? 'border-primary' : 'border-divider'} bg-content1`}
+                                            isHoverable={snapshot.isDraggingOver}
                                         >
                                           <CardHeader className="flex justify-between items-center p-4 border-b border-divider">
-                                              <h3 className="font-semibold text-foreground-700 dark:text-foreground-200"> {POOL_COLUMN_METADATA.pool.name} ({poolCount}/{allEmailsRaw.length}) </h3>
-                                              {/* Use HeroUI Button */}
+                                              <h3 className="font-semibold text-foreground"> {POOL_COLUMN_METADATA.pool.name} ({poolCount}/{allEmailsRaw.length}) </h3> {/* Primary text */}
                                               <Button size="sm" variant="light" color="primary" onPress={() => { setShowPoolEmails(!showPoolEmails); if (showPoolEmails) setPoolCurrentPage(1); }} isDisabled={allEmailsRaw.length === 0 || isSaving}> {showPoolEmails ? 'Hide' : 'Show'} </Button>
                                           </CardHeader>
-                                          {/* CardBody handles scrolling */}
                                           <CardBody className="flex-grow overflow-y-auto space-y-1 p-2">
                                             {showPoolEmails && paginatedPoolEmails.map((email, index) => (
                                                 <Draggable key={email} draggableId={email} index={index}>
                                                     {(dragProvided, dragSnapshot) => (
-                                                        // Draggable Item Styling (Keep custom for fine control)
+                                                        // Draggable Item Styling - Use foreground text
                                                         <div ref={dragProvided.innerRef} {...dragProvided.draggableProps} {...dragProvided.dragHandleProps}
-                                                            className={`p-2 border rounded text-sm cursor-grab text-foreground-800 dark:text-foreground-100 ${ dragSnapshot.isDragging
+                                                            className={`p-2 border rounded text-sm cursor-grab text-foreground ${ dragSnapshot.isDragging
                                                                 ? 'bg-blue-100 dark:bg-blue-800/50 shadow-md ring-1 ring-blue-300 dark:ring-blue-600'
                                                                 : 'bg-content2 border-divider hover:bg-gray-100 dark:hover:bg-gray-700/50' }`}
                                                             style={{...dragProvided.draggableProps.style}}>
@@ -380,16 +376,16 @@ function CampaignEditor() {
                                                     )}
                                                 </Draggable>
                                             ))}
-                                            {/* Placeholder Texts */}
-                                            {!showPoolEmails && poolCount > 0 && ( <p className="text-center text-foreground-500 dark:text-foreground-400 text-xs mt-4 p-4 bg-content2 rounded">Click 'Show' to view/drag.</p> )}
-                                            {!showPoolEmails && poolCount === 0 && allEmailsRaw.length > 0 && (<p className="text-center text-foreground-500 dark:text-foreground-400 text-xs mt-4">All customers assigned.</p>)}
-                                            {showPoolEmails && poolEmails.length === 0 && allEmailsRaw.length > 0 && (<p className="text-center text-foreground-500 dark:text-foreground-400 text-xs mt-4">All customers assigned.</p>)}
-                                            {allEmailsRaw.length === 0 && !isSectionLoading && (<p className="text-center text-foreground-500 dark:text-foreground-400 text-xs mt-4">No customers found.</p>)}
+                                            {/* Placeholder Texts - Muted text */}
+                                            {!showPoolEmails && poolCount > 0 && ( <p className="text-center text-foreground-500 text-xs mt-4 p-4 bg-content2 rounded">Click 'Show' to view/drag.</p> )}
+                                            {!showPoolEmails && poolCount === 0 && allEmailsRaw.length > 0 && (<p className="text-center text-foreground-500 text-xs mt-4">All customers assigned.</p>)}
+                                            {showPoolEmails && poolEmails.length === 0 && allEmailsRaw.length > 0 && (<p className="text-center text-foreground-500 text-xs mt-4">All customers assigned.</p>)}
+                                            {allEmailsRaw.length === 0 && !isSectionLoading && (<p className="text-center text-foreground-500 text-xs mt-4">No customers found.</p>)}
                                             {provided.placeholder}
                                           </CardBody>
                                           {/* Pagination Buttons - Use HeroUI Buttons */}
                                           {showPoolEmails && poolTotalPages > 1 && (
-                                              <CardFooter className="flex justify-between items-center pt-3 border-t border-divider text-xs text-foreground-500 dark:text-foreground-400">
+                                              <CardFooter className="flex justify-between items-center pt-3 border-t border-divider text-xs text-foreground-500"> {/* Muted text */}
                                                   <Button size="sm" variant="bordered" onPress={() => setPoolCurrentPage(p => Math.max(p - 1, 1))} isDisabled={poolCurrentPage === 1 || isSaving}> Prev </Button>
                                                   <span> Page {poolCurrentPage} of {poolTotalPages} </span>
                                                   <Button size="sm" variant="bordered" onPress={() => setPoolCurrentPage(p => Math.min(p + 1, poolTotalPages))} isDisabled={poolCurrentPage === poolTotalPages || isSaving}> Next </Button>
@@ -407,20 +403,21 @@ function CampaignEditor() {
                                             <Card
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className={`p-0 flex flex-col min-h-[300px] border ${snapshot.isDraggingOver ? 'border-primary' : 'border-divider'} ${snapshot.isDraggingOver ? CAMPAIGN_COLUMNS_METADATA[colId]?.hoverBgColor : 'bg-content1'}`} // Use Card classes
+                                                className={`p-0 flex flex-col min-h-[300px] border ${snapshot.isDraggingOver ? 'border-primary' : 'border-divider'} bg-content1`}
+                                                isHoverable={snapshot.isDraggingOver}
                                             >
                                               <CardHeader className="p-4 border-b border-divider">
-                                                  <h3 className="font-semibold text-foreground-700 dark:text-foreground-200"> {metadata.name} ({columnEmailCount}) </h3>
+                                                  <h3 className="font-semibold text-foreground"> {metadata.name} ({columnEmailCount}) </h3> {/* Primary text */}
                                               </CardHeader>
-                                              {/* Bulk Move Draggable - Styling remains custom */}
+                                              {/* Bulk Move Draggable - Use foreground text */}
                                               {canBulkMove && (
-                                                  <div className="p-2"> {/* Add padding around bulk move */}
+                                                  <div className="p-2">
                                                       <Draggable draggableId={`${BULK_MOVE_DRAGGABLE_PREFIX}${colId}`} index={0}>
                                                           {(dragProvided, dragSnapshot) => (
                                                               <div
                                                                   ref={dragProvided.innerRef} {...dragProvided.draggableProps} {...dragProvided.dragHandleProps}
                                                                   title={`Drag to move these ${paginatedEmails.length} emails`}
-                                                                  className={`p-1.5 border rounded text-center text-xs cursor-grab text-foreground-700 dark:text-foreground-200 ${dragSnapshot.isDragging ? 'bg-indigo-100 dark:bg-indigo-800/50 shadow-md ring-1 ring-indigo-300 dark:ring-indigo-600' : 'bg-content2 border-divider hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
+                                                                  className={`p-1.5 border rounded text-center text-xs cursor-grab text-foreground ${dragSnapshot.isDragging ? 'bg-indigo-100 dark:bg-indigo-800/50 shadow-md ring-1 ring-indigo-300 dark:ring-indigo-600' : 'bg-content2 border-divider hover:bg-gray-100 dark:hover:bg-gray-700/50'}`}
                                                                   style={{...dragProvided.draggableProps.style}}
                                                               >
                                                                   Move All Visible ({paginatedEmails.length})
@@ -434,16 +431,15 @@ function CampaignEditor() {
                                                 {paginatedEmails.map((email, index) => (
                                                     <Draggable key={email} draggableId={email} index={index + (canBulkMove ? 1 : 0)}>
                                                         {(dragProvided, dragSnapshot) => (
-                                                            // Draggable Item Styling (Keep custom)
+                                                            // Draggable Item Styling - Use foreground text
                                                             <div
                                                                 ref={dragProvided.innerRef} {...dragProvided.draggableProps} {...dragProvided.dragHandleProps}
-                                                                className={`p-2 border rounded text-sm cursor-grab text-foreground-800 dark:text-foreground-100 ${ dragSnapshot.isDragging ? `${CAMPAIGN_COLUMNS_METADATA[colId]?.bgColor.replace('bg-','bg-')}-100 dark:${CAMPAIGN_COLUMNS_METADATA[colId]?.hoverBgColor} shadow-md ring-1 ${CAMPAIGN_COLUMNS_METADATA[colId]?.borderColor.replace('border-','ring-')}` : 'bg-content2 border-divider hover:bg-gray-100 dark:hover:bg-gray-700/50' }`}
+                                                                className={`p-2 border rounded text-sm cursor-grab text-foreground ${ dragSnapshot.isDragging ? `${CAMPAIGN_COLUMNS_METADATA[colId]?.bgColor.replace('bg-','bg-')}-100 dark:${CAMPAIGN_COLUMNS_METADATA[colId]?.hoverBgColor} shadow-md ring-1 ${CAMPAIGN_COLUMNS_METADATA[colId]?.borderColor.replace('border-','ring-')}` : 'bg-content2 border-divider hover:bg-gray-100 dark:hover:bg-gray-700/50' }`}
                                                                 style={{...dragProvided.draggableProps.style}}
                                                             >
                                                                 <div className="flex justify-between items-center flex-wrap gap-1">
                                                                     <span className="truncate" title={email}>{email}</span>
                                                                     <div className="flex items-center flex-shrink-0">
-                                                                        {/* Design Assignment Badge - Use Chip */}
                                                                         {metadata.supportsDesignAssignment && assignments[email] && (
                                                                             <Chip size="sm" color="primary" variant="flat" className="mr-1">
                                                                                 {assignments[email]?.name}
@@ -456,12 +452,12 @@ function CampaignEditor() {
                                                         )}
                                                     </Draggable>
                                                 ))}
-                                                {columnEmailCount === 0 && (<p className="text-center text-foreground-500 dark:text-foreground-400 text-xs mt-4">Drag emails here.</p>)}
+                                                {columnEmailCount === 0 && (<p className="text-center text-foreground-500 text-xs mt-4">Drag emails here.</p>)}
                                                 {provided.placeholder}
                                               </CardBody>
                                               {/* Pagination - Use HeroUI Buttons */}
                                               {metadata.supportsPagination && totalPages > 1 && (
-                                                  <CardFooter className="flex justify-between items-center pt-3 border-t border-divider text-xs text-foreground-500 dark:text-foreground-400">
+                                                  <CardFooter className="flex justify-between items-center pt-3 border-t border-divider text-xs text-foreground-500"> {/* Muted text */}
                                                       <Button size="sm" variant="bordered" onPress={() => setCampaignPagination(p => ({ ...p, [colId]: Math.max(p[colId] - 1, 1) }))} isDisabled={currentPage === 1 || isSaving}> Prev </Button>
                                                       <span> Page {currentPage} of {totalPages} </span>
                                                       <Button size="sm" variant="bordered" onPress={() => setCampaignPagination(p => ({ ...p, [colId]: Math.min(p[colId] + 1, totalPages) }))} isDisabled={currentPage === totalPages || isSaving}> Next </Button>
@@ -479,27 +475,25 @@ function CampaignEditor() {
 
                 {/* === Design Assignment Section === */}
                 <section className={`mt-8 ${isSectionLoading || isSaving ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <h2 className="text-xl font-semibold text-foreground-700 dark:text-foreground-100 mb-4">Assign Designs</h2>
-                    <p className="text-sm text-foreground-600 dark:text-foreground-300 mb-3">Drag a design and drop it onto an email in the 'Send Now' column.</p>
+                    <h2 className="text-xl font-semibold text-foreground mb-4">Assign Designs</h2> {/* Primary text */}
+                    <p className="text-sm text-foreground-600 mb-3">Drag a design and drop it onto an email in the 'Send Now' column.</p> {/* Muted text */}
                     <DragDropContext onDragEnd={onAssignDragEnd}>
                         <Droppable droppableId="designs" direction="horizontal">
                             {(provided, snapshot) => (
-                               // Use Card for design pool container
                                <Card ref={provided.innerRef} {...provided.droppableProps}
-                                    className={`p-3 min-h-[60px] border ${snapshot.isDraggingOver ? 'border-primary bg-primary/10 dark:bg-primary/20' : 'bg-content2 border-divider'}`}
+                                    className={`p-3 min-h-[60px] border ${snapshot.isDraggingOver ? 'border-primary bg-primary/10' : 'bg-content2 border-divider'}`} // Use theme colors
                                >
                                    <CardBody className="flex flex-row gap-2 overflow-x-auto">
                                      {designs.length > 0 ? designs.map((design, index) => (
                                          <Draggable key={design.id} draggableId={`design-${design.id}`} index={index}>
                                              {(dragProvided, dragSnapshot) => (
-                                                 // Use Chip for draggable designs
                                                  <Chip
                                                      ref={dragProvided.innerRef}
                                                      {...dragProvided.draggableProps}
                                                      {...dragProvided.dragHandleProps}
-                                                     color="secondary" // Example color
-                                                     variant="solid" // Solid looks distinct
-                                                     size="lg" // Make them a bit larger
+                                                     color="secondary"
+                                                     variant="solid"
+                                                     size="lg"
                                                      className={`shadow-sm cursor-grab flex-shrink-0 ${dragSnapshot.isDragging ? 'ring-2 ring-secondary ring-offset-2 dark:ring-offset-background' : ''}`}
                                                      style={{...dragProvided.draggableProps.style}}
                                                  >
@@ -507,7 +501,7 @@ function CampaignEditor() {
                                                  </Chip>
                                              )}
                                         </Draggable>
-                                     )) : ( <p className="text-foreground-500 dark:text-foreground-400 text-sm">No designs available.</p> )}
+                                     )) : ( <p className="text-foreground-500 text-sm">No designs available.</p> )}
                                      {provided.placeholder}
                                    </CardBody>
                                </Card>
@@ -519,12 +513,12 @@ function CampaignEditor() {
                 {/* === Save Action - Use HeroUI Button === */}
                 <div className="mt-8 pt-6 border-t border-divider text-right">
                     <Button
-                        color="success" // Use success color
-                        variant="solid" // Solid stands out
+                        color="success"
+                        variant="solid"
                         onPress={saveCampaign}
                         isDisabled={isSectionLoading || isSaving || !selectedShop}
-                        isLoading={isSaving} // Show loading spinner
-                        className="min-w-[120px]" // Ensure minimum width
+                        isLoading={isSaving}
+                        className="min-w-[120px]"
                     >
                         {isSaving ? 'Saving...' : 'Save Campaign'}
                     </Button>
@@ -545,9 +539,10 @@ export default function CampaignManagerPage() {
 
     return (
         // Apply dark theme classes to the main container
+        // Ensure text-foreground is set here for defaults
         <main className="p-4 md:p-6 lg:p-8 space-y-6 font-sans bg-background text-foreground min-h-screen relative dark">
-            {/* Main Title */}
-            <h1 className="text-3xl font-bold text-foreground dark:text-foreground-100 border-b border-divider pb-3 mb-6">
+            {/* Main Title - Use foreground */}
+            <h1 className="text-3xl font-bold text-foreground border-b border-divider pb-3 mb-6">
                 Advanced Campaign Manager
             </h1>
 
@@ -556,7 +551,7 @@ export default function CampaignManagerPage() {
                 {/* Badge Legend Panel */}
                 <Card className="lg:col-span-2">
                     <CardHeader>
-                        <h3 className="text-lg font-semibold text-foreground-700 dark:text-foreground-200">Badge Legend</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Badge Legend</h3> {/* Use foreground */}
                     </CardHeader>
                     <CardBody className="space-y-2 pt-0">
                         {Object.values(SUGGESTION_METADATA)
@@ -564,7 +559,8 @@ export default function CampaignManagerPage() {
                             .map(meta => (
                                 <div key={meta.type} className="flex items-start text-sm">
                                     <SuggestionBadge suggestion={meta} />
-                                    <span className="ml-2 text-foreground-600 dark:text-foreground-300">- {meta.description}</span>
+                                    {/* Muted description text */}
+                                    <span className="ml-2 text-foreground-600">- {meta.description}</span>
                                 </div>
                          ))}
                     </CardBody>
@@ -573,28 +569,31 @@ export default function CampaignManagerPage() {
                 {/* Fast Settings Panel - Use HeroUI Card & Switch */}
                 <Card>
                     <CardHeader>
-                        <h3 className="text-lg font-semibold text-foreground-700 dark:text-foreground-200">Fast Settings</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Fast Settings</h3> {/* Use foreground */}
                     </CardHeader>
                     <CardBody className="space-y-4 pt-0">
-                        <Switch // Use HeroUI Switch
+                        <Switch
                             isSelected={autoSendEnabled}
                             onValueChange={setAutoSendEnabled}
-                            isDisabled={true} // Still disabled as example
-                            size="sm" // Consistent size
-                            color="primary" // Example color
-                        >
-                            <span className="text-sm text-foreground-700 dark:text-foreground-200">Auto-send based on triggers</span>
-                        </Switch>
-                        <Switch // Use HeroUI Switch
-                            isSelected={autoCouponEnabled}
-                            onValueChange={setAutoCouponEnabled}
-                            isDisabled={true} // Still disabled as example
+                            isDisabled={true}
                             size="sm"
                             color="primary"
                         >
-                             <span className="text-sm text-foreground-700 dark:text-foreground-200">Auto-generate coupons</span>
+                            {/* Switch Label uses foreground */}
+                            <span className="text-sm text-foreground">Auto-send based on triggers</span>
                         </Switch>
-                         <p className="text-xs text-foreground-500 dark:text-foreground-400 italic pt-2">(Note: Automation requires backend setup)</p>
+                        <Switch
+                            isSelected={autoCouponEnabled}
+                            onValueChange={setAutoCouponEnabled}
+                            isDisabled={true}
+                            size="sm"
+                            color="primary"
+                        >
+                             {/* Switch Label uses foreground */}
+                             <span className="text-sm text-foreground">Auto-generate coupons</span>
+                        </Switch>
+                         {/* Muted italic text */}
+                         <p className="text-xs text-foreground-500 italic pt-2">(Note: Automation requires backend setup)</p>
                     </CardBody>
                 </Card>
             </section>

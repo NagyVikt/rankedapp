@@ -1,8 +1,8 @@
 "use client";
 
-import type {Selection, SortDescriptor} from "@heroui/react";
-import type {ColumnsKey, StatusOptions, Users} from "./data";
-import type {Key} from "@react-types/shared";
+import type { Selection, SortDescriptor } from "@heroui/react";
+import type { ColumnsKey, TaskStatusOptions, Task } from "./data-tasks"; // Import Task types
+import type { Key } from "@react-types/shared";
 import {
   Dropdown,
   DropdownTrigger,
@@ -19,7 +19,6 @@ import {
   RadioGroup,
   Radio,
   Chip,
-  User,
   Pagination,
   Divider,
   Tooltip,
@@ -28,53 +27,76 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@heroui/react";
-import {SearchIcon} from "@heroui/shared-icons";
-import React, {useMemo, useRef, useCallback, useState} from "react";
-import {Icon} from "@iconify/react";
-import {cn} from "@heroui/react";
+import { SearchIcon } from "@heroui/shared-icons";
+// Import useEffect for the hydration fix
+import React, { useMemo, useRef, useCallback, useState, useEffect } from "react";
+import { Icon } from "@iconify/react"; // Keep for other icons like calendar, filter, sort etc.
+import { cn } from "@heroui/react";
 
-import {CopyText} from "./copy-text";
-import {EyeFilledIcon} from "./eye";
-import {EditLinearIcon} from "./edit";
-import {DeleteFilledIcon} from "./delete";
-import {ArrowDownIcon} from "./arrow-down";
-import {ArrowUpIcon} from "./arrow-up";
+// Assuming these utility/icon components exist in separate files
+import { CopyText } from "./copy-text";
+import { EyeFilledIcon } from "./eye";
+import { ArrowDownIcon } from "./arrow-down";
+import { ArrowUpIcon } from "./arrow-up";
+import { useMemoizedCallback } from "./use-memoized-callback";
 
-import {useMemoizedCallback} from "./use-memoized-callback";
+// Import the custom SVG icon components from their files
+import { RefreshIcon } from "./refresh";
+import { CancelIcon } from "./cancel";
 
-import {columns, INITIAL_VISIBLE_COLUMNS, users} from "./data";
-import {Status} from "./Status";
-const initialSortColumn = columns[0].uid as Key;
+// Import task data and status component
+import { columns, INITIAL_VISIBLE_COLUMNS, tasks } from "./data-tasks";
+import { TaskStatus } from "./TaskStatus";
 
-export default function Component() {
+// Determine the initial sort column (first sortable column or fallback to the first column)
+const initialSortColumn = columns.find(col => col.sortable)?.uid || columns[0].uid as Key;
+
+/**
+ * AiTaskPanel Component: Displays a table of AI tasks with filtering, sorting,
+ * pagination, and actions. Includes fix for hydration errors related to date formatting.
+ */
+export default function AiTaskPanel() {
+  // State for search/filter input value
   const [filterValue, setFilterValue] = useState("");
+  // State for selected row keys
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  // State for visible columns
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
+  // State for rows per page (could be made dynamic)
   const [rowsPerPage] = useState(10);
+  // State for the current page number
   const [page, setPage] = useState(1);
+  // State for table sorting descriptor (column and direction)
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: initialSortColumn,
+    direction: "ascending",
+  });
+  // State for the status filter dropdown
+  const [statusFilter, setStatusFilter] = React.useState<TaskStatusOptions | "all">("all");
 
-   // 2) Initialize sortDescriptor using that first column:
-   const [sortDescriptor, setSortDescriptor] =
-   useState<SortDescriptor>({
-     column: initialSortColumn,
-     direction: "ascending",
-   });
+  // --- Hydration Fix Start ---
+  // State to track if the component has mounted on the client
+  const [isClient, setIsClient] = useState(false);
 
-  const [workerTypeFilter, setWorkerTypeFilter] = React.useState("all");
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [startDateFilter, setStartDateFilter] = React.useState("all");
+  // Set isClient to true only after the component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  // --- Hydration Fix End ---
 
+
+  // Memoized list of header columns based on visibility and sort direction
   const headerColumns = useMemo(() => {
-    // 3a) start with the full `columns` array
     return columns
+      // Add sortDirection property to the currently sorted column
       .map((col) =>
         col.uid === sortDescriptor.column
           ? { ...col, sortDirection: sortDescriptor.direction }
           : col
       )
-      // 3b) filter out any you don’t want visible
+      // Filter columns based on the visibleColumns state
       .filter((col) =>
         visibleColumns === "all"
           ? true
@@ -82,456 +104,415 @@ export default function Component() {
       );
   }, [visibleColumns, sortDescriptor]);
 
+  // Callback function to filter tasks based on the current filter settings
   const itemFilter = useCallback(
-    (col: Users) => {
-      let allWorkerType = workerTypeFilter === "all";
-      let allStatus = statusFilter === "all";
-      let allStartDate = startDateFilter === "all";
-
-      return (
-        (allWorkerType || workerTypeFilter === col.workerType.toLowerCase()) &&
-        (allStatus || statusFilter === col.status.toLowerCase()) &&
-        (allStartDate ||
-          new Date(
-            new Date().getTime() -
-              +(startDateFilter.match(/(\d+)(?=Days)/)?.[0] ?? 0) * 24 * 60 * 60 * 1000,
-          ) <= new Date(col.startDate))
-      );
+    (task: Task) => {
+      // Check if the task status matches the filter (or if filter is 'all')
+      let matchesStatus = statusFilter === "all" || statusFilter === task.status.toLowerCase();
+      // Add other filter criteria here if needed (e.g., date range)
+      return matchesStatus;
     },
-    [startDateFilter, statusFilter, workerTypeFilter],
+    [statusFilter] // Dependency: re-run filter if statusFilter changes
   );
 
+  // Memoized list of tasks after applying search and status filters
   const filteredItems = useMemo(() => {
-    let filteredUsers = [...users];
+    let filteredTasks = [...tasks]; // Start with all tasks
 
+    // Apply search filter (case-insensitive check on task name)
     if (filterValue) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.memberInfo.name.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredTasks = filteredTasks.filter((task) =>
+        task.name.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
-    filteredUsers = filteredUsers.filter(itemFilter);
+    // Apply status and other filters using the itemFilter callback
+    filteredTasks = filteredTasks.filter(itemFilter);
 
-    return filteredUsers;
-  }, [filterValue, itemFilter]);
+    return filteredTasks;
+  }, [filterValue, itemFilter]); // Dependencies: re-filter if search or status filter changes
 
-  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
+  // Calculate the total number of pages based on filtered items and rows per page
+  const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1; // Ensure at least 1 page
 
+  // Memoized list of tasks to display on the current page
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  }, [page, filteredItems, rowsPerPage]); // Dependencies: re-slice if page or filtered items change
 
+  // Memoized list of tasks sorted according to the sortDescriptor
   const sortedItems = useMemo(() => {
-    return [...items].sort((a: Users, b: Users) => {
-      const col = sortDescriptor.column as keyof Users;
+    return [...items].sort((a: Task, b: Task) => {
+      const col = sortDescriptor.column as keyof Task; // Get the column key to sort by
 
+      // Get the values to compare
       let first = a[col];
       let second = b[col];
 
-      if (col === "memberInfo" || col === "country") {
-        first = a[col].name;
-        second = b[col].name;
-      } else if (sortDescriptor.column === "externalWorkerID") {
-        first = +a.externalWorkerID.split("EXT-")[1];
-        second = +b.externalWorkerID.split("EXT-")[1];
+      // Specific handling for certain column types
+      if (col === "startTime" || col === "endTime") {
+        // Convert dates to timestamps for comparison, handle nulls
+        const dateA = first ? new Date(first).getTime() : 0;
+        const dateB = second ? new Date(second).getTime() : 0;
+        first = dateA as any;
+        second = dateB as any;
       }
+      // Add other specific sorting logic if needed (e.g., numeric IDs)
+      // else if (col === 'id') { ... }
 
+      // Perform comparison
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
+      // Apply sort direction
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
-  }, [sortDescriptor, items]);
+  }, [sortDescriptor, items]); // Dependencies: re-sort if descriptor or page items change
 
+  // Memoized set of selected keys, ensuring they exist in the currently filtered view
   const filterSelectedKeys = useMemo(() => {
-    if (selectedKeys === "all") return selectedKeys;
+    if (selectedKeys === "all") return selectedKeys; // Handle "select all" case
+
     let resultKeys = new Set<Key>();
-
-    if (filterValue) {
-      filteredItems.forEach((item) => {
+    // Iterate through currently filtered items
+    filteredItems.forEach((item) => {
         const stringId = String(item.id);
-
+        // If a filtered item's ID is in the selectedKeys set, add it to the result
         if ((selectedKeys as Set<string>).has(stringId)) {
           resultKeys.add(stringId);
         }
       });
-    } else {
-      resultKeys = selectedKeys;
-    }
-
     return resultKeys;
-  }, [selectedKeys, filteredItems, filterValue]);
+  }, [selectedKeys, filteredItems]); // Dependencies: update if selection or filtered items change
 
-  const eyesRef = useRef<HTMLButtonElement | null>(null);
-  const editRef = useRef<HTMLButtonElement | null>(null);
-  const deleteRef = useRef<HTMLButtonElement | null>(null);
-  const {getButtonProps: getEyesProps} = useButton({ref: eyesRef});
-  const {getButtonProps: getEditProps} = useButton({ref: editRef});
-  const {getButtonProps: getDeleteProps} = useButton({ref: deleteRef});
-  const getMemberInfoProps = useMemoizedCallback(() => ({
-    onClick: handleMemberClick,
-  }));
 
-  const renderCell = useMemoizedCallback((user: Users, columnKey: React.Key) => {
-    const userKey = columnKey as ColumnsKey;
+  // Refs for action buttons (can be used for focus management or complex interactions)
+  const viewRef = useRef<HTMLButtonElement | null>(null);
+  const retryRef = useRef<HTMLButtonElement | null>(null);
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
+  // Get button props for accessibility and event handling using useButton hook
+  const { getButtonProps: getViewProps } = useButton({ ref: viewRef });
+  const { getButtonProps: getRetryProps } = useButton({ ref: retryRef });
+  const { getButtonProps: getCancelProps } = useButton({ ref: cancelRef });
 
-    const cellValue = user[userKey as unknown as keyof Users] as string;
+  // Memoized callback to render individual table cells based on the column key
+  const renderCell = useMemoizedCallback((task: Task, columnKey: React.Key) => {
+    const taskKey = columnKey as ColumnsKey; // Cast columnKey to known keys
+    const cellValue = task[taskKey as keyof Task] as any; // Get cell value
 
-    switch (userKey) {
-      case "workerID":
-      case "externalWorkerID":
+    switch (taskKey) {
+      case "id":
+        // Render task ID with a copy-to-clipboard utility
         return <CopyText>{cellValue}</CopyText>;
-      case "memberInfo":
+      case "name":
+        // Render task name
         return (
-          <User
-            avatarProps={{radius: "lg", src: user[userKey].avatar}}
-            classNames={{
-              name: "text-default-foreground",
-              description: "text-default-500",
-            }}
-            description={user[userKey].email}
-            name={user[userKey].name}
-          >
-            {user[userKey].email}
-          </User>
+             <p className="text-nowrap text-small font-medium text-default-foreground">{cellValue}</p>
         );
-      case "startDate":
-        return (
+      case "startTime":
+      case "endTime":
+        // --- Hydration Fix Start ---
+        // Render placeholder on server/before hydration, formatted date only on client
+        return cellValue && isClient ? ( // Check if it's a client-side render
           <div className="flex items-center gap-1">
-            <Icon
+            <Icon // Calendar icon from @iconify/react
               className="h-[16px] w-[16px] text-default-300"
               icon="solar:calendar-minimalistic-linear"
             />
-            <p className="text-nowrap text-small capitalize text-default-foreground">
-              {new Intl.DateTimeFormat("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              }).format(cellValue as unknown as Date)}
+            <p className="text-nowrap text-small capitalize text-default-500">
+              {/* Format date using Intl.DateTimeFormat */}
+              {new Intl.DateTimeFormat("en-US", { // Use a consistent locale or derive from user prefs if needed post-hydration
+                year: "numeric", month: "short", day: "numeric",
+                hour: "numeric", minute: "numeric",
+                // timeZone: 'UTC' // Optional: Force UTC for consistency if needed
+              }).format(new Date(cellValue))}
             </p>
           </div>
+        ) : (
+            // Render a placeholder during SSR and initial client render
+            <span className="text-small text-default-400">-</span>
         );
-      case "country":
-        return (
-          <div className="flex items-center gap-2">
-            <div className="h-[16px] w-[16px]">{user[userKey].icon}</div>
-            <p className="text-nowrap text-small text-default-foreground">{user[userKey].name}</p>
-          </div>
-        );
-      case "teams":
-        return (
-          <div className="float-start flex gap-1">
-            {user[userKey].map((team, index) => {
-              if (index < 3) {
-                return (
-                  <Chip
-                    key={team}
-                    className="rounded-xl bg-default-100 px-[6px] capitalize text-default-800"
-                    size="sm"
-                    variant="flat"
-                  >
-                    {team}
-                  </Chip>
-                );
-              }
-              if (index < 4) {
-                return (
-                  <Chip key={team} className="text-default-500" size="sm" variant="flat">
-                    {`+${team.length - 3}`}
-                  </Chip>
-                );
-              }
-
-              return null;
-            })}
-          </div>
-        );
-      case "role":
-        return (
-          <div className="text-nowrap text-small capitalize text-default-foreground">
-            {cellValue}
-          </div>
-        );
-      case "workerType":
-        return <div className="text-default-foreground">{cellValue}</div>;
+        // --- Hydration Fix End ---
+       case "details":
+         // Render task details, truncated with a tooltip for full view
+         return (
+             <Tooltip content={cellValue || "No details"} placement="top-start">
+                <span className="cursor-default text-small text-default-500 truncate max-w-[150px] block">
+                    {cellValue || "-"}
+                </span>
+             </Tooltip>
+         );
       case "status":
-        return <Status status={cellValue as StatusOptions} />;
+        // Render the task status using the dedicated TaskStatus component
+        return <TaskStatus status={cellValue as TaskStatusOptions} />;
       case "actions":
+        // Render action buttons (View, Retry, Cancel/Resume)
+        const isRunning = task.status === 'running';
+        const isPaused = task.status === 'paused';
+        const isFailed = task.status === 'error';
+        const isCanceled = task.status === 'canceled';
+
         return (
           <div className="flex items-center justify-end gap-2">
-            <EyeFilledIcon
-              {...getEyesProps()}
-              className="cursor-pointer text-default-400"
-              height={18}
-              width={18}
-            />
-            <EditLinearIcon
-              {...getEditProps()}
-              className="cursor-pointer text-default-400"
-              height={18}
-              width={18}
-            />
-            <DeleteFilledIcon
-              {...getDeleteProps()}
-              className="cursor-pointer text-default-400"
-              height={18}
-              width={18}
-            />
+             {/* View Details Button */}
+             <Tooltip content="View Details">
+               <button {...getViewProps()} className="text-default-400 cursor-pointer hover:text-primary" onClick={() => console.log("View Task:", task.id)}>
+                  {/* Use the imported EyeFilledIcon component */}
+                  <EyeFilledIcon height={18} width={18} />
+                </button>
+             </Tooltip>
+
+             {/* Retry Button (shown for failed or canceled tasks) */}
+             {(isFailed || isCanceled) && (
+                 <Tooltip content="Retry Task">
+                    <button {...getRetryProps()} className="text-default-400 cursor-pointer hover:text-success" onClick={() => console.log("Retry Task:", task.id)}>
+                        {/* Use the imported RefreshIcon component */}
+                        <RefreshIcon height={18} width={18} />
+                    </button>
+                 </Tooltip>
+              )}
+
+             {/* Cancel/Resume Button (shown for running or paused tasks) */}
+             {(isRunning || isPaused) && (
+                 <Tooltip content={isRunning ? "Cancel Task" : "Resume Task"}>
+                    <button {...getCancelProps()} className="text-default-400 cursor-pointer hover:text-danger" onClick={() => console.log(isRunning ? "Cancel Task:" : "Resume Task:", task.id)}>
+                        {/* Use the imported CancelIcon component */}
+                        {/* TODO: Add separate Pause/Resume icons and logic if needed */}
+                        <CancelIcon height={18} width={18} />
+                    </button>
+                </Tooltip>
+              )}
           </div>
         );
       default:
-        return cellValue;
+        // Default rendering for any other columns
+        return <span className="text-small text-default-500">{cellValue}</span>;
     }
-  });
+  // Add isClient to dependency array for renderCell
+  }, [isClient, getViewProps, getRetryProps, getCancelProps]);
 
+  // Callback to navigate to the next page
   const onNextPage = useMemoizedCallback(() => {
     if (page < pages) {
       setPage(page + 1);
     }
   });
 
+  // Callback to navigate to the previous page
   const onPreviousPage = useMemoizedCallback(() => {
     if (page > 1) {
       setPage(page - 1);
     }
   });
 
+  // Callback to handle changes in the search input
   const onSearchChange = useMemoizedCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
-      setPage(1);
+      setPage(1); // Reset to first page on search
     } else {
       setFilterValue("");
     }
   });
 
+  // Callback to handle changes in row selection
   const onSelectionChange = useMemoizedCallback((keys: Selection) => {
-    if (keys === "all") {
-      if (filterValue) {
-        const resultKeys = new Set(filteredItems.map((item) => String(item.id)));
-
-        setSelectedKeys(resultKeys);
-      } else {
-        setSelectedKeys(keys);
-      }
-    } else if (keys.size === 0) {
-      setSelectedKeys(new Set());
-    } else {
-      const resultKeys = new Set<Key>();
-
-      keys.forEach((v) => {
-        resultKeys.add(v);
-      });
-      const selectedValue =
-        selectedKeys === "all"
-          ? new Set(filteredItems.map((item) => String(item.id)))
-          : selectedKeys;
-
-      selectedValue.forEach((v) => {
-        if (items.some((item) => String(item.id) === v)) {
-          return;
-        }
-        resultKeys.add(v);
-      });
-      setSelectedKeys(new Set(resultKeys));
-    }
+     // Update the selectedKeys state
+     // Note: More complex logic might be needed if selection should persist across pages/filters differently
+     setSelectedKeys(keys);
   });
 
+
+  // Memoized component for the top content area (search, filters, sorting, columns)
   const topContent = useMemo(() => {
     return (
-      <div className="flex items-center gap-4 overflow-auto px-[6px] py-[4px]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-[6px] py-[4px]">
+         {/* Left side: Search and Filters */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-4">
+            {/* Search Input */}
             <Input
-              className="min-w-[200px]"
-              endContent={<SearchIcon className="text-default-400" width={16} />}
-              placeholder="Search"
-              size="sm"
+              isClearable // Allow clearing the search input
+              className="w-full sm:max-w-[44%]" // Responsive width
+              placeholder="Search by task name..."
+              startContent={<SearchIcon className="text-default-400" />} // Search icon
               value={filterValue}
-              onValueChange={onSearchChange}
+              onClear={() => setFilterValue("")} // Clear action
+              onValueChange={onSearchChange} // Handle input change
+              size="sm"
             />
-            <div>
-              <Popover placement="bottom">
-                <PopoverTrigger>
-                  <Button
+            {/* Filter Popover */}
+            <Popover placement="bottom">
+              <PopoverTrigger>
+                <Button
+                  variant="flat" // Use flat variant for filter button
+                  className="bg-default-100 text-default-800"
+                  size="sm"
+                  startContent={<Icon icon="solar:tuning-2-linear" width={16} />} // Filter icon
+                >
+                  Filter
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-60">
+                <div className="px-2 py-4 w-full">
+                  <h4 className="text-small font-bold mb-2">Task Status</h4>
+                  {/* Status Filter Radio Group */}
+                  <RadioGroup
+                      aria-label="Status Filter"
+                      value={statusFilter}
+                      onValueChange={(val) => setStatusFilter(val as TaskStatusOptions | "all")}
+                      size="sm"
+                    >
+                    <Radio value="all">All</Radio>
+                    <Radio value="running">Running</Radio>
+                    <Radio value="paused">Paused</Radio>
+                    <Radio value="completed">Completed</Radio>
+                    <Radio value="canceled">Canceled</Radio>
+                    <Radio value="error">Error</Radio>
+                  </RadioGroup>
+                  {/* Add other filters here (e.g., Date Range) */}
+                </div>
+              </PopoverContent>
+            </Popover>
+        </div>
+
+         {/* Right side: Columns, Sort, Actions */}
+        <div className="flex items-center gap-3">
+           {/* Columns Dropdown */}
+           <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  variant="flat"
+                  className="bg-default-100 text-default-800"
+                  size="sm"
+                  endContent={<Icon icon="solar:alt-arrow-down-linear" width={16} />} // Dropdown arrow
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns} // Update visible columns state
+              >
+                {columns
+                  .filter((c) => !["actions"].includes(c.uid)) // Exclude actions column from selection
+                  .map((column) => (
+                    <DropdownItem key={column.uid} className="capitalize">
+                      {column.name}
+                    </DropdownItem>
+                  ))}
+              </DropdownMenu>
+            </Dropdown>
+
+            {/* Sort Dropdown */}
+            <Dropdown>
+              <DropdownTrigger>
+                 <Button
+                    variant="flat"
                     className="bg-default-100 text-default-800"
                     size="sm"
-                    startContent={
-                      <Icon className="text-default-400" icon="solar:tuning-2-linear" width={16} />
-                    }
-                  >
-                    Filter
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="flex w-full flex-col gap-6 px-2 py-4">
-                    <RadioGroup
-                      label="Worker Type"
-                      value={workerTypeFilter}
-                      onValueChange={setWorkerTypeFilter}
-                    >
-                      <Radio value="all">All</Radio>
-                      <Radio value="employee">Employee</Radio>
-                      <Radio value="contractor">Contractor</Radio>
-                    </RadioGroup>
-
-                    <RadioGroup label="Status" value={statusFilter} onValueChange={setStatusFilter}>
-                      <Radio value="all">All</Radio>
-                      <Radio value="active">Active</Radio>
-                      <Radio value="inactive">Inactive</Radio>
-                      <Radio value="paused">Paused</Radio>
-                      <Radio value="vacation">Vacation</Radio>
-                    </RadioGroup>
-
-                    <RadioGroup
-                      label="Start Date"
-                      value={startDateFilter}
-                      onValueChange={setStartDateFilter}
-                    >
-                      <Radio value="all">All</Radio>
-                      <Radio value="last7Days">Last 7 days</Radio>
-                      <Radio value="last30Days">Last 30 days</Radio>
-                      <Radio value="last60Days">Last 60 days</Radio>
-                    </RadioGroup>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button
-                    className="bg-default-100 text-default-800"
-                    size="sm"
-                    startContent={
-                      <Icon className="text-default-400" icon="solar:sort-linear" width={16} />
-                    }
+                    startContent={<Icon icon="solar:sort-linear" width={16} />} // Sort icon
                   >
                     Sort
                   </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="Sort"
-                  items={headerColumns.filter((c) => !["actions", "teams"].includes(c.uid))}
-                >
-                  {(item) => (
-                    <DropdownItem
-                      key={item.uid}
-                      onPress={() => {
-                        setSortDescriptor({
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Sort"
+                items={columns.filter((c) => c.sortable && !["actions"].includes(c.uid))} // Only show sortable columns
+              >
+                {(item) => (
+                  <DropdownItem
+                    key={item.uid}
+                    onPress={() => { // Update sort descriptor on press
+                      setSortDescriptor((prev) => ({
                           column: item.uid,
                           direction:
-                            sortDescriptor.direction === "ascending" ? "descending" : "ascending",
-                        });
-                      }}
-                    >
-                      {item.name}
-                    </DropdownItem>
-                  )}
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-            <div>
-              <Dropdown closeOnSelect={false}>
-                <DropdownTrigger>
-                  <Button
-                    className="bg-default-100 text-default-800"
-                    size="sm"
-                    startContent={
-                      <Icon
-                        className="text-default-400"
-                        icon="solar:sort-horizontal-linear"
-                        width={16}
-                      />
-                    }
+                            prev.column === item.uid && prev.direction === "ascending"
+                              ? "descending"
+                              : "ascending", // Toggle direction if same column
+                        }));
+                    }}
                   >
-                    Columns
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Columns"
-                  items={columns.filter((c) => !["actions"].includes(c.uid))}
-                  selectedKeys={visibleColumns}
-                  selectionMode="multiple"
-                  onSelectionChange={setVisibleColumns}
-                >
-                  {(item) => <DropdownItem key={item.uid}>{item.name}</DropdownItem>}
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-          </div>
-
-          <Divider className="h-5" orientation="vertical" />
-
-          <div className="whitespace-nowrap text-sm text-default-800">
-            {filterSelectedKeys === "all"
-              ? "All items selected"
-              : `${filterSelectedKeys.size} Selected`}
-          </div>
-
-          {(filterSelectedKeys === "all" || filterSelectedKeys.size > 0) && (
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  className="bg-default-100 text-default-800"
-                  endContent={
-                    <Icon className="text-default-400" icon="solar:alt-arrow-down-linear" />
-                  }
-                  size="sm"
-                  variant="flat"
-                >
-                  Selected Actions
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Selected Actions">
-                <DropdownItem key="send-email">Send email</DropdownItem>
-                <DropdownItem key="pay-invoices">Pay invoices</DropdownItem>
-                <DropdownItem key="bulk-edit">Bulk edit</DropdownItem>
-                <DropdownItem key="end-contract">End contract</DropdownItem>
+                    {item.name}
+                  </DropdownItem>
+                )}
               </DropdownMenu>
             </Dropdown>
-          )}
+
+            {/* Bulk Actions Dropdown (shown when items are selected) */}
+            {(filterSelectedKeys !== "all" && filterSelectedKeys.size > 0) && (
+              <>
+                <Divider orientation="vertical" className="h-5" />
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      variant="flat"
+                      className="bg-default-100 text-default-800"
+                      endContent={<Icon icon="solar:alt-arrow-down-linear" width={16} />}
+                      size="sm"
+                    >
+                      {`${filterSelectedKeys.size} Selected Actions`}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Selected Actions"
+                    onAction={(key) => console.log("Bulk Action:", key, filterSelectedKeys)} // Log bulk action attempt
+                  >
+                    <DropdownItem key="retry-selected">Retry Selected</DropdownItem>
+                    <DropdownItem key="cancel-selected">Cancel Selected</DropdownItem>
+                    <DropdownItem key="delete-logs" className="text-danger" color="danger">
+                      Delete Logs
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </>
+            )}
         </div>
       </div>
     );
   }, [
     filterValue,
+    statusFilter,
     visibleColumns,
     filterSelectedKeys,
-    headerColumns,
     sortDescriptor,
-    statusFilter,
-    workerTypeFilter,
-    startDateFilter,
-    setWorkerTypeFilter,
-    setStatusFilter,
-    setStartDateFilter,
     onSearchChange,
+    setStatusFilter,
     setVisibleColumns,
+    columns, // columns is needed for dropdown menus
   ]);
 
+  // Memoized component for the top bar (title and total count)
   const topBar = useMemo(() => {
     return (
       <div className="mb-[18px] flex items-center justify-between">
-        <div className="flex w-[226px] items-center gap-2">
-          <h1 className="text-2xl font-[700] leading-[32px]">Team Members</h1>
-          <Chip className="hidden items-center text-default-500 sm:flex" size="sm" variant="flat">
-            {users.length}
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold leading-tight">AI Tasks</h1>
+          <Chip className="hidden sm:flex" size="sm" variant="flat" color="default">
+            {tasks.length} Total
           </Chip>
         </div>
-        <Button color="primary" endContent={<Icon icon="solar:add-circle-bold" width={20} />}>
-          Add Member
-        </Button>
+         {/* Optional: Button to trigger new task creation could go here */}
+         {/* <Button color="primary" endContent={<Icon icon="solar:add-circle-bold" width={20} />}> Create Task </Button> */}
       </div>
     );
-  }, []);
+  }, [tasks.length]); // Dependency: update if total tasks change
 
+  // Memoized component for the bottom content area (pagination and selection count)
   const bottomContent = useMemo(() => {
     return (
-      <div className="flex flex-col items-center justify-between gap-2 px-2 py-2 sm:flex-row">
+      <div className="py-2 px-2 flex justify-between items-center gap-4 flex-wrap">
+        {/* Selection Count */}
+        <span className="text-small text-default-400">
+          {filterSelectedKeys === "all"
+            ? "All items selected"
+            : `${filterSelectedKeys.size} of ${filteredItems.length} selected`}
+        </span>
+        {/* Pagination Controls */}
         <Pagination
           isCompact
           showControls
@@ -539,15 +520,11 @@ export default function Component() {
           color="primary"
           page={page}
           total={pages}
-          onChange={setPage}
+          onChange={setPage} // Update page state on change
         />
-        <div className="flex items-center justify-end gap-6">
-          <span className="text-small text-default-400">
-            {filterSelectedKeys === "all"
-              ? "All items selected"
-              : `${filterSelectedKeys.size} of ${filteredItems.length} selected`}
-          </span>
-          <div className="flex items-center gap-3">
+         {/* Previous/Next Buttons (alternative or additional navigation) */}
+         {/*
+         <div className="hidden sm:flex w-[30%] justify-end gap-2">
             <Button isDisabled={page === 1} size="sm" variant="flat" onPress={onPreviousPage}>
               Previous
             </Button>
@@ -555,63 +532,53 @@ export default function Component() {
               Next
             </Button>
           </div>
-        </div>
+          */}
       </div>
     );
-  }, [filterSelectedKeys, page, pages, filteredItems.length, onPreviousPage, onNextPage]);
+  }, [filterSelectedKeys, page, pages, filteredItems.length, onPreviousPage, onNextPage, setPage]);
 
-  const handleMemberClick = useMemoizedCallback(() => {
-    setSortDescriptor({
-      column: "memberInfo",
-      direction: sortDescriptor.direction === "ascending" ? "descending" : "ascending",
-    });
-  });
-
+  // Main component render
   return (
-    <div className="h-full w-full p-6">
+    <div className="h-full w-full p-4 md:p-6"> {/* Add padding */}
+      {/* Render the top bar */}
       {topBar}
+      {/* Render the main table */}
       <Table
-        isHeaderSticky
-        aria-label="Example table with custom cells, pagination and sorting"
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
+        aria-label="Table displaying AI tasks with filtering, sorting, and pagination"
+        isHeaderSticky // Keep header visible on scroll
+        bottomContent={bottomContent} // Attach bottom content (pagination)
+        bottomContentPlacement="outside" // Place pagination outside table scroll area
         classNames={{
-          td: "before:bg-transparent",
+          wrapper: "max-h-[calc(100vh-280px)] shadow-md rounded-lg", // Control max height and add shadow/rounding
+          th: "bg-default-100 text-default-600", // Style header cells
+          td: "before:bg-transparent", // Style data cells
         }}
-        selectedKeys={filterSelectedKeys}
-        selectionMode="multiple"
-        topContent={topContent}
-        topContentPlacement="outside"
-        onSelectionChange={onSelectionChange}
-        onSortChange={setSortDescriptor}
+        selectedKeys={filterSelectedKeys} // Control selected rows
+        selectionMode="multiple" // Allow multiple row selection
+        sortDescriptor={sortDescriptor} // Control sorting state
+        topContent={topContent} // Attach top content (filters, etc.)
+        topContentPlacement="outside" // Place top content outside table scroll area
+        onSelectionChange={onSelectionChange} // Handle selection changes
+        onSortChange={setSortDescriptor} // Handle sort changes
       >
+        {/* Table Header Definition */}
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column.uid === "actions" ? "end" : "start"}
-              className={cn([
-                column.uid === "actions" ? "flex items-center justify-end px-[20px]" : "",
-              ])}
+              align={column.uid === "actions" ? "end" : "start"} // Align 'actions' column to the end
+              allowsSorting={column.sortable} // Allow sorting if column is sortable
+              className={cn(
+                  column.uid === "actions" ? "text-right pr-[20px]" : "pl-[10px]", // Adjust padding
+              )}
             >
-              {column.uid === "memberInfo" ? (
-                <div
-                  {...getMemberInfoProps()}
-                  className="flex w-full cursor-pointer items-center justify-between"
-                >
-                  {column.name}
-                  {column.sortDirection === "ascending" ? (
-                    <ArrowUpIcon className="text-default-400" />
-                  ) : (
-                    <ArrowDownIcon className="text-default-400" />
-                  )}
-                </div>
-              ) : column.info ? (
-                <div className="flex min-w-[108px] items-center justify-between">
+             {/* Render column name, add tooltip if info exists */}
+              {column.info ? (
+                <div className="flex items-center gap-1">
                   {column.name}
                   <Tooltip content={column.info}>
                     <Icon
-                      className="text-default-300"
+                      className="text-default-400"
                       height={16}
                       icon="solar:info-circle-linear"
                       width={16}
@@ -624,10 +591,18 @@ export default function Component() {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No users found"} items={sortedItems}>
+        {/* Table Body Definition */}
+        <TableBody
+          emptyContent={"No tasks found matching your criteria."} // Message when table is empty
+          items={sortedItems} // Data items for the table body
+        >
           {(item) => (
+            // Render a row for each item
             <TableRow key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              {(columnKey) => (
+                // Render a cell for each column in the row
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
             </TableRow>
           )}
         </TableBody>
