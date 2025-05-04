@@ -13,7 +13,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-// Utility to slugify a URL into a filesystem‐safe segment
+// Utility to slugify a URL (keep as is)
 function slugify(url: string): string {
   if (typeof url !== 'string') {
     console.error('slugify received non-string input:', url);
@@ -28,90 +28,31 @@ function slugify(url: string): string {
     .toLowerCase();
 }
 
-// Define the props including the new onRemove callback
+// --- Define the props including the ones passed from the parent ---
 export interface WebshopCardComponentProps extends CardProps {
   name: string;
   url: string;
+  imageUrl?: string | null; // Receive the image URL from parent
+  isLoadingImage?: boolean; // Receive loading state from parent
   onRemove: (url: string) => void;
 }
-
-// Define possible statuses for image loading
-type ImageStatus = 'idle' | 'checking' | 'generating' | 'loaded' | 'error' | 'notFound';
 
 export default function WebshopCard({
   name,
   url,
+  imageUrl, // Use the prop
+  isLoadingImage, // Use the prop
   onRemove,
   ...cardProps
 }: WebshopCardComponentProps) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null); // Use null initially
-  const [imageStatus, setImageStatus] = useState<ImageStatus>('idle');
+
+  // State only needed for Woo connection status
   const [wooSettings, setWooSettings] = useState<{ selectedShopUrl?: string } | null>(null);
 
   const slug = useMemo(() => slugify(url), [url]);
-  const expectedImagePath = useMemo(() => slug ? `/images/screenshots/${slug}.png` : null, [slug]);
-  const apiEndpoint = useMemo(() => process.env.NEXT_PUBLIC_SCREENSHOT_ENDPOINT || "/api/screenshot", []);
-  useEffect(() => {
-    let isMounted = true
-    let currentObjectUrl: string | null = null
-  
-    async function checkAndLoad() {
-      console.log(`[Effect Check] Generating screenshot for: ${url}`)
-      setImageStatus("generating")
-  
-      try {
-        // 1) call your screenshot API
-        const apiUrl = `${apiEndpoint}?url=${encodeURIComponent(url)}`
-        const res = await fetch(apiUrl, { method: "GET" })
-        if (!isMounted) return
-  
-        if (!res.ok) {
-          const errText = await res.text().catch(() => "")
-          console.error(
-            `[Effect Check] Screenshot API error for ${url}:`,
-            res.status, res.statusText, errText
-          )
-          setImageStatus("error")
-          setImageSrc(null)
-          return
-        }
-  
-        // 2) stream PNG → blob URL
-        // 2) figure out what we got back
-        const contentType = res.headers.get("content-type") || ""
-        if (contentType.includes("application/json")) {
-          // already-existing case: parse out the public path
-          const data: { message: string; path: string } = await res.json()
-          console.log(`[Effect Check] Screenshot exists at public path:`, data.path)
-          setImageSrc(data.path)            // use the public URL instead of blob
-          setImageStatus("loaded")
-        } else {
-          // new‐capture case: stream PNG → blob URL
-          const blob = await res.blob()
-          const objectUrl = URL.createObjectURL(blob)
-          currentObjectUrl = objectUrl
-          console.log(`[Effect Check] Screenshot blob ready for ${url}:`, objectUrl)
-          setImageSrc(objectUrl)
-          setImageStatus("loaded")
-        }
 
-
-      
-    }  catch (error) {
-        console.error(`[Effect Check] Error generating screenshot for ${url}:`, error)
-        setImageStatus("error")
-        setImageSrc(null)
-      }
-    }
-    checkAndLoad()
-  
-    return () => {
-      isMounted = false
-      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl)
-    }
-  }, [url, apiEndpoint])  // <— *exactly* these two, same order, same length
-  
-  
+  // *** REMOVED the useEffect hook that fetched the screenshot here ***
+  // The parent component (WebshopsPage) now handles fetching the imageUrl.
 
   // Effect to load WooCommerce connection status (remains the same)
   useEffect(() => {
@@ -154,17 +95,11 @@ export default function WebshopCard({
     }
   };
 
-  // Determine what text to show in the loading/error state
+  // Determine what text to show based on props
   const getLoadingText = () => {
-      switch (imageStatus) {
-          case 'checking': return 'Loading preview...';
-          case 'generating': return 'Generating preview...';
-          case 'error': return 'Failed to load preview.';
-          case 'notFound': return 'No preview available.';
-          case 'idle': return '';
-          case 'loaded': return ''; // Don't show text when loaded
-          default: return 'Loading...'; // Fallback
-      }
+      if (isLoadingImage) return 'Loading preview...';
+      if (!imageUrl) return 'Preview not available.'; // Show if loading is false but no URL
+      return ''; // No text if loaded or idle without loading
   };
 
   // Render the card component
@@ -174,39 +109,26 @@ export default function WebshopCard({
       <CardBody className="p-0 bg-white flex-grow">
          {/* --- IMAGE AREA --- */}
          <div className="relative h-48 bg-gray-100 rounded-t">
-           {/* Display loading/error state text when not loaded */}
-           {imageStatus !== 'loaded' && (
+           {/* Display Image if imageUrl is available */}
+           {imageUrl ? (
+             <img
+               src={imageUrl}
+               alt={`${name} front page screenshot`}
+               // Apply Tailwind classes for styling and object-fit
+               className="absolute inset-0 w-full h-full object-cover object-top rounded-t"
+             />
+           ) : (
+             // Show loading/placeholder text if no imageUrl or if loading
              <div className="absolute inset-0 flex items-center justify-center h-full">
                <span className="text-gray-400 px-4 text-center text-sm">
                  {getLoadingText()}
                </span>
              </div>
            )}
-           {/* Render Image only when src is set */}
-         {imageSrc ? (
-        <img
-          src={imageSrc}
-          alt={`${name} front page screenshot`}
-          className={`absolute inset-0 aspect-video w-full h-full object-cover object-top rounded-t transition-opacity duration-300 ${imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={()   => setImageStatus('loaded')}
-          onError={()  => {
-            console.error(`Failed to render blob image: ${imageSrc}`);
-            setImageStatus('error');
-            setImageSrc(null);
-          }}
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center h-full">
-          <span className="text-gray-400 px-4 text-center text-sm">
-            {getLoadingText()}
-          </span>
-        </div>
-      )}
-
          </div>
          {/* --- END IMAGE AREA --- */}
 
-        {/* Spacer and Text Info (remains the same) */}
+        {/* Spacer and Text Info */}
         <div className="p-3">
             <Spacer y={2} />
             <div className="flex flex-col gap-1 px-2">

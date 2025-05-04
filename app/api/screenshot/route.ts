@@ -1,210 +1,262 @@
-import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-import { Buffer } from 'buffer';
-import fs from 'fs'; // Import fs for file system operations
-import path from 'path'; // Import path for constructing file paths
+import { NextResponse } from 'next/server';
+import puppeteer, { Browser, Page } from 'puppeteer';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import crypto from 'crypto'; // Import the crypto module for hashing
 
-// Config - Adjust these as needed
+// --- Supabase Configuration ---
+// Ensure these are set in your .env.local file
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const BUCKET_NAME = 'screenshots'; // *** REPLACE with your actual bucket name ***
+
+// *** ADDED LOGGING FOR ENV VARS ***
+console.log("--- Supabase Env Vars ---");
+console.log("NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl ? 'Loaded' : 'MISSING!');
+console.log("SUPABASE_SERVICE_ROLE_KEY:", supabaseServiceKey ? 'Loaded (length: ' + (supabaseServiceKey?.length ?? 0) + ')' : 'MISSING!'); // Log length safely
+console.log("-------------------------");
+
+
+// Validate Supabase config
+if (!supabaseUrl || !supabaseServiceKey) {
+    console.error("Supabase URL or Service Key environment variable is missing! Ensure .env.local is correct and server was restarted.");
+    // Throw an error during startup if critical config is missing
+    // throw new Error("Missing Supabase configuration in environment variables.");
+}
+
+// Initialize Supabase client (use service key for backend operations)
+let supabase: SupabaseClient | null = null;
+const getSupabaseClient = () => {
+    // Initialize only once
+    if (!supabase && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        try {
+             supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+             console.log("Supabase client initialized successfully.");
+        } catch (error) {
+             console.error("Error initializing Supabase client:", error);
+        }
+    } else if (!supabase && (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+         console.error("Attempted to get Supabase client, but env vars missing!");
+    }
+    return supabase;
+};
+
+
+// --- Puppeteer Constants ---
 const VIEWPORT_WIDTH = 1280;
 const VIEWPORT_HEIGHT = 720;
-const TIMEOUT_MS = 20000; // Increased timeout slightly
-const SCREENSHOT_DIR = path.join(process.cwd(), 'public', 'images', 'screenshots'); // Define screenshot directory
-const SCREENSHOT_PUBLIC_PATH = '/images/screenshots'; // Public URL path
+const TIMEOUT_MS = 60000; // 60 seconds
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36';
 
-// Determine if running locally or on Vercel/similar serverless env
-const isDev = process.env.NODE_ENV === 'development';
+// --- Helper Function: Generate Filename ---
+const generateFilename = (url: string): string => {
+    const hash = crypto.createHash('sha256').update(url).digest('hex');
+    return `${hash}.png`;
+};
 
-// Utility to slugify a URL (needed here to create filename)
-function slugify(url: string): string {
-  if (typeof url !== 'string') return '';
-  return url
-    .replace(/^https?:\/\//, "")
-    .replace(/\/$/, "")
-    .replace(/[^a-zA-Z0-9\-]+/g, "-") // Allow hyphens, replace others
-    .replace(/-+/g, '-') // Collapse multiple hyphens
-    .toLowerCase();
-}
+// --- GET Request Handler ---
+export async function GET(request: Request) {
+    console.log(`[Request Start] Service Key is ${process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'NOT SET'}. URL: ${request.url}`);
 
-// --- Handler for HEAD requests (Check if file exists) ---
-export async function HEAD(req: NextRequest) {
-    console.log("--- [HEAD /api/screenshot] Check request received ---");
-    const searchParams = req.nextUrl.searchParams;
-    const urlToCheck = searchParams.get('url');
-
-    if (!urlToCheck) {
-        return new NextResponse(null, { status: 400, statusText: "Missing 'url' query parameter" });
+    const supabaseClient = getSupabaseClient();
+    // Ensure client is available before proceeding
+    if (!supabaseClient) {
+         console.error("FATAL: Supabase client is not available. Check initialization logs and env vars.");
+         return NextResponse.json({ error: 'Server configuration error (Supabase)' }, { status: 500 });
     }
 
-    const slug = slugify(urlToCheck);
-    if (!slug) {
-        return new NextResponse(null, { status: 400, statusText: "Failed to generate valid filename slug" });
-    }
-    const filename = `${slug}.png`;
-    const filePath = path.join(SCREENSHOT_DIR, filename);
-    console.log(`Checking for file: ${filePath}`);
+    let browser: Browser | null = null;
+    let page: Page | null = null;
 
     try {
-        // NOTE: This check might not work reliably in serverless environments after initial deployment.
-        if (fs.existsSync(filePath)) {
-            console.log(`File found at ${filePath}.`);
-            // Return 200 OK if file exists
-            return new NextResponse(null, { status: 200 });
+        // --- 1. Get URL and Generate Filename ---
+        const { searchParams } = new URL(request.url);
+        const urlToScreenshot = searchParams.get('url');
+
+        if (!urlToScreenshot) {
+            return NextResponse.json({ error: "Missing 'url' query parameter" }, { status: 400 });
+        }
+        // Basic URL validation
+        try { new URL(urlToScreenshot); } catch (_) {
+            return NextResponse.json({ error: 'Invalid URL format provided' }, { status: 400 });
+        }
+
+        const filename = generateFilename(urlToScreenshot);
+        console.log(`Processing URL: "${urlToScreenshot}", Filename: "${filename}"`);
+
+        // --- 2. Check Supabase Cache ---
+        console.log(`Checking cache for "${filename}"...`);
+        let publicUrl: string | null = null;
+        try {
+            // First, try getting the public URL directly
+            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(filename);
+            if (urlData?.publicUrl && !urlData.publicUrl.includes('/render/path')) {
+                 // If URL looks valid, confirm existence with list()
+                 const { data: fileListData, error: listError } = await supabaseClient
+                     .storage
+                     .from(BUCKET_NAME)
+                     .list(null, { search: filename, limit: 1 });
+
+                 if (listError) {
+                      console.error("Supabase cache check error (list):", listError);
+                      // If auth error, fail fast
+                      if (listError.message.includes('signature') || listError.message.includes('authorization')) {
+                           throw new Error(`Supabase authentication error checking file: ${listError.message}. FIX SERVICE KEY!`);
+                      }
+                      // Otherwise, log and proceed to generate
+                      console.warn("Proceeding to generate due to cache check error.");
+                 } else if (fileListData && fileListData.length > 0) {
+                      console.log(`Cache hit for "${filename}".`);
+                      publicUrl = urlData.publicUrl; // Store the valid public URL
+                 }
+            }
+        } catch (cacheCheckError: any) {
+             console.error("Unexpected error during cache check:", cacheCheckError);
+             // Handle potential errors during the check itself
+        }
+
+        // If we found a valid public URL in the cache, return it
+        if (publicUrl) {
+             console.log(`[Cache Hit] Returning URL: ${publicUrl}`);
+             return NextResponse.json({ imageUrl: publicUrl });
         } else {
-            console.log(`File not found at ${filePath}.`);
-            // Return 404 Not Found if file doesn't exist
-            return new NextResponse(null, { status: 404 });
+             console.log(`Cache miss for "${filename}", proceeding to generate.`);
         }
-    } catch (err: any) {
-        console.error(`Error checking file existence at ${filePath}:`, err);
-        // Return 500 Internal Server Error if check fails
-        return new NextResponse(null, { status: 500, statusText: err.message || 'Error checking file' });
-    }
-}
 
+        // --- 3. Launch Puppeteer (if not cached) ---
+        console.log("Launching Puppeteer browser...");
+        browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                // '--single-process', // Removed this argument
+                '--disable-gpu'
+            ],
+        });
+        console.log("Browser launched.");
 
-// --- Handler for GET requests (Generate screenshot if needed) ---
-export async function GET(req: NextRequest) {
-  console.log("--- [GET /api/screenshot] Generate request received ---");
+        page = await browser.newPage();
+        console.log("Page opened.");
+        await page.setUserAgent(USER_AGENT);
+        await page.setViewport({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
 
-  const searchParams = req.nextUrl.searchParams;
-  const urlToScreenshot = searchParams.get('url');
-  console.log(`Received URL to screenshot: "${urlToScreenshot}"`);
-
-  if (!urlToScreenshot) {
-    console.error("Missing 'url' query parameter.");
-    return NextResponse.json({ error: "Missing 'url' query parameter" }, { status: 400 });
-  }
-
-  let validUrl: URL;
-  try {
-    validUrl = new URL(urlToScreenshot); // Validate and parse URL
-    console.log(`URL "${urlToScreenshot}" appears valid.`);
-  } catch (error) {
-    console.error(`Invalid URL format: "${urlToScreenshot}"`, error);
-    return NextResponse.json({ error: 'Invalid URL format provided' }, { status: 400 });
-  }
-
-  // --- File Handling ---
-  const slug = slugify(urlToScreenshot);
-  if (!slug) {
-      console.error(`Failed to generate slug for URL: "${urlToScreenshot}"`);
-      return NextResponse.json({ error: 'Failed to generate valid filename slug' }, { status: 400 });
-  }
-  const filename = `${slug}.png`;
-  const filePath = path.join(SCREENSHOT_DIR, filename);
-  const publicImagePath = `${SCREENSHOT_PUBLIC_PATH}/${filename}`;
-  console.log(`Target file path: ${filePath}`);
-  console.log(`Public image path: ${publicImagePath}`);
-
-  // --- Check if image already exists (redundant check, HEAD should be used first, but good safeguard) ---
-  try {
-      if (fs.existsSync(filePath)) {
-          console.log(`Screenshot already exists at ${filePath} (GET request). Returning existing path.`);
-          // Return 200 OK with the path, indicating it already existed
-          return NextResponse.json({
-              message: 'Screenshot already exists.',
-              path: publicImagePath
-          }, { status: 200 });
-      }
-  } catch (err) {
-      console.warn(`Could not check for existing file at ${filePath} (GET request):`, err);
-  }
-
-  // --- Screenshot Generation ---
-  let browser = null;
-  let page = null;
-  let screenshotBuffer: Buffer | null = null;
-  let executablePath: string | null = null;
-
-  try {
-    console.log("Attempting to launch browser...");
-    // Determine executable path (same logic as before)
-    if (isDev) {
-        const possiblePaths = [
-            '/usr/bin/google-chrome-stable', '/usr/bin/google-chrome',
-            '/usr/bin/chromium-browser', '/usr/bin/chromium',
-            '/snap/bin/chromium',
-            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', // macOS
-            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', // Windows
-            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe' // Windows (x86)
-        ];
-        executablePath = possiblePaths.find(path => fs.existsSync(path)) || null;
-        if (!executablePath) {
-            console.error(`*** Local Chrome/Chromium not found. Checked: ${possiblePaths.join(', ')} ***`);
-            return NextResponse.json({ error: 'Failed to find local Chrome/Chromium executable for development.' }, { status: 500 });
+        // --- 4. Navigate ---
+        console.log(`Navigating to: "${urlToScreenshot}"...`);
+        let navigationResponse;
+        let navigationErrorOccurred = false;
+        try {
+            navigationResponse = await page.goto(urlToScreenshot, { waitUntil: 'load', timeout: TIMEOUT_MS });
+            console.log(`Navigation complete. Status: ${navigationResponse?.status() ?? 'N/A'}`);
+        } catch (navError: any) {
+            console.error(`Navigation error for "${urlToScreenshot}":`, navError);
+            navigationErrorOccurred = true;
+            if (navError.message.includes('Navigating frame was detached')) {
+                 console.warn(`Caught "Navigating frame was detached". Proceeding...`);
+                 navigationResponse = null;
+            } else {
+                // Rethrow other navigation errors
+                throw new Error(`Navigation failed: ${navError.message}`);
+            }
         }
-        console.log(`Using local executable path: ${executablePath}`);
-    } else {
-        executablePath = await chromium.executablePath();
-        console.log(`Using production executable path: ${executablePath}`);
-    }
 
-    const browserArgs = [
-        ...(isDev ? [] : chromium.args),
-        '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage',
-        '--single-process', '--disable-gpu', '--no-zygote'
-    ];
-    console.log("Browser launch arguments:", browserArgs);
+        // Check response status if navigation didn't throw (or was detached frame)
+        if (navigationResponse && !navigationResponse.ok()) {
+            const status = navigationResponse.status();
+            console.error(`Navigation failed with status: ${status}`);
+            throw new Error(`Page load failed with status ${status}`);
+        }
 
-    browser = await puppeteer.launch({
-      args: browserArgs, executablePath: executablePath,
-      headless: isDev ? true : chromium.headless, ignoreHTTPSErrors: true,
-    });
-    console.log("Browser launched successfully.");
+        // --- 5. Take Screenshot ---
+        console.log("Attempting screenshot...");
+        const delayMs = 2000;
+        console.log(`Waiting ${delayMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
 
-    page = await browser.newPage();
-    console.log("New page created.");
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36');
-    await page.setViewport({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT });
-    console.log(`Navigating to URL: "${urlToScreenshot}"...`);
-    const navigationResponse = await page.goto(urlToScreenshot, { waitUntil: 'networkidle2', timeout: TIMEOUT_MS });
-    console.log(`Navigation complete. Status: ${navigationResponse?.status() ?? 'N/A'}`);
+        // *** ADDED CHECK: Ensure page is still connected before screenshot ***
+        if (page.isClosed()) {
+             console.error("Screenshot failed: Page was closed before screenshot could be taken.");
+             throw new Error("Page closed prematurely before screenshot.");
+        }
 
-    if (!navigationResponse || !navigationResponse.ok()) {
-        throw new Error(`Navigation failed with status: ${navigationResponse?.status() ?? 'unknown'}`);
-    }
+        console.log("Capturing screenshot...");
+        const screenshotBuffer = await page.screenshot({ type: 'png' });
+        console.log("Screenshot captured successfully.");
 
-    console.log("Taking screenshot...");
-    screenshotBuffer = await page.screenshot({ type: 'png' });
-    console.log(`Screenshot taken successfully. Buffer size: ${screenshotBuffer?.length} bytes.`);
+        // --- 6. Upload to Supabase ---
+        console.log(`Uploading "${filename}" to bucket "${BUCKET_NAME}"...`);
+        const { data: uploadData, error: uploadError } = await supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .upload(filename, screenshotBuffer, {
+                contentType: 'image/png',
+                upsert: true
+            });
 
-  } catch (error: any) {
-    console.error("Error during Puppeteer operation:", error);
-    const details = error.message || 'Unknown error during screenshot generation';
-    return NextResponse.json({ error: 'Failed to generate screenshot', details }, { status: 500 });
-  } finally {
-    console.log("Cleaning up Puppeteer resources...");
-    if (page) await page.close().catch(e => console.error("Error closing page:", e));
-    if (browser) await browser.close().catch(e => console.error("Error closing browser:", e));
-  }
+        if (uploadError) {
+            console.error("Supabase upload error:", uploadError);
+             if (uploadError.message.includes('signature') || uploadError.message.includes('authorization')) {
+                 throw new Error(`Supabase authentication error uploading file: ${uploadError.message}. FIX SERVICE KEY!`);
+            }
+            throw new Error(`Upload failed: ${uploadError.message}`);
+        }
+        console.log("Upload successful:", uploadData?.path);
 
-  // --- Save Screenshot Buffer ---
-  if (screenshotBuffer) {
-    try {
-        console.log(`Attempting to save screenshot to: ${filePath}`);
-        // Ensure the directory exists
-        fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
-        console.log(`Directory ${SCREENSHOT_DIR} ensured/created.`);
-        fs.writeFileSync(filePath, screenshotBuffer);
-        console.log(`Screenshot saved successfully to ${filePath}`);
+        // --- 7. Get Public URL of Newly Uploaded File ---
+        const { data: finalUrlData, error: finalUrlError } = supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(filename);
 
-        // Return success response with the public path
-        // Use 201 Created because the GET request resulted in resource creation
-        return NextResponse.json({
-            message: 'Screenshot generated and saved successfully.',
-            path: publicImagePath
-        }, { status: 201 });
+        if (finalUrlError) {
+             console.error("Supabase error getting final public URL:", finalUrlError);
+              throw new Error(`Failed to get public URL after upload: ${finalUrlError.message}`);
+        }
+        if (!finalUrlData?.publicUrl) {
+             console.error("Public URL was null/empty after upload for:", filename);
+             throw new Error("Failed to get public URL after upload.");
+        }
+
+        console.log(`[After Upload] Returning URL: ${finalUrlData.publicUrl}`);
+        return NextResponse.json({ imageUrl: finalUrlData.publicUrl });
 
     } catch (error: any) {
-        console.error(`Failed to save screenshot to ${filePath}:`, error);
-        return NextResponse.json({
-            error: 'Screenshot generated but failed to save.',
-            details: error.message || 'Unknown file system error'
-        }, { status: 500 });
+        console.error("Error during operation:", error.message); // Log only message for cleaner top-level error
+        // Provide specific feedback for auth errors
+        const errorMessage = error.message.includes('Supabase authentication error')
+            ? `Authentication Error: ${error.message}`
+            : `Failed to process screenshot: ${error.message}`;
+        return NextResponse.json(
+            { error: errorMessage },
+            { status: 500 }
+        );
+
+    } finally {
+        // --- Resource Cleanup (Puppeteer) ---
+        console.log("Cleaning up Puppeteer resources...");
+        if (page && !page.isClosed()) { // Check if page exists and isn't already closed
+            try {
+                 console.log("Closing page...");
+                 await page.close();
+                 console.log("Page closed.");
+            } catch (e: any) { console.error("Error closing page:", e.message); }
+        } else if (page?.isClosed()){
+             console.log("Page cleanup skipped (already closed).");
+        } else {
+             console.log("Page cleanup skipped (was not initialized).");
+        }
+        if (browser) {
+            try {
+                 console.log("Closing browser...");
+                 await browser.close();
+                 console.log("Browser closed.");
+            } catch (e: any) { console.error("Error closing browser:", e.message); }
+        } else {
+             console.log("Browser cleanup skipped.");
+        }
+        console.log("Cleanup finished.");
     }
-  } else {
-    console.error("Screenshot buffer is null after generation attempt.");
-    return NextResponse.json({ error: 'Screenshot generation failed, buffer is null.' }, { status: 500 });
-  }
 }
