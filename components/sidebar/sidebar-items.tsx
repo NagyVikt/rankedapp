@@ -30,7 +30,7 @@ export const items: SidebarItem[] = [
   { key: 'emails',   href: '/dashboard/emails',       icon: 'solar:sort-by-time-linear',           title: 'Email Designer', endContent: <Chip size="sm" variant="flat">New</Chip> },
   { key: 'campaign-maanger',   href: '/dashboard/emails/campaign-manager',       icon: 'solar:sort-by-time-linear',           title: 'Advertising campaign', },
 
-  { key: 'tracker',   href: '/dashboard/tracker',       icon: 'solar:sort-by-time-linear',           title: 'AI JOB tracker', endContent: <Chip size="sm" variant="flat">New</Chip> },
+  { key: 'agents',   href: '/dashboard/agents',       icon: 'solar:sort-by-time-linear',           title: 'AI Agents', endContent: <Chip size="sm" variant="flat">New</Chip> },
 
   { key: 'analytics', href: '/dashboard/analytics',     icon: 'solar:chart-outline',                 title: 'Analytics' },
   { key: 'settings',  href: '/dashboard/settings',      icon: 'solar:settings-outline',              title: 'Settings' },
