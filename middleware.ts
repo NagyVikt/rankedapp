@@ -10,6 +10,8 @@ const EXEMPT_PATHS = [
   '/_next',
   '/favicon.ico',
   '/api/auth',
+  '/images/components',
+  '/images',
 ]
 
 function makeNonce() {
@@ -22,13 +24,16 @@ export async function middleware(req: NextRequest) {
   const { pathname, hostname } = req.nextUrl
   const res = NextResponse.next()
 
-  // 1) detect localhost (and IPv4 loopback)
+
+  
+
+  // 1) detect localhost
   const isLocalhost =
     hostname === 'localhost' ||
     hostname === '127.0.0.1' ||
     hostname === '[::1]'
 
-  // 2) only emit CSP when _not_ on localhost and in production
+  // 2) Content-Security-Policy (prod only)
   if (!isLocalhost && process.env.NODE_ENV === 'production') {
     const nonce = makeNonce()
     const csp = [
@@ -50,19 +55,23 @@ export async function middleware(req: NextRequest) {
     res.headers.set('x-csp-nonce', nonce)
   }
 
-  // 3) always-on security headers
+  // 3) security headers
   res.headers.set('X-Content-Type-Options', 'nosniff')
   res.headers.set('Referrer-Policy', 'origin-when-cross-origin')
-  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+  res.headers.set(
+    'Strict-Transport-Security',
+    'max-age=63072000; includeSubDomains; preload'
+  )
   res.headers.set('X-Frame-Options', 'SAMEORIGIN')
   res.headers.set('X-XSS-Protection', '1; mode=block')
 
-  // 4) skip auth for exempt paths
+  // 4) skip auth for public/exempt paths
   if (EXEMPT_PATHS.some(p => pathname.startsWith(p))) {
+    console.log(`Exempting path via EXEMPT_PATHS: ${pathname}`) // Optional: for debugging
     return res
   }
 
-  // 5) Supabase auth check
+  // 5) Supabase SSR client (with cross-site cookies)
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,12 +81,17 @@ export async function middleware(req: NextRequest) {
         getAll: () => cookieStore.getAll(),
         setAll: toSet =>
           toSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
+            res.cookies.set(name, value, {
+              ...options,
+              sameSite: 'none',
+              secure: true,
+            })
           ),
       },
     }
   )
 
+  // 6) check session
   const {
     data: { session },
     error,
@@ -89,12 +103,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // 6) done
+  // 7) allow the request
   return res
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|login|register|api/auth).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|login|register|images|.*\\.(?:png|jpg|jpeg|gif|webp|svg|css|js)$).*)',
   ],
 }
