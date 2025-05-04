@@ -21,12 +21,14 @@ export interface SidebarItem {
   className?: string;
 }
 
+
+
 // Primary flat list
 export const items: SidebarItem[] = [
   { key: 'home',      href: '/dashboard',               icon: 'solar:home-2-linear',                 title: 'Home' },
   { key: 'webshops',  href: '/dashboard/webshops',      icon: 'solar:widget-2-outline',             title: 'Webshops'  },
   { key: 'tasks',     href: '/dashboard/tasks',         icon: 'solar:checklist-minimalistic-outline',title: 'Tasks',    endContent: <Icon icon="solar:add-circle-line-duotone" className="text-default-400" width={24}/> },
-  { key: 'team',      href: '/dashboard/team',          icon: 'solar:users-group-two-rounded-outline', title: 'Team' },
+  { key: 'ADS',      href: '/dashboard/ads',           title: 'Ads' },
   { key: 'emails',   href: '/dashboard/emails',       icon: 'solar:sort-by-time-linear',           title: 'Email Designer', endContent: <Chip size="sm" variant="flat">New</Chip> },
   { key: 'campaign-maanger',   href: '/dashboard/emails/campaign-manager',       icon: 'solar:sort-by-time-linear',           title: 'Advertising campaign', },
 

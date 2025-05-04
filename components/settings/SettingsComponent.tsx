@@ -217,16 +217,28 @@ export default function SettingsComponent(props: CardProps) {
              <ApiKeysTab />
           </Tab>
 
-              {/* === API Keys Tab (using 'apikeys' as key) === */}
-              <Tab
-            key="plugin" // Use the key defined in validTabKeys
-            // Render title with indicator (dot based on any key configured)
-            title={renderTabTitle("material-symbols:key-outline", "Plugin settings", renderIndicator(apiKeysConfiguredCount > 0))}
+          <Tab
+            key="plugin-settings" // matches your validTabKeys
+            title={
+              <div className="flex items-center gap-1">
+                {/* key icon */}
+                <Icon
+                  icon="material-symbols:settings-outline"
+                  width={20}
+                  className="text-foreground/80 hover:text-foreground transition-colors"
+                />
+                {/* label */}
+                <span className="font-medium">Plugin settings</span>
+                {/* the little dot-indicator you already have */}
+                {renderIndicator(apiKeysConfiguredCount > 0)}
+                {/* settings (cog) icon */}
+              
+              </div>
+            }
           >
-             {/* Content component should handle its own dark theme */}
-             {/* Ensure ApiKeysTab component renders the list of ApiKeyManagers */}
-             <ApiKeysTab />
-          </Tab>
+          <ApiKeysTab />
+        </Tab>
+
 
         </Tabs>
       )}
