@@ -294,10 +294,10 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
         <v:fill type="frame" src="https://cdn.templates.unlayer.com/assets/1715582865873-Group%201821.png" /><v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
       <![endif]-->
   
-<div class="u-row-container" style="padding: 0px;background-image: url('images/image-11.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
+<div class="u-row-container" style="padding: 0px;background-image: url(https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-11.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
   <div class="u-row" style="margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
     <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
-      <!--[if (mso)|(IE)]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-image: url('images/image-11.png');background-repeat: no-repeat;background-position: center top;background-color: transparent;" align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+      <!--[if (mso)|(IE)]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-image: url('https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-11.png');background-repeat: no-repeat;background-position: center top;background-color: transparent;" align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
       
 <!--[if (mso)|(IE)]><td align="center" width="600" class="v-col-border" style="width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]-->
 <div class="u-col u-col-100" style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
@@ -389,7 +389,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-1.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-1.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -433,7 +433,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-2.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-2.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -477,7 +477,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-3.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-3.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -535,7 +535,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -579,7 +579,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-5.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-5.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -623,7 +623,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="images/image-6.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-6.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;" width="63"/>
       
     </td>
   </tr>
@@ -719,7 +719,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 15px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.facebook.com/unlayer" title="Facebook" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="images/image-7.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.facebook.com/unlayer" title="Facebook" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-7.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -728,7 +728,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 15px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.linkedin.com/company/unlayer/mycompany/" title="LinkedIn" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="images/image-8.png" alt="LinkedIn" title="LinkedIn" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.linkedin.com/company/unlayer/mycompany/" title="LinkedIn" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-8.png" alt="LinkedIn" title="LinkedIn" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -737,7 +737,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 15px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.instagram.com/unlayer_official/" title="Instagram" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="images/image-9.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.instagram.com/unlayer_official/" title="Instagram" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-9.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -746,7 +746,7 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 0px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 0px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://twitter.com/unlayerapp" title="X" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="images/image-10.png" alt="X" title="X" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://twitter.com/unlayerapp" title="X" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-10.png" alt="X" title="X" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -867,3 +867,2021 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
 
 `;
 
+export const buttonsSnippetjson = `
+{
+  "body": {
+    "rows": [
+      {
+        "cells": [
+          12
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "heading",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: #d7f4ff;\" align=\"center\"><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-border\" style=\"background-color: #d7f4ff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #d7f4ff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-border\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_heading_2\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:20px 0px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><table role=\"presentation\" width=\"100%\"><tr><td><![endif]-->\n    <h1 class=\"v-text-align\" style=\"margin: 0px; color: #000000; line-height: 140%; text-align: center; word-wrap: break-word; font-size: 22px; font-weight: 400;\"><div class=\"unlayer2be\"><div class=\"unlayer2be\"><span>[Your Logo]</span></div></div></h1>\n  <!--[if mso]></td></tr></table><![endif]-->\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": "320px"
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-11.png",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": ""
+              },
+              "padding": "0px",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "rgb(215, 244, 255)",
+              "backgroundImage": {
+                "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-11.png",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "rgb(215, 244, 255)",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      },
+      {
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "menu",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_menu_1",
+                    "htmlClassNames": "u_content_menu"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div style=\"background-color: #d7f4ff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-border\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;border-bottom: 1px solid #000000;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_menu_1\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<div class=\"menu\" style=\"text-align:center;\">\n<!--[if (mso)|(IE)]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"\"><tr><![endif]-->\n\n  <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n  \n    <div class=\"unlayer2be\"><a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 10px 22px; display: inline-block; color: rgb(0, 0, 0); font-family: &quot;Montserrat&quot;, sans-serif; font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Home\n    </a></div>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n    <div class=\"unlayer2be\"><span style=\"padding:10px 22px;display:inline-block;color:#000000;font-family:'Montserrat',sans-serif;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span></div>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n  \n    <div class=\"unlayer2be\"><a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 10px 22px; display: inline-block; color: rgb(0, 0, 0); font-family: &quot;Montserrat&quot;, sans-serif; font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Page\n    </a></div>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n    <div class=\"unlayer2be\"><span style=\"padding:10px 22px;display:inline-block;color:#000000;font-family:'Montserrat',sans-serif;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span></div>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n  \n    <div class=\"unlayer2be\"><a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 10px 22px; display: inline-block; color: rgb(0, 0, 0); font-family: &quot;Montserrat&quot;, sans-serif; font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">About Us\n    </a></div>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n    <div class=\"unlayer2be\"><span style=\"padding:10px 22px;display:inline-block;color:#000000;font-family:'Montserrat',sans-serif;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span></div>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:10px 22px\"><![endif]-->\n  \n    <div class=\"unlayer2be\"><a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 10px 22px; display: inline-block; color: rgb(0, 0, 0); font-family: &quot;Montserrat&quot;, sans-serif; font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Contact Us\n    </a></div>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n<!--[if (mso)|(IE)]></tr></table><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "0px",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "rgb(215, 244, 255)",
+                  "backgroundImage": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-11.png",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "600px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "rgb(215, 244, 255)",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      },
+      {
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "heading",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-border\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:585px 10px 0px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><table role=\"presentation\" width=\"100%\"><tr><td><![endif]-->\n    <h1 class=\"v-text-align\" style=\"margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-family: Arvo; font-size: 28px; font-weight: 400;\"><span><span><span><span><span><span><strong>Environmental Impact</strong></span></span></span></span></span></span></h1>\n  <!--[if mso]></td></tr></table><![endif]-->\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>\n\n<div class=\"unlayer2be\"><table id=\"u_content_text_1\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 50px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspen disse ultrices gravida. Risus commodo viverra&nbsp;</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>\n\n<div class=\"unlayer2be\"><table id=\"u_content_button_1\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 61px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div class=\"v-text-align\" align=\"center\">\n  <!--[if mso]><table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td align=\"center\" bgcolor=\"#44d2f2\" style=\"padding:10px 20px;\" valign=\"top\"><![endif]-->\n    <a href=\"https://unlayer.com\" target=\"_blank\" class=\"v-button v-size-width\" style=\"box-sizing: border-box; display: inline-block; text-decoration: none; -moz-text-size-adjust: none; text-align: center; color: rgb(255, 255, 255); background: rgb(68, 210, 242); border-radius: 4px; width: 28%; max-width: 100%; word-break: break-word; overflow-wrap: break-word; border-color: rgb(0, 0, 0); border-style: solid; border-width: 1px; font-size: 14px; line-height: inherit;\"><span class=\"v-padding\" style=\"display:block;padding:10px 20px;line-height:120%;\"><span style=\"line-height: 16.8px;\">Read More</span></span>\n    </a>\n    <!--[if mso]></td></tr></table><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "600px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      },
+      {
+        "cells": [
+          1,
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-1.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-1.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 30px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          },
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-2.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-2.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_text_6\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          },
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-3.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-3.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_text_7\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "rgb(68, 210, 242)",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      },
+      {
+        "cells": [
+          1,
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-4.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-4.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 30px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          },
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-5.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-5.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_text_4\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          },
+          {
+            "contents": [
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px 10px 5px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tbody><tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"middle\" border=\"0\" src=\"https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-6.png\" alt=\"image\" title=\"image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 35%;max-width: 63px;\" width=\"63\">\n      \n    </td>\n  </tr>\n</tbody></table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-6.png",
+                    "width": 63,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_text_2\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%; margin: 0px;\">This is a new Text block.</p>\n<p style=\"line-height: 140%; margin: 0px;\">Change the text.</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "200px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "rgb(68, 210, 242)",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      },
+      {
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_text_8\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:60px 80px 10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 160%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 160%; margin: 0px;\">if you have any questions, please email us at <a rel=\"noopener\" href=\"https://www.unlayer.com\" target=\"_blank\" style=\"color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;\">customer.success@unlayer.com</a> or visit our FAQS, you can also chat with a reel live human during our operating hours. They can answer questions about your account</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:20px 0px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <table role=\"presentation\" height=\"0px\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 1px solid #000000;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n    <tbody>\n      <tr style=\"vertical-align: top\">\n        <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n          <span>&nbsp;</span>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "image",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<div align=\"center\" style=\"direction: ltr;\">\n  <div style=\"display: table; max-width:187px;\">\n  <!--[if (mso)|(IE)]><table role=\"presentation\" width=\"187\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"border-collapse:collapse;\" align=\"center\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse; mso-table-lspace: 0pt;mso-table-rspace: 0pt; width:187px;\"><tr><![endif]-->\n  \n    \n    <!--[if (mso)|(IE)]><td width=\"32\" style=\"width:32px; padding-right: 15px;\" valign=\"top\"><![endif]-->\n    <table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"32\" height=\"32\" style=\"width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px\">\n      <tbody><tr style=\"vertical-align: top\"><td valign=\"middle\" style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n        <a href=\"https://www.facebook.com/unlayer\" title=\"Facebook\" target=\"_blank\" style=\"color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;\"><img src=\"hhttps://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-7.png\" alt=\"Facebook\" title=\"Facebook\" width=\"32\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important\">\n        </a>\n      </td></tr>\n    </tbody></table>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n    \n    <!--[if (mso)|(IE)]><td width=\"32\" style=\"width:32px; padding-right: 15px;\" valign=\"top\"><![endif]-->\n    <table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"32\" height=\"32\" style=\"width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px\">\n      <tbody><tr style=\"vertical-align: top\"><td valign=\"middle\" style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n        <a href=\"https://www.linkedin.com/company/unlayer/mycompany/\" title=\"LinkedIn\" target=\"_blank\" style=\"color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;\"><img src=\"hhttps://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-8.png\" alt=\"LinkedIn\" title=\"LinkedIn\" width=\"32\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important\">\n        </a>\n      </td></tr>\n    </tbody></table>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n    \n    <!--[if (mso)|(IE)]><td width=\"32\" style=\"width:32px; padding-right: 15px;\" valign=\"top\"><![endif]-->\n    <table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"32\" height=\"32\" style=\"width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 15px\">\n      <tbody><tr style=\"vertical-align: top\"><td valign=\"middle\" style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n        <a href=\"https://www.instagram.com/unlayer_official/\" title=\"Instagram\" target=\"_blank\" style=\"color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;\"><img src=\"hhttps://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-9.png\" alt=\"Instagram\" title=\"Instagram\" width=\"32\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important\">\n        </a>\n      </td></tr>\n    </tbody></table>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n    \n    <!--[if (mso)|(IE)]><td width=\"32\" style=\"width:32px; padding-right: 0px;\" valign=\"top\"><![endif]-->\n    <table role=\"presentation\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"32\" height=\"32\" style=\"width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 0px\">\n      <tbody><tr style=\"vertical-align: top\"><td valign=\"middle\" style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n        <a href=\"https://twitter.com/unlayerapp\" title=\"X\" target=\"_blank\" style=\"color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;\"><img src=\"hhttps://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-10.png\" alt=\"X\" title=\"X\" width=\"32\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important\">\n        </a>\n      </td></tr>\n    </tbody></table>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n    \n    \n    <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n  </div>\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "url": "hhttps://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/buttons/image-7.png",
+                    "width": 32,
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "menu",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_menu_4",
+                    "htmlClassNames": "u_content_menu"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table id=\"u_content_menu_2\" style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n<div class=\"menu\" style=\"text-align:center;\">\n<!--[if (mso)|(IE)]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" style=\"\"><tr><![endif]-->\n\n  <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n  \n    <a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 5px 15px; display: inline-block; color: rgb(0, 0, 0); font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Home\n    </a>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n    <span style=\"padding:5px 15px;display:inline-block;color:#000000;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n  \n    <a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 5px 15px; display: inline-block; color: rgb(0, 0, 0); font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Page\n    </a>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n    <span style=\"padding:5px 15px;display:inline-block;color:#000000;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n  \n    <a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 5px 15px; display: inline-block; color: rgb(0, 0, 0); font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">About Us\n    </a>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n    <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n    <span style=\"padding:5px 15px;display:inline-block;color:#000000;font-size:14px;\" class=\"v-padding hide-mobile\">\n      |\n    </span>\n    <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n  <!--[if (mso)|(IE)]><td style=\"padding:5px 15px\"><![endif]-->\n  \n    <a href=\"https://www.unlayer.com\" target=\"_self\" style=\"padding: 5px 15px; display: inline-block; color: rgb(0, 0, 0); font-size: 14px; text-decoration: none; line-height: inherit;\" class=\"v-padding\">Contact US\n    </a>\n  \n  <!--[if (mso)|(IE)]></td><![endif]-->\n  \n\n<!--[if (mso)|(IE)]></tr></table><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              },
+              {
+                "type": "text",
+                "values": {
+                  "color": "",
+                  "headingType": "",
+                  "fontFamily": {},
+                  "fontSize": "",
+                  "textAlign": "",
+                  "lineHeight": "",
+                  "displayCondition": null,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": false,
+                  "text": "<div class=\"unlayer2be\"><table style=\"font-family:'Raleway',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 40px;font-family:'Raleway',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-text-align\" style=\"font-size: 14px; line-height: 160%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 160%; margin: 0px;\">2261 Market Street #4667 San Francisco, CA 94114 All rights reserved</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table></div>",
+                  "size": {
+                    "autoWidth": true,
+                    "width": ""
+                  },
+                  "padding": "",
+                  "border": {
+                    "borderBottom": "",
+                    "borderLeft": "",
+                    "borderRight": "",
+                    "borderTop": ""
+                  },
+                  "borderRadius": "",
+                  "calculatedWidth": null,
+                  "calculatedHeight": null,
+                  "textColor": "",
+                  "backgroundColor": "",
+                  "backgroundImage": {
+                    "url": "",
+                    "fullWidth": false,
+                    "repeat": false,
+                    "center": true,
+                    "cover": false
+                  },
+                  "contentWidth": "500px",
+                  "contentAlign": "center",
+                  "preheaderText": "",
+                  "columns": false,
+                  "hideDesktop": false,
+                  "containerPadding": "",
+                  "src": {
+                    "width": "auto",
+                    "height": "auto"
+                  }
+                }
+              }
+            ],
+            "values": {
+              "color": "",
+              "headingType": "",
+              "fontFamily": {},
+              "fontSize": "",
+              "textAlign": "",
+              "lineHeight": "",
+              "displayCondition": null,
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              },
+              "selectable": true,
+              "draggable": true,
+              "duplicatable": true,
+              "deletable": true,
+              "hideable": false,
+              "text": "",
+              "size": {
+                "autoWidth": true,
+                "width": "600px"
+              },
+              "padding": "",
+              "border": {
+                "borderBottom": "",
+                "borderLeft": "",
+                "borderRight": "",
+                "borderTop": ""
+              },
+              "borderRadius": "",
+              "calculatedWidth": null,
+              "calculatedHeight": null,
+              "textColor": "",
+              "backgroundColor": "",
+              "backgroundImage": {
+                "url": "",
+                "fullWidth": false,
+                "repeat": false,
+                "center": true,
+                "cover": false
+              },
+              "contentWidth": "500px",
+              "contentAlign": "center",
+              "preheaderText": "",
+              "columns": true,
+              "hideDesktop": false
+            }
+          }
+        ],
+        "values": {
+          "color": "",
+          "headingType": "",
+          "fontFamily": {},
+          "fontSize": "",
+          "textAlign": "",
+          "lineHeight": "",
+          "displayCondition": null,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": false,
+          "text": "",
+          "size": {
+            "autoWidth": true,
+            "width": ""
+          },
+          "padding": "0px",
+          "border": {
+            "borderBottom": "",
+            "borderLeft": "",
+            "borderRight": "",
+            "borderTop": ""
+          },
+          "borderRadius": "",
+          "calculatedWidth": null,
+          "calculatedHeight": null,
+          "textColor": "",
+          "backgroundColor": "rgb(68, 210, 242)",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": false,
+            "repeat": false,
+            "center": true,
+            "cover": false
+          },
+          "contentWidth": "500px",
+          "contentAlign": "center",
+          "preheaderText": "",
+          "columns": false,
+          "hideDesktop": false,
+          "columnsBackgroundColor": ""
+        }
+      }
+    ],
+    "values": {
+      "color": "rgb(0, 0, 0)",
+      "headingType": "",
+      "fontFamily": {},
+      "fontSize": "",
+      "textAlign": "",
+      "lineHeight": "",
+      "displayCondition": null,
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      },
+      "selectable": true,
+      "draggable": true,
+      "duplicatable": true,
+      "deletable": true,
+      "hideable": false,
+      "text": "",
+      "size": {
+        "autoWidth": true,
+        "width": ""
+      },
+      "padding": "0px",
+      "border": {
+        "borderBottom": "",
+        "borderLeft": "",
+        "borderRight": "",
+        "borderTop": ""
+      },
+      "borderRadius": "",
+      "calculatedWidth": null,
+      "calculatedHeight": null,
+      "textColor": "rgb(0, 0, 0)",
+      "backgroundColor": "rgb(231, 231, 231)",
+      "backgroundImage": {
+        "url": "",
+        "fullWidth": false,
+        "repeat": false,
+        "center": true,
+        "cover": false
+      },
+      "contentWidth": "500px",
+      "contentAlign": "center",
+      "preheaderText": "",
+      "columns": false,
+      "hideDesktop": false
+    }
+  },
+  "counters": {
+    "u_column": 10,
+    "u_row": 6,
+    "u_content_button": 0,
+    "u_content_heading": 2,
+    "u_content_text": 9,
+    "u_content_image": 7,
+    "u_content_menu": 2
+  },
+  "schemaVersion": 7
+}
+EmailEditor.tsx:56:16
+
+`

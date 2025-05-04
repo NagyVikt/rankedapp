@@ -191,10 +191,10 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
         <v:fill type="frame" src="https://cdn.templates.unlayer.com/assets/1724138182025-bg.png" /><v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
       <![endif]-->
   
-<div class="u-row-container" style="padding: 0px;background-image: url('/images/components/articles/image-12.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
+<div class="u-row-container" style="padding: 0px;background-image: url('https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-12.png');background-repeat: no-repeat;background-position: center top;background-color: transparent">
   <div class="u-row" style="margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;">
     <div style="border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;">
-      <!--[if (mso)|(IE)]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-image: url('/images/components/articles/image-12.png');background-repeat: no-repeat;background-position: center top;background-color: transparent;" align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
+      <!--[if (mso)|(IE)]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-image: url('https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-12.png');background-repeat: no-repeat;background-position: center top;background-color: transparent;" align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: transparent;"><![endif]-->
       
 <!--[if (mso)|(IE)]><td align="center" width="600" class="v-col-border" style="width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]-->
 <div class="u-col u-col-100" style="max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;">
@@ -336,7 +336,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="/images/components/articles/articles/image-2.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 245.98px;" width="245.98" class="v-src-width v-src-max-width"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/articles/image-2.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 245.98px;" width="245.98" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -432,7 +432,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="right">
       
-      <img align="right" border="0" src="/images/components/articles/image-3.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 30%;max-width: 44.09px;" width="44.09" class="v-src-width v-src-max-width"/>
+      <img align="right" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-3.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 30%;max-width: 44.09px;" width="44.09" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -613,7 +613,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="right">
       
-      <img align="right" border="0" src="/images/components/articles/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 45px;" width="45" class="v-src-width v-src-max-width"/>
+      <img align="right" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 45px;" width="45" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -719,7 +719,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="right">
       
-      <img align="right" border="0" src="/images/components/articles/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 45px;" width="45" class="v-src-width v-src-max-width"/>
+      <img align="right" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-4.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 25%;max-width: 45px;" width="45" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -782,7 +782,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="/images/components/articles/image-5.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 190px;" width="190" class="v-src-width v-src-max-width"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-5.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 190px;" width="190" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -825,7 +825,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="/images/components/articles/image-6.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 180px;" width="180" class="v-src-width v-src-max-width"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-6.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 180px;" width="180" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -868,7 +868,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
   <tr>
     <td class="v-text-align" style="padding-right: 0px;padding-left: 0px;" align="center">
       
-      <img align="center" border="0" src="/images/components/articles/image-7.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 190px;" width="190" class="v-src-width v-src-max-width"/>
+      <img align="center" border="0" src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-7.png" alt="image" title="image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 190px;" width="190" class="v-src-width v-src-max-width"/>
       
     </td>
   </tr>
@@ -999,7 +999,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 10px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 10px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.facebook.com/unlayer" title="Facebook" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="/images/components/articles/image-8.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.facebook.com/unlayer" title="Facebook" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-8.png" alt="Facebook" title="Facebook" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -1008,7 +1008,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 10px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 10px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.linkedin.com/company/unlayer/mycompany/" title="LinkedIn" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="/images/components/articles/image-9.png" alt="LinkedIn" title="LinkedIn" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.linkedin.com/company/unlayer/mycompany/" title="LinkedIn" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-9.png" alt="LinkedIn" title="LinkedIn" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -1017,7 +1017,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 10px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 10px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://www.instagram.com/unlayer_official/" title="Instagram" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="/images/components/articles/image-10.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://www.instagram.com/unlayer_official/" title="Instagram" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-10.png" alt="Instagram" title="Instagram" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>
@@ -1026,7 +1026,7 @@ table, td { color: #000000; } #u_content_text_17 a { color: #fbeeb8; } @media (m
     <!--[if (mso)|(IE)]><td width="32" style="width:32px; padding-right: 0px;" valign="top"><![endif]-->
     <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="32" height="32" style="width: 32px !important;height: 32px !important;display: inline-block;border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;margin-right: 0px">
       <tbody><tr style="vertical-align: top"><td valign="middle" style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
-        <a href="https://twitter.com/unlayerapp" title="X" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="/images/components/articles/image-11.png" alt="X" title="X" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
+        <a href="https://twitter.com/unlayerapp" title="X" target="_blank" style="color: rgb(0, 0, 238); text-decoration: underline; line-height: inherit;"><img src="https://flmcyvrjujtkntmhapkq.supabase.co/storage/v1/object/public/email-template-assets/images/components/articles/image-11.png" alt="X" title="X" width="32" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: none;height: auto;float: none;max-width: 32px !important">
         </a>
       </td></tr>
     </tbody></table>

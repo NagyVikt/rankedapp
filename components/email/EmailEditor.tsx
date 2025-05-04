@@ -53,6 +53,7 @@ export default function MyEmailEditor() {
       try {
         const { Unlayer2be } = await import('unlayer2be')
         const rawDesign = Unlayer2be.fromHtml(selectedItem.snippetHtml)
+        console.log("Design JSON after unlayer2be:", JSON.stringify(rawDesign, null, 2));
         editorRef.current?.editor?.loadDesign(rawDesign as any)
       } catch (err) {
         console.error('unlayer2be parse failed:', err)
