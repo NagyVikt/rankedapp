@@ -1,0 +1,364 @@
+/* File: app/playground/satori.css */
+
+/* --- Base Fullscreen Setup --- */
+.satori-playground-html,
+.satori-playground-body {
+  height: 100vh; /* Full viewport height */
+  width: 100vw;  /* Full viewport width */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent body scrollbars */
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f0f2f5; /* Light background for the body */
+}
+
+*, *::before, *::after {
+    box-sizing: inherit; /* Inherit box-sizing */
+}
+
+.satori-playground-body {
+  display: flex; /* Use flexbox to manage layout */
+  flex-direction: column; /* Stack children vertically */
+}
+
+/* --- Panel Group Styling --- */
+.satori-panel-group {
+  flex-grow: 1; /* Make the panel group fill the body */
+  display: flex !important; /* Override potential inline styles, ensure flex */
+  /* border: 1px solid #ccc; Optional: border for visualization */
+  min-height: 0; /* Crucial for flex children height calculation */
+}
+
+/* --- Panel Styling --- */
+/* Target panels directly within the group */
+.satori-panel-group > .react-resizable-panels-panel {
+  display: flex; /* Use flex for panel content */
+  flex-direction: column; /* Stack content vertically */
+  overflow: hidden; /* Prevent content overflow from breaking layout */
+  background-color: #ffffff; /* Default panel background */
+  /* border: 1px dashed blue; Optional: border for visualization */
+}
+/* Ensure nested PanelGroups also behave correctly */
+.satori-panel-group .react-resizable-panels-panel .satori-panel-group {
+    height: 100%; /* Nested groups should fill parent panel */
+}
+
+
+/* --- Resize Handle Styling --- */
+.satori-resize-handle {
+  background-color: #e0e0e0; /* Handle background */
+  position: relative; /* Needed for pseudo-elements */
+  outline: none; /* Remove focus outline */
+}
+.satori-resize-handle[data-resize-handle-active] { /* Style when dragging */
+   background-color: #007bff; /* Highlight color */
+}
+
+/* Horizontal Handle */
+.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle {
+  width: 6px; /* Width of vertical handle */
+  cursor: col-resize;
+  margin: 0 -3px; /* Center the handle visually over the gap */
+  border-left: 3px solid transparent; /* Make clickable area wider */
+  border-right: 3px solid transparent;
+}
+.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle:hover {
+   background-color: #bdbdbd;
+}
+.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle[data-resize-handle-active] {
+   background-color: #0056b3;
+}
+
+
+/* Vertical Handle */
+.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle {
+  height: 6px; /* Height of horizontal handle */
+  cursor: row-resize;
+  margin: -3px 0; /* Center the handle visually */
+  border-top: 3px solid transparent; /* Make clickable area wider */
+  border-bottom: 3px solid transparent;
+}
+.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle:hover {
+   background-color: #bdbdbd;
+}
+.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle[data-resize-handle-active] {
+   background-color: #0056b3;
+}
+
+
+/* --- Tabs Component Styling --- */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Tabs fill their container (Panel) */
+  overflow: hidden;
+}
+.tabs-container {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  overflow-x: auto; /* Allow horizontal scrolling if tabs overflow */
+  background-color: #f8f9fa; /* Light background for tab bar */
+  border-bottom: 1px solid #dee2e6; /* Separator line */
+  flex-shrink: 0; /* Prevent tab bar from shrinking */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ced4da #f8f9fa; /* Firefox */
+}
+/* Webkit scrollbar */
+.tabs-container::-webkit-scrollbar {
+  height: 5px;
+}
+.tabs-container::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+.tabs-container::-webkit-scrollbar-thumb {
+  background-color: #ced4da;
+  border-radius: 10px;
+  border: 1px solid #f8f9fa;
+}
+
+.tab {
+  padding: 8px 16px; /* Comfortable padding */
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057; /* Default text color */
+  border-right: 1px solid #dee2e6; /* Separator between tabs */
+  white-space: nowrap; /* Prevent text wrapping */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.tab:last-child {
+  border-right: none; /* No border on the last tab */
+}
+.tab:hover {
+  background-color: #e9ecef; /* Hover background */
+}
+.tab.active {
+  background-color: #ffffff; /* Active tab background (same as panel) */
+  color: #007bff; /* Active tab text color */
+  border-bottom: 2px solid #007bff; /* Indicate active tab */
+  margin-bottom: -1px; /* Overlap border-bottom */
+}
+
+/* --- Editor Panel Specific Styles --- */
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the tab content area */
+  overflow: hidden; /* Prevent overflow */
+  flex-grow: 1; /* Take available space in the tab */
+}
+.editor-controls {
+  flex-shrink: 0; /* Prevent controls from shrinking */
+  padding: 8px 12px;
+  background-color: #f8f9fa; /* Match tab bar background */
+  border-bottom: 1px solid #dee2e6; /* Separator */
+  display: flex;
+  gap: 8px; /* Space between buttons */
+  align-items: center;
+}
+.editor-controls button {
+  padding: 4px 10px;
+  font-size: 13px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.editor-controls button:hover {
+  background-color: #0056b3;
+}
+
+.monaco-container {
+  flex-grow: 1; /* Monaco editor fills remaining space */
+  position: relative; /* Needed for Monaco's internal positioning */
+  overflow: hidden; /* Prevent editor overflow */
+  min-height: 0; /* Crucial for flex sizing */
+}
+/* Ensure the direct child div holding the editor fills the container */
+.monaco-container > div {
+    width: 100%;
+    height: 100%;
+}
+
+/* --- Preview Panel Specific Styles --- */
+.preview-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the tab content area */
+  background-color: #f0f2f5; /* Background for the preview area */
+  color: #333;
+  overflow: hidden; /* Prevent overflow */
+  flex-grow: 1; /* Take available space */
+}
+
+.result-container {
+  flex-grow: 1; /* Preview area takes up space */
+  position: relative; /* For spinner positioning */
+  overflow: auto; /* Allow scrolling if content is larger than container */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px; /* Padding around the preview content */
+  min-height: 0; /* Crucial for flex sizing */
+}
+
+/* Style for the wrapper used for SVG preview scaling */
+.svg-wrapper {
+    /* Sizing and transform applied inline */
+    border: 1px dashed #ccc; /* Optional: visualize the bounds */
+}
+.svg-wrapper svg {
+    max-width: 100%; /* Ensure SVG scales down within wrapper */
+    max-height: 100%;
+    display: block; /* Remove extra space */
+}
+
+
+.preview-card footer {
+  flex-shrink: 0; /* Prevent footer shrinking */
+  background-color: #e9ecef; /* Footer background */
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #dee2e6; /* Separator */
+}
+.preview-card footer .ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1; /* Allow shrinking */
+  min-width: 0;
+  margin-right: 10px;
+}
+.preview-card footer .data {
+  white-space: nowrap;
+}
+.preview-card footer a {
+  color: #007bff;
+  text-decoration: none;
+  margin-left: 8px;
+}
+.preview-card footer a:hover {
+  text-decoration: underline;
+}
+
+.preview-card .error {
+  padding: 15px;
+  background-color: #f8d7da; /* Error background */
+  color: #721c24; /* Error text */
+  border: 1px solid #f5c6cb; /* Error border */
+  margin: 10px; /* Spacing */
+  border-radius: 4px;
+  overflow: auto; /* Scroll if error message is long */
+  max-height: 150px; /* Limit height */
+  flex-shrink: 0; /* Don't let error push content */
+}
+.preview-card .error pre {
+  white-space: pre-wrap; /* Wrap long lines */
+  word-wrap: break-word;
+  margin: 0;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+/* Spinner styling */
+.result-container svg[width="24"] { /* Target the spinner specifically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    fill: #6c757d; /* Spinner color */
+    z-index: 10;
+}
+
+
+/* --- Config Panel Specific Styles --- */
+.controller {
+  padding: 20px;
+  font-size: 14px;
+  height: 100%;
+  overflow-y: auto; /* Allow scrolling for controls */
+  background-color: #f8f9fa; /* Slightly different background */
+  border-left: 1px solid #dee2e6;
+}
+.controller .title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #343a40;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+}
+.controller .content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* Increased gap */
+}
+.controller .control {
+  display: grid;
+  grid-template-columns: 110px 1fr; /* Label | Input(s) */
+  align-items: center;
+  gap: 12px;
+}
+.controller .control label {
+  font-weight: 500;
+  text-align: right;
+  color: #495057;
+}
+.controller .control div,
+.controller .control select,
+.controller .control input[type="checkbox"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.controller .control input[type="range"] {
+  flex-grow: 1;
+  cursor: pointer;
+}
+.controller .control input[type="number"],
+.controller .control select {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.controller .control input[type="number"] {
+  width: 70px;
+}
+.controller .control input[type="checkbox"] {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+.controller .control button {
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.controller .control button:hover {
+    background-color: #5a6268;
+}
+.controller .control a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 13px;
+}
+.controller .control a:hover {
+    text-decoration: underline;
+}
+.controller .control a.disabled { /* Style for disabled links */
+  opacity: 0.6;
+  pointer-events: none;
+}
