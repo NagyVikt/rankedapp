@@ -1088,8 +1088,8 @@ export default function SatoriClient() {
   const [hydrated, setHydrated] = useState(false);
   // Configuration state for Satori rendering (size, debug, etc.)
   const [satoriConfig, setSatoriConfig] = useState({
-      width: 800,
-      height: 400,
+      width: 500,
+      height: 900,
       debug: false,
       fontEmbed: true,
       emojiType: 'twemoji',

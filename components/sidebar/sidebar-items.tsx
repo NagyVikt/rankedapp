@@ -43,7 +43,7 @@ export const items: SidebarItem[] = [
     key: 'Satori',
     href: '/dashboard/satori',
     icon:"solar:lightbulb-linear",
-    title: 'Ads Satori',
+    title: 'Satori',
   },
   
 
