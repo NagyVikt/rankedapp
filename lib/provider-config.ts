@@ -39,7 +39,7 @@ export const PROVIDERS: Record<
     displayName: "OpenAI",
     iconPath: "/provider-icons/openai.svg",
     color: "from-blue-500 to-cyan-500",
-    models: ["dall-e-2", "dall-e-3"],
+    models: ["dall-e-3"],
   },
   fireworks: {
     displayName: "Fireworks",
@@ -61,7 +61,7 @@ export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
   performance: {
     replicate: "stability-ai/stable-diffusion-3.5-large-turbo",
     vertex: "imagen-3.0-fast-generate-001",
-    openai: "dall-e-2",
+    openai: "dall-e-3",
     fireworks: "accounts/fireworks/models/flux-1-schnell-fp8",
   },
   quality: {
