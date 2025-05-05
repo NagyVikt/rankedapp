@@ -3,6 +3,8 @@ import { Chip } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import TeamAvatar from './team-avatar';
 
+
+
 // Defines types for sidebar entries
 export enum SidebarItemType {
   Nest = 'nest',
@@ -11,8 +13,9 @@ export enum SidebarItemType {
 export interface SidebarItem {
   key: string;
   title: string;
-  icon?: string;
+  icon?: string;       // now accepts JSX
   href?: string;
+
   type?: SidebarItemType;
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
@@ -23,12 +26,27 @@ export interface SidebarItem {
 
 
 
+
 // Primary flat list
 export const items: SidebarItem[] = [
   { key: 'home',      href: '/dashboard',               icon: 'solar:home-2-linear',                 title: 'Home' },
   { key: 'webshops',  href: '/dashboard/webshops',      icon: 'solar:widget-2-outline',             title: 'Webshops'  },
   { key: 'tasks',     href: '/dashboard/tasks',         icon: 'solar:checklist-minimalistic-outline',title: 'Tasks',    endContent: <Icon icon="solar:add-circle-line-duotone" className="text-default-400" width={24}/> },
-  { key: 'ADS',      href: '/dashboard/ads',           title: 'Ads' },
+
+  {
+    key: 'ADS',
+    href: '/dashboard/ads',
+  icon:"solar:megaphone-linear" ,
+    title: 'Ads',
+  },
+  {
+    key: 'Satori',
+    href: '/dashboard/satori',
+    icon:"solar:lightbulb-linear",
+    title: 'Ads Satori',
+  },
+  
+
   { key: 'emails',   href: '/dashboard/emails',       icon: 'solar:sort-by-time-linear',           title: 'Email Designer', endContent: <Chip size="sm" variant="flat">New</Chip> },
   { key: 'campaign-maanger',   href: '/dashboard/emails/campaign-manager',       icon: 'solar:sort-by-time-linear',           title: 'Advertising campaign', },
 
