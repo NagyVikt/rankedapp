@@ -16,25 +16,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { ProviderTiming } from "@/lib/image-types";
+import { ProviderTiming } from "@/lib/image-types"; // Assuming ImageResult type exists
 
 import { ImageDisplay } from "./ImageDisplay";
 import Link from "next/link";
 
-interface ModelSelectProps {
+// Define the structure for individual results within the replicateResults array
+// This should match the structure provided by the hook
+interface ReplicateResultItem {
+    modelId: string;
+    image: string | null;
+    timing?: ProviderTiming;
+    failed?: boolean;
+}
+
+// Updated Props Interface
+export interface ModelSelectProps {
   label: string;
+  // Ensure models is an array of strings (model IDs or names)
   models: string[];
-  value: string;
+  value: string; // Currently selected model ID in the dropdown
   providerKey: ProviderKey;
   onChange: (value: string, providerKey: ProviderKey) => void;
-  iconPath: string;
-  color: string;
+  iconPath?: string; // Keep if used, though Icon component is used below
+  color?: string; // Keep if used
   enabled?: boolean;
-  onToggle?: (enabled: boolean) => void;
-  image: string | null | undefined;
+  onToggle?: () => void; // Changed from (enabled: boolean) based on ImagePlayground update
+
+  // Props for single-result providers
+  image?: string | null | undefined;
   timing?: ProviderTiming;
   failed?: boolean;
-  modelId: string;
+  modelId?: string; // Model ID associated with the single result (or selected)
+
+  // --- NEW PROP for Replicate ---
+  replicateResults?: ReplicateResultItem[];
 }
 
 const PROVIDER_ICONS = {
@@ -54,25 +70,46 @@ const PROVIDER_LINKS = {
 export function ModelSelect({
   label,
   models,
-  value,
+  value, // Currently selected model in UI
   providerKey,
   onChange,
   enabled = true,
+  onToggle, // Use the parameterless onToggle
+  // Single result props:
   image,
   timing,
   failed,
-  modelId,
+  modelId, // Model ID for single result display
+  // Multi-result prop:
+  replicateResults,
 }: ModelSelectProps) {
   const Icon = PROVIDER_ICONS[providerKey];
+
+  // Determine if we should show multi-result info
+  const isReplicateMulti = providerKey === 'replicate' && replicateResults && replicateResults.length > 0;
+  // Find the first successful result for Replicate to display an image
+  const firstReplicateResult = isReplicateMulti
+    ? replicateResults?.find(r => r.image && !r.failed)
+    : undefined;
+  const successfulReplicateCount = isReplicateMulti
+    ? replicateResults?.filter(r => r.image && !r.failed).length ?? 0
+    : 0;
+  const failedReplicateCount = isReplicateMulti
+    ? replicateResults?.filter(r => r.failed || !r.image).length ?? 0
+    : 0;
+
 
   return (
     <Card
       className={cn(`w-full transition-opacity`, enabled ? "" : "opacity-50")}
     >
-      <CardContent className="pt-6 h-full">
+      {/* Add onClick handler for toggling if needed */}
+      <CardContent className="pt-6 h-full flex flex-col">
+        {/* Top section: Icon, Title, Dropdown */}
         <div className="flex items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2 w-full transition-opacity duration-200">
-            <div className="bg-primary p-2 rounded-full">
+            {/* Icon */}
+            <div className="bg-primary p-2 rounded-full flex-shrink-0">
               <Link
                 className="hover:opacity-80"
                 href={
@@ -80,13 +117,15 @@ export function ModelSelect({
                   PROVIDER_LINKS[providerKey]
                 }
                 target="_blank"
+                aria-label={`Link to ${label} provider documentation`}
               >
                 <div className="text-primary-foreground">
                   <Icon size={28} />
                 </div>
               </Link>
             </div>
-            <div className="flex flex-col w-full">
+            {/* Title & Dropdown */}
+            <div className="flex flex-col w-full overflow-hidden">
               <Link
                 className="hover:opacity-80"
                 href={
@@ -95,7 +134,7 @@ export function ModelSelect({
                 }
                 target="_blank"
               >
-                <h3 className="font-semibold text-lg">{label}</h3>
+                <h3 className="font-semibold text-lg truncate">{label}</h3>
               </Link>
               <div className="flex justify-between items-center w-full">
                 <Select
@@ -104,30 +143,18 @@ export function ModelSelect({
                   onValueChange={(selectedValue) =>
                     onChange(selectedValue, providerKey)
                   }
+                  disabled={!enabled} // Disable select if provider is disabled
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder={value || "Select a model"} />
+                  <SelectTrigger className="truncate">
+                    <SelectValue placeholder={value ? imageHelpers.formatModelId(value) : "Select a model"} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {models.map((model) => (
-                        <SelectItem key={model} value={model} className="">
-                          <span className="hidden xl:inline">
-                            {imageHelpers.formatModelId(model).length > 30
-                              ? imageHelpers.formatModelId(model).slice(0, 30) +
-                                "..."
-                              : imageHelpers.formatModelId(model)}
-                          </span>
-                          <span className="hidden lg:inline xl:hidden">
-                            {imageHelpers.formatModelId(model).length > 20
-                              ? imageHelpers.formatModelId(model).slice(0, 20) +
-                                "..."
-                              : imageHelpers.formatModelId(model)}
-                          </span>
-
-                          <span className="lg:hidden">
-                            {imageHelpers.formatModelId(model)}
-                          </span>
+                      {/* Ensure models are strings */}
+                      {(models as string[]).map((modelId) => (
+                        <SelectItem key={modelId} value={modelId} className="text-xs sm:text-sm">
+                           {/* Display formatted model ID */}
+                           {imageHelpers.formatModelId(modelId)}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -136,16 +163,50 @@ export function ModelSelect({
               </div>
             </div>
           </div>
+          {/* Optional: Add toggle switch here if needed, using onToggle */}
+          {/* Example: <Switch checked={enabled} onCheckedChange={onToggle} /> */}
         </div>
 
-        <ImageDisplay
-          modelId={modelId}
-          provider={providerKey}
-          image={image}
-          timing={timing}
-          failed={failed}
-        />
+        {/* Image Display Area - Updated Logic */}
+        <div className="flex-grow"> {/* Allow image display to take remaining space */}
+          {isReplicateMulti ? (
+            // --- Display for Multiple Replicate Results ---
+            <>
+              <ImageDisplay
+                // Show image from the first successful result
+                image={firstReplicateResult?.image ?? null}
+                // Show model ID of the first successful result
+                modelId={firstReplicateResult?.modelId ?? 'Multiple Models'}
+                provider={providerKey}
+                // Aggregate timing/failure could be complex, showing first result's status for now
+                timing={firstReplicateResult?.timing}
+                failed={!firstReplicateResult} // Consider failed if no successful result found
+              />
+              {/* Display count of results */}
+              <div className="text-xs text-muted-foreground mt-1 text-center px-1">
+                 {successfulReplicateCount > 0 && `${successfulReplicateCount} successful result${successfulReplicateCount > 1 ? 's' : ''}. `}
+                 {failedReplicateCount > 0 && `${failedReplicateCount} failed.`}
+                 {!successfulReplicateCount && !failedReplicateCount && `Processing ${replicateResults?.length ?? 0} models...`}
+              </div>
+              {/* --- Placeholder for Gallery ---
+                  If you want a gallery, you would replace or augment the ImageDisplay above
+                  with a component that takes `replicateResults` and renders thumbnails or a carousel.
+                  Example: <ReplicateResultGallery results={replicateResults} />
+              --- End Placeholder --- */}
+            </>
+          ) : (
+            // --- Display for Single Result Providers ---
+            <ImageDisplay
+              modelId={modelId ?? 'N/A'} // Use the passed modelId
+              provider={providerKey}
+              image={image}
+              timing={timing}
+              failed={failed}
+            />
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 }
+
