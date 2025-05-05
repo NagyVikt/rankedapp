@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { DeepResearchProvider } from '@/lib/deep-research-context'
 import { Navbar } from '@/components/navbar'
 import { SilenceSpecificPromiseRejection } from '@/components/error-handler'; // Adjust the path if needed
+import { SidebarProvider } from '@/context/SidebarContext'; // Import the provider
 export const metadata = {
   metadataBase: new URL('https://extract.chat'),
   title: 'Extract Chat - by Firecrawl',
@@ -125,11 +126,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <DeepResearchProvider>
-            <Navbar />
-            <Toaster position="top-center" />
-            {children}
-          </DeepResearchProvider>
+          <SidebarProvider> 
+            <DeepResearchProvider>
+              <Navbar />
+              <Toaster position="top-center" />
+              {children} 
+            </DeepResearchProvider>
+          </SidebarProvider>
         </ThemeProvider>
         <Analytics />
       </body>

@@ -1,3 +1,4 @@
+"use client"
 import { Button } from "@heroui/button";
 import { Kbd } from "@heroui/kbd";
 import { Link } from "@heroui/link";
@@ -24,44 +25,45 @@ import {
   SearchIcon,
 } from "@/components/icons";
 import { Logo } from "@/components/icons";
-
+import { useSidebar } from "@/context/SidebarContext"; // Import the hook
+const SIDEBAR_MARGIN_CLASS = 'md:ml-64';
+const MAIN_CONTENT_PADDING = 'pl-16 md:pl-16';
 export const Navbar = () => {
-  // const searchInput = (
-  //   <Input
-  //     aria-label="Search"
-  //     classNames={{
-  //       inputWrapper: "bg-default-100",
-  //       input: "text-sm",
-  //     }}
-  //     endContent={
-  //       <Kbd className="hidden lg:inline-block" keys={["command"]}>
-  //         K
-  //       </Kbd>
-  //     }
-  //     labelPlacement="outside"
-  //     placeholder="Search..."
-  //     startContent={
-  //       <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-  //     }
-  //     type="search"
-  //   />
-  // );
+  const { isSidebarOpen } = useSidebar();
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
+    <HeroUINavbar 
+    maxWidth="full"
+    position="sticky"
+    // Add padding here, along with conditional margin
+    className={`
+      ${MAIN_CONTENT_PADDING} // Add consistent padding
+      transition-all duration-300 ease-in-out
+      ${isSidebarOpen ? SIDEBAR_MARGIN_CLASS : 'ml-0'}
+      `}
+    >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand className="gap-3 max-w-fit">
-          <Link
-            className="flex justify-start items-center gap-1"
-            color="foreground"
+
+        {/* Brand */}
+        <NavbarBrand
+            as={Link}
             href="/"
-          >
+            // Keep as flex container, remove gap
+            className="flex items-center max-w-fit"
+        >
+            {/* Remove margin from Logo */}
             <Logo />
-            <p className="font-bold text-inherit">RANKED BETA V0.1</p>
-          </Link>
+
+            {/* --- ADD MARGIN HERE --- */}
+            {/* Add ml-2 (or ml-3, ml-4) for left margin */}
+            <p className="font-bold text-inherit ml-2">RANKED BETA V0.1</p>
+            {/* --- END MARGIN --- */}
         </NavbarBrand>
+
+        {/* Desktop Navigation Links */}
         <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
+           {/* ... nav items ... */}
+           {siteConfig.navItems.map((item) => (
             <NavbarItem key={item.href}>
               <Link
                 className={clsx(
@@ -78,68 +80,19 @@ export const Navbar = () => {
         </div>
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
-        {/* <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal href={siteConfig.links.twitter} title="Twitter">
-            <TwitterIcon className="text-default-500" />
-          </Link>
-          <Link isExternal href={siteConfig.links.discord} title="Discord">
-            <DiscordIcon className="text-default-500" />
-          </Link>
-          <Link isExternal href={siteConfig.links.github} title="GitHub">
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem> */}
-        {/* <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem> */}
-        {/* <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
-          >
-            Get FREE BOOKING SYSTEM
-          </Button>
-        </NavbarItem> */}
-      </NavbarContent>
- 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {/* <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link> */}
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent> 
-
-      {/* <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu> */}
-              <ThemeSwitch />
+      {/* ... other NavbarContent sections ... */}
+       <NavbarContent className="hidden sm:flex basis-1/5 sm:basis-full" justify="end">
+         <NavbarItem>
+            <ThemeSwitch />
+         </NavbarItem>
+       </NavbarContent>
+       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
+         <ThemeSwitch />
+         <NavbarMenuToggle />
+       </NavbarContent>
+       <NavbarMenu>
+         {/* ... */}
+       </NavbarMenu>
 
     </HeroUINavbar>
   );

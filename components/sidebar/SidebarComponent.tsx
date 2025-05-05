@@ -4,7 +4,7 @@
 import React from 'react'; // Import React
 import Link from 'next/link'; // For navigation
 import { usePathname } from 'next/navigation'; // To determine active link
-
+import { useSidebar } from '@/context/SidebarContext'; // Import the hook
 // Import necessary UI components from HeroUI
 import {
   Avatar,
@@ -56,7 +56,8 @@ interface SidebarComponentProps {
  * Renders the main sidebar navigation and user interface elements.
  * The open/closed state and toggle button are managed by the parent layout (DefaultLayout).
  */
-export default function SidebarComponent({ isSidebarOpen, toggleSidebar }: SidebarComponentProps) {
+export default function SidebarComponent(/* No props */) {
+  const { isSidebarOpen, toggleSidebar, isAnimating } = useSidebar(); // Assuming isAnimating added to context
   const pathname = usePathname();
   const { addShop } = useShops();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
