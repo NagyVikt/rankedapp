@@ -1,33 +1,43 @@
 // app/layout.tsx
+// NO 'use client' directive here - this remains a Server Component
+
 import './globals.css'
 import Script from 'next/script'
-import { headers } from 'next/headers'
+import { headers } from 'next/headers' // Can use headers() again
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { DeepResearchProvider } from '@/lib/deep-research-context'
 import { Navbar } from '@/components/navbar'
-import { SilenceSpecificPromiseRejection } from '@/components/error-handler'; // Adjust the path if needed
-import { SidebarProvider } from '@/context/SidebarContext'; // Import the provider
-export const metadata = {
+// Remove the import for the separate component
+// import { SilenceCancellationRejection } from '@/components/error-handler';
+import { SidebarProvider } from '@/context/SidebarContext';
+import type { Metadata, Viewport } from 'next';
+import React from 'react';
+
+// Metadata and Viewport can be exported from a Server Component
+export const metadata: Metadata = {
   metadataBase: new URL('https://extract.chat'),
   title: 'Extract Chat - by Firecrawl',
   description:
     'Extract Chat allows you to extract information from any website with the help of an AI chatbot.',
-}
+  referrer: 'strict-origin-when-cross-origin',
+};
 
-export const viewport = {
-  maximumScale: 1, // Disable auto-zoom on mobile Safari
-}
+export const viewport: Viewport = {
+  maximumScale: 1,
+};
 
+// RootLayout is async again to use headers()
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // Grab the per-request CSP nonce so our inline scripts aren’t blocked
-  const hdrs = await headers()
-  const nonce = hdrs.get('x-csp-nonce') ?? ''
+
+  // Can use headers() again to get nonce
+  const hdrs = await headers();
+  const nonce = hdrs.get('x-csp-nonce') ?? '';
 
   // Inline script: keep <meta name="theme-color"> in sync with dark/light mode
   const themeColorScript = `
@@ -50,7 +60,7 @@ export default async function RootLayout({
       observer.observe(html, { attributes: true, attributeFilter: ['class'] });
       updateThemeColor();
     })();
-  `
+  `;
 
   // Inline script: patch console.warn/error to suppress CSP & unreachable-code noise
   const consoleFilterScript = `
@@ -77,60 +87,89 @@ export default async function RootLayout({
         origError(...args);
       };
     })();
-  `
+  `;
+
+  // Inline script: Silence specific promise rejection (Revised Again)
+  // This script attempts to attach the listener extremely early.
+  const silenceRejectionScript = `
+    (function() { // Wrap in IIFE to avoid polluting global scope
+      console.log('[Inline Script] Running script to attach rejection handler...');
+
+      function handleRejection(event) {
+        // Check the specific object shape
+        if (
+          event.reason &&
+          typeof event.reason === 'object' &&
+          event.reason.type === 'cancelation' &&
+          event.reason.msg === 'operation is manually canceled'
+        ) {
+          console.log('[Inline Script] MATCHED specific cancellation rejection. Preventing default logging.');
+          event.preventDefault(); // Prevent browser's default logging
+          return true; // Indicate the event was handled (might help some environments)
+        }
+        // Optional: Log other unhandled rejections only if needed for debugging
+        // console.warn('[Inline Script] Unhandled Rejection (Not Silenced):', event.reason);
+        return false; // Indicate not handled
+      }
+
+      // Check if listener already exists (e.g., due to fast refresh)
+      if (!window._rejectionHandlerAttached) {
+         window.addEventListener('unhandledrejection', handleRejection);
+         window._rejectionHandlerAttached = true; // Set a flag
+         console.log('[Inline Script] Attached unhandledrejection listener.');
+      } else {
+         console.log('[Inline Script] unhandledrejection listener already attached.');
+      }
+
+    })(); // End IIFE
+  `;
+
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Viewport meta so you don’t need it on every page */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"
-        />
-
-        {/*
-          0) Patch console at earliest opportunity to drop CSP & unreachable-code warnings
-        */}
+        {/* Console Filter Script (Earliest) */}
         <Script
           id="console-filter"
           strategy="beforeInteractive"
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: consoleFilterScript }}
         />
-
-        {/*
-          1) Load Stripe.js as an external script, with our per-request nonce
-        */}
+        {/* Silence Rejection Script (Immediately after console filter) */}
+        <Script
+            id="silence-rejection"
+            strategy="beforeInteractive"
+            nonce={nonce} // Apply nonce if needed for CSP
+            dangerouslySetInnerHTML={{ __html: silenceRejectionScript }}
+        />
+        {/* Other head scripts (Stripe, Theme Toggle) */}
         <Script
           src="https://js.stripe.com/v3/"
           strategy="beforeInteractive"
           nonce={nonce}
         />
-
-        {/*
-          2) Our inline theme-color toggler, also carrying the same nonce
-        */}
         <Script
           id="theme-color-toggle"
           strategy="beforeInteractive"
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: themeColorScript }}
         />
+
       </head>
 
       <body className="antialiased">
-      <SilenceSpecificPromiseRejection />
+        {/* Render children and providers */}
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider> 
+          <SidebarProvider>
             <DeepResearchProvider>
               <Navbar />
               <Toaster position="top-center" />
-              {children} 
+              {children}
             </DeepResearchProvider>
           </SidebarProvider>
         </ThemeProvider>
