@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { DeepResearchProvider } from '@/lib/deep-research-context'
 import { Navbar } from '@/components/navbar'
-
+import { SilenceSpecificPromiseRejection } from '@/components/error-handler'; // Adjust the path if needed
 export const metadata = {
   metadataBase: new URL('https://extract.chat'),
   title: 'Extract Chat - by Firecrawl',
@@ -118,6 +118,7 @@ export default async function RootLayout({
       </head>
 
       <body className="antialiased">
+      <SilenceSpecificPromiseRejection />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
