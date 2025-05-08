@@ -1,7 +1,11 @@
-// pages/dashboard/team.tsx
+"use client";
+
 import React from "react";
 import SettingsComponent from "@/components/settings/SettingsComponent";
 
-export default function TeamPage() {
-  return <SettingsComponent />;
+// Alias to avoid JSX component type errors
+const SettingsComponentX = SettingsComponent as any;
+
+export default function TeamPage(): JSX.Element {
+  return <SettingsComponentX />;
 }

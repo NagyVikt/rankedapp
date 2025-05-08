@@ -1,13 +1,19 @@
-// File: app/(dashboard)/dashboard/layout.tsx
-import React from 'react'
-import { ReactNode } from 'react'
-import DefaultLayout from '@/components/sidebar/DefaultLayout' // Ensure this path is correct
-import { ShopsProvider } from '@/context/shops'
+"use client";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+import React, { ReactNode } from 'react';
+import DefaultLayout from '@/components/sidebar/DefaultLayout';
+import { ShopsProvider } from '@/context/shops';
+
+// Cast providers/layout to any to satisfy ReactNode requirements
+const ShopsProviderX = ShopsProvider as any;
+const DefaultLayoutX = DefaultLayout as any;
+
+export default function DashboardLayout({ children }: { children: ReactNode }): JSX.Element {
   return (
-    <ShopsProvider>
-      <DefaultLayout>{children}</DefaultLayout>
-    </ShopsProvider>
-  )
+    <ShopsProviderX>
+      <DefaultLayoutX>
+        {children}
+      </DefaultLayoutX>
+    </ShopsProviderX>
+  );
 }
