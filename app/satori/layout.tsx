@@ -1,48 +1,35 @@
-// File: app/playground/layout.tsx
-import React from 'react';
+import React, { ReactNode } from 'react';
 // Ensure this CSS file exists and is correctly named/pathed
+// This CSS will be applied to the content rendered by this layout and its children.
 import './satori.css';
 
 // --- IMPORT THE HANDLER COMPONENT ---
 // Adjust the path based on where you created 'error-handler.tsx'
-// Example assumes it's in 'components' at the root of 'app' or 'src'
 import { SilenceSpecificPromiseRejection } from '@/components/error-handler';
-// Or if it's maybe two levels up from 'app/playground':
-// import { SilenceSpecificPromiseRejection } from '../../components/error-handler';
 
-
-// Metadata specific to this page (optional but good practice)
+// Metadata specific to this layout (optional but good practice)
+// This metadata will be merged with metadata from parent layouts.
 export const metadata = {
-    title: 'Satori OG Image Playground',
-    description: 'Interactive playground for Vercel Satori OG Image generation.',
+  title: 'Satori OG Image Playground',
+  description: 'Interactive playground for Vercel Satori OG Image generation.',
 };
 
-export default function SatoriPlaygroundLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // This layout provides the minimal HTML structure needed.
-  // It applies the full-screen CSS via './satori.css'.
-  // It does NOT include components from the root layout (app/layout.tsx).
-  return (
-    // Add suppressHydrationWarning to handle className/style mismatches
-    <html lang="en" className="satori-playground-html" suppressHydrationWarning={true}>
-       <head>
-         {/* Basic meta tags */}
-         <meta charSet="utf-8" />
-         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-         {/* Link to your CSS file - Next.js handles the CSS import */}
-       </head>
-       {/* Add suppressHydrationWarning here too if body classes might mismatch */}
-       <body className="satori-playground-body" suppressHydrationWarning={true}>
-         {/* --- ADD THE HANDLER HERE --- */}
-         {/* This ensures the silencing logic runs on the playground page */}
-         <SilenceSpecificPromiseRejection />
+// Define a props interface so children is correctly typed
+interface SatoriPlaygroundLayoutProps {
+  children: ReactNode;
+}
 
-         {/* The children will be the SatoriClient component rendered by page.tsx */}
-         {children}
-       </body>
-    </html>
+// Explicitly annotate return type as JSX.Element
+export default function SatoriPlaygroundLayout({ children }: SatoriPlaygroundLayoutProps): JSX.Element {
+  return (
+    <>
+      {/* Silence specific promise rejections if needed */}
+      <SilenceSpecificPromiseRejection />
+
+      {/* Container for the playground content */}
+      <div className="satori-playground-container">
+        {children}
+      </div>
+    </>
   );
 }

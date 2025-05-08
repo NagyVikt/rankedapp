@@ -45,20 +45,7 @@ export const Header = () => {
             Image Generator
           </h1>
         </div>
-        <Link
-          href={`https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-image-generator&env=FIREWORKS_API_KEY,GOOGLE_CLIENT_EMAIL,GOOGLE_PRIVATE_KEY_ID,GOOGLE_VERTEX_LOCATION,GOOGLE_VERTEX_PROJECT,OPENAI_API_KEY,REPLICATE_API_TOKEN&envDescription=AI%20Provider%20API%20keys%20required%20for%20this%20demo.&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-image-generator&demo-title=AI%20SDK%20Image%20Generator&demo-description=%20%20An%20open-source%20AI%20image%20generation%20app%20template%20built%20with%20Next.js%2C%20the%20AI%20SDK%20by%20Vercel%2C%20and%20various%20AI%20providers%20(Replicate%2C%20Fireworks%2C%20Google%20Vertex%20AI%2C%20OpenAI).&demo-url=https%3A%2F%2Fai-sdk-image-generator.vercel.app%2F&demo-image=https%3A%2F%2Fai-sdk-image-generator.vercel.app%2Fopengraph-image.png`}
-          target="_blank"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://vercel.com/button"
-            className="hidden sm:block"
-            alt="Deploy with Vercel"
-          />
-          <Button size="iconSm" className="block sm:hidden">
-            ▲
-          </Button>
-        </Link>
+    
       </div>
     </header>
   );
