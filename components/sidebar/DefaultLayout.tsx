@@ -88,7 +88,7 @@ export default function DefaultLayout({ children, disableMarginShift = false }: 
         </header>
 
         {/* Page Content */}
-        <main className="flex-grow w-full p-4 sm:p-6 lg:p-8">
+        <main className="flex-grow w-full ">
           {children}
         </main>
 
