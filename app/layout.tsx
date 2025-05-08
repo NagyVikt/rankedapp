@@ -9,8 +9,6 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { DeepResearchProvider } from '@/lib/deep-research-context'
 import { Navbar } from '@/components/navbar'
-// Remove the import for the separate component
-// import { SilenceCancellationRejection } from '@/components/error-handler';
 import { SidebarProvider } from '@/context/SidebarContext';
 import type { Metadata, Viewport } from 'next';
 import React from 'react';
@@ -40,120 +38,121 @@ export default async function RootLayout({
   const nonce = hdrs.get('x-csp-nonce') ?? '';
 
   // Inline script: keep <meta name="theme-color"> in sync with dark/light mode
-  const themeColorScript = `
-    (function() {
-      var html = document.documentElement;
-      var meta = document.querySelector('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', 'theme-color');
-        document.head.appendChild(meta);
-      }
-      function updateThemeColor() {
-        var isDark = html.classList.contains('dark');
-        meta.setAttribute('content', isDark
-          ? 'hsl(240deg 10% 3.92%)'
-          : 'hsl(0 0% 100%)'
-        );
-      }
-      var observer = new MutationObserver(updateThemeColor);
-      observer.observe(html, { attributes: true, attributeFilter: ['class'] });
-      updateThemeColor();
-    })();
-  `;
+  // const themeColorScript = `
+  //   (function() {
+  //     var html = document.documentElement;
+  //     var meta = document.querySelector('meta[name="theme-color"]');
+  //     if (!meta) {
+  //       meta = document.createElement('meta');
+  //       meta.setAttribute('name', 'theme-color');
+  //       document.head.appendChild(meta);
+  //     }
+  //     function updateThemeColor() {
+  //       var isDark = html.classList.contains('dark');
+  //       meta.setAttribute('content', isDark
+  //         ? 'hsl(240deg 10% 3.92%)'
+  //         : 'hsl(0 0% 100%)'
+  //       );
+  //     }
+  //     var observer = new MutationObserver(updateThemeColor);
+  //     observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+  //     updateThemeColor();
+  //   })();
+  // `;
 
   // Inline script: patch console.warn/error to suppress CSP & unreachable-code noise
-  const consoleFilterScript = `
-    (function() {
-      const origWarn = console.warn.bind(console);
-      const origError = console.error.bind(console);
+  // const consoleFilterScript = `
+  //   (function() {
+  //     const origWarn = console.warn.bind(console);
+  //     const origError = console.error.bind(console);
 
-      console.warn = (...args) => {
-        const msg = args[0] + '';
-        if (
-          msg.includes('Content-Security-Policy') ||
-          msg.includes('unreachable code after return statement')
-        ) {
-          return;
-        }
-        origWarn(...args);
-      };
+  //     console.warn = (...args) => {
+  //       const msg = args[0] + '';
+  //       if (
+  //         msg.includes('Content-Security-Policy') ||
+  //         msg.includes('unreachable code after return statement')
+  //       ) {
+  //         return;
+  //       }
+  //       origWarn(...args);
+  //     };
 
-      console.error = (...args) => {
-        const msg = args[0] + '';
-        if (msg.includes('Content-Security-Policy')) {
-          return;
-        }
-        origError(...args);
-      };
-    })();
-  `;
+  //     console.error = (...args) => {
+  //       const msg = args[0] + '';
+  //       if (msg.includes('Content-Security-Policy')) {
+  //         return;
+  //       }
+  //       origError(...args);
+  //     };
+  //   })();
+  // `;
 
   // Inline script: Silence specific promise rejection (Revised Again)
-  // This script attempts to attach the listener extremely early.
-  const silenceRejectionScript = `
-    (function() { // Wrap in IIFE to avoid polluting global scope
-      console.log('[Inline Script] Running script to attach rejection handler...');
+  // const silenceRejectionScript = `
+  //   (function() { // Wrap in IIFE to avoid polluting global scope
+  //     console.log('[Inline Script] Running script to attach rejection handler...');
 
-      function handleRejection(event) {
-        // Check the specific object shape
-        if (
-          event.reason &&
-          typeof event.reason === 'object' &&
-          event.reason.type === 'cancelation' &&
-          event.reason.msg === 'operation is manually canceled'
-        ) {
-          console.log('[Inline Script] MATCHED specific cancellation rejection. Preventing default logging.');
-          event.preventDefault(); // Prevent browser's default logging
-          return true; // Indicate the event was handled (might help some environments)
-        }
-        // Optional: Log other unhandled rejections only if needed for debugging
-        // console.warn('[Inline Script] Unhandled Rejection (Not Silenced):', event.reason);
-        return false; // Indicate not handled
-      }
+  //     function handleRejection(event) {
+  //       if (
+  //         event.reason &&
+  //         typeof event.reason === 'object' &&
+  //         event.reason.type === 'cancelation' &&
+  //         event.reason.msg === 'operation is manually canceled'
+  //       ) {
+  //         console.log('[Inline Script] MATCHED specific cancellation rejection. Preventing default logging.');
+  //         event.preventDefault();
+  //         return true;
+  //       }
+  //       return false;
+  //     }
 
-      // Check if listener already exists (e.g., due to fast refresh)
-      if (!window._rejectionHandlerAttached) {
-         window.addEventListener('unhandledrejection', handleRejection);
-         window._rejectionHandlerAttached = true; // Set a flag
-         console.log('[Inline Script] Attached unhandledrejection listener.');
-      } else {
-         console.log('[Inline Script] unhandledrejection listener already attached.');
-      }
+  //     if (!window._rejectionHandlerAttached) {
+  //        window.addEventListener('unhandledrejection', handleRejection);
+  //        window._rejectionHandlerAttached = true;
+  //        console.log('[Inline Script] Attached unhandledrejection listener.');
+  //     } else {
+  //        console.log('[Inline Script] unhandledrejection listener already attached.');
+  //     }
 
-    })(); // End IIFE
-  `;
+  //   })();
+  // `;
 
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Console Filter Script (Earliest) */}
+        {/*
         <Script
           id="console-filter"
           strategy="beforeInteractive"
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: consoleFilterScript }}
         />
+        */}
         {/* Silence Rejection Script (Immediately after console filter) */}
+        {/*
         <Script
             id="silence-rejection"
             strategy="beforeInteractive"
             nonce={nonce} // Apply nonce if needed for CSP
             dangerouslySetInnerHTML={{ __html: silenceRejectionScript }}
         />
+        */}
         {/* Other head scripts (Stripe, Theme Toggle) */}
         <Script
           src="https://js.stripe.com/v3/"
           strategy="beforeInteractive"
           nonce={nonce}
         />
+        {/*
         <Script
           id="theme-color-toggle"
           strategy="beforeInteractive"
           nonce={nonce}
           dangerouslySetInnerHTML={{ __html: themeColorScript }}
         />
+        */}
 
       </head>
 

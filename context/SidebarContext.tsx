@@ -8,7 +8,8 @@ import React, {
   useRef,        // Import useRef for timeout management
   useEffect,     // Import useEffect for cleanup
   useMemo,       // Import useMemo for optimization
-  ReactNode
+  ReactNode,
+  JSX // Import JSX for return type
 } from 'react';
 
 // --- Define Animation Duration ---
@@ -28,7 +29,8 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 // --- Create the Provider Component ---
-export function SidebarProvider({ children }: { children: ReactNode }) {
+// Explicitly define the return type as JSX.Element
+export function SidebarProvider({ children }: { children: ReactNode }): JSX.Element {
   // State for sidebar visibility, default to closed
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // State to track if the sidebar is currently animating
@@ -74,7 +76,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     isAnimating, // Include isAnimating in the context value
     toggleSidebar,
     setIsSidebarOpen
-  }), [isSidebarOpen, isAnimating]); // Add isAnimating as a dependency
+  }), [isSidebarOpen, isAnimating, toggleSidebar]); // Add isAnimating and toggleSidebar as a dependency
 
   // --- Provide the Context ---
   return (
