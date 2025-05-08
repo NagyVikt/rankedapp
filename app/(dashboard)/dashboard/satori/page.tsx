@@ -293,7 +293,7 @@ function LiveEditor({ id, code, onCodeChange }: { id: string, code: string, onCo
   };
 
   return (
-    <div ref={containerRef} className="h-full w-full overflow-hidden relative bg-white dark:bg-gray-900">
+    <div ref={containerRef} className="h-full overflow-hidden relative bg-white dark:bg-gray-900">
       <Editor
         language='javascript' value={code} onChange={handleEditorChange} onMount={handleEditorDidMount}
         options={{
@@ -848,7 +848,7 @@ export default function SatoriClient() {
       <Toaster position="bottom-right" toastOptions={{ className: 'satori-toast text-sm rounded-md shadow-lg', duration: 4000, success: { style: { background: '#F0FFF4', color: '#2F855A', border: '1px solid #9AE6B4' } }, error: { style: { background: '#FFF5F5', color: '#C53030', border: '1px solid #FEB2B2' } } }} />
 
       <LiveProvider code={currentCode} enableTypeScript={false} theme={{plain:{}, styles:[]}} >
-        <div className="h-screen w-screen flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-900">
+      <div className="h-screen w-full max-w-screen-xxl mx-auto p-4 flex flex-col overflow-hidden bg-gray-100 dark:bg-gray-900">
           {!isMobileView && (
             <div className="flex-shrink-0 p-2 bg-gray-200 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 flex justify-end items-center">
               <button
@@ -864,7 +864,7 @@ export default function SatoriClient() {
 
           <div className="flex-grow overflow-hidden min-h-0"> {/* Crucial for PanelGroup to not overflow */}
             {isMobileView ? (
-              <PanelGroup direction="vertical" className="h-full w-full" autoSaveId="satori-playground-panels-mobile-v5">
+              <PanelGroup direction="vertical" className="h-full " autoSaveId="satori-playground-panels-mobile-v5">
                 <Panel id="editor-mobile" defaultSize={50} minSize={20} className="flex flex-col min-h-0"> {/* min-h-0 for flex children */}
                   {editorPanelContent}
                 </Panel>
@@ -874,7 +874,7 @@ export default function SatoriClient() {
                 </Panel>
               </PanelGroup>
             ) : (
-              <PanelGroup direction="horizontal" className="h-full w-full" autoSaveId="satori-playground-panels-desktop-v6">
+              <PanelGroup direction="horizontal"   className="satori-panel-group h-full" autoSaveId="satori-playground-panels-desktop-v6">
                 <Panel id="editor" defaultSize={45} minSize={20} order={1} className="flex flex-col min-h-0"> {/* min-h-0 */}
                   {editorPanelContent}
                 </Panel>

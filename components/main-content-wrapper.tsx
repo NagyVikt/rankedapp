@@ -14,7 +14,7 @@ const MainContentWrapper = ({ children }: { children: React.ReactNode }) => {
 
   // This margin should match the navbar's left offset logic
   // Assumes sidebar width is 64 (16rem, which means left-64 for navbar, ml-64 for content)
-  const contentMarginLeft = isSidebarOpen ? "md:ml-12" : "md:ml-0";
+  const contentMarginLeft = isSidebarOpen ? "md:ml-34" : "md:ml-0";
 
   return (
     <main

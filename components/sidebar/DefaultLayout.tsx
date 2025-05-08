@@ -73,7 +73,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
         </header>
 
         {/* notice we dropped `container mx-auto` */}
-        <main className="w-full px-6 py-4 flex-grow">
+        <main className="w-full flex-grow">
           {children}
         </main>
 

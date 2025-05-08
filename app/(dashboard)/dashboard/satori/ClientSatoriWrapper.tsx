@@ -19,7 +19,7 @@ export default function ClientSatoriWrapper({
           satori-playground-html
           satori-playground-body
           transition-all duration-300 ease-in-out
-          ${isSidebarOpen ? 'md:ml-0' : 'md:ml-0'}
+          ${isSidebarOpen ? 'md:ml-64' : 'md:ml-0'}
         `}
         suppressHydrationWarning
       >
