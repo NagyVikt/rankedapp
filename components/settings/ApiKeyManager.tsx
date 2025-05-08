@@ -14,6 +14,13 @@ import {
 } from "@heroui/react"; // Adjust import path if needed
 import { Icon } from "@iconify/react";
 
+const ModalX = Modal as any;
+const ButtonX = Button as any;
+const ModalHeaderX = ModalHeader as any;
+const ModalBodyX = ModalBody as any;
+const ModalFooterX =    ModalFooter as any;
+const InputX = Input as any;
+
 // Configuration Type for each API Key
 export interface ApiKeyConfig {
     id: string; // Unique identifier (e.g., 'openai', 'gemini')
@@ -150,7 +157,7 @@ export function ApiKeyManager({ config }: ApiKeyManagerProps) {
 
             {/* Right side: Action Buttons */}
             <div className="flex items-center gap-2 flex-shrink-0">
-                <Button
+                <ButtonX
                     variant="light" // Light variant for less emphasis
                     size="sm"
                     onPress={handleEditClick}
@@ -159,9 +166,9 @@ export function ApiKeyManager({ config }: ApiKeyManagerProps) {
                     className="text-default-700 dark:text-default-400 hover:text-foreground dark:hover:text-foreground"
                 >
                     {isConfigured ? 'Edit Key' : 'Configure Key'}
-                </Button>
+                </ButtonX>
                 {isConfigured && (
-                    <Button
+                    <ButtonX
                         variant="light"
                         color="danger" // Use danger color semantic
                         size="sm"
@@ -171,24 +178,24 @@ export function ApiKeyManager({ config }: ApiKeyManagerProps) {
                         className="text-danger dark:text-danger-400 hover:text-danger-600 dark:hover:text-danger-300"
                     >
                         Remove
-                    </Button>
+                    </ButtonX>
                 )}
             </div>
 
             {/* Edit/Add Modal - HeroUI handles dark theme internally */}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" placement="center">
+            <ModalX isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur" placement="center">
                 <ModalContent>
                     {(modalOnClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1 text-foreground"> {/* Ensure header text color */}
+                            <ModalHeaderX className="flex flex-col gap-1 text-foreground"> {/* Ensure header text color */}
                                 {isConfigured ? `Edit ${config.name} API Key` : `Configure ${config.name} API Key`}
-                            </ModalHeader>
-                            <ModalBody>
+                            </ModalHeaderX>
+                            <ModalBodyX>
                                 <p className="text-small text-foreground-500 mb-2"> {/* Body text color */}
                                     Enter your secret API key from {config.name}. It's stored only in your browser.
                                 </p>
                                 {config.infoText && <p className="text-xs text-warning mb-3">{config.infoText}</p>}
-                                <Input
+                                <InputX
                                     label={`${config.name} API Key`}
                                     placeholder={config.placeholder || (config.keyPrefix ? `${config.keyPrefix}xxxxxxxxxx` : "Enter your API key")}
                                     variant="bordered"
@@ -204,23 +211,23 @@ export function ApiKeyManager({ config }: ApiKeyManagerProps) {
                                         Find your API keys on the <a href={config.docsUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">official {config.name} website</a>.
                                     </p>
                                 )}
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="light" onPress={modalOnClose}>
+                            </ModalBodyX>
+                            <ModalFooterX>
+                                <ButtonX color="danger" variant="light" onPress={modalOnClose}>
                                     Cancel
-                                </Button>
-                                <Button
+                                </ButtonX>
+                                <ButtonX
                                     color="primary"
                                     onPress={handleSaveClick}
                                     isDisabled={isSaveDisabled()}
                                 >
                                     Save Key
-                                </Button>
-                            </ModalFooter>
+                                </ButtonX>
+                            </ModalFooterX>
                         </>
                     )}
                 </ModalContent>
-            </Modal>
+            </ModalX>
         </div>
     );
 }
