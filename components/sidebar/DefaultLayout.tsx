@@ -1,99 +1,85 @@
 // File: components/sidebar/DefaultLayout.tsx
-'use client'; // Still needs to be client component if it uses hooks or interaction
+'use client';
 
-import React, { ReactNode } from 'react'; // Removed useState
+import React, { ReactNode } from 'react';
 import SidebarComponent from '@/components/sidebar/SidebarComponent';
 import { Icon } from '@iconify/react';
 import { Button, Tooltip } from '@heroui/react';
-import { useSidebar } from '@/context/SidebarContext'; // Import the hook
+import { useSidebar } from '@/context/SidebarContext';
 
 interface DefaultLayoutProps {
   children: ReactNode;
 }
 
 const SIDEBAR_WIDTH_CLASS = 'w-64';
-const SIDEBAR_MARGIN_CLASS = 'md:ml-64';
-const ANIMATION_DURATION = 300; // Keep if used for transitions
+const ANIMATION_DURATION = 300;
 
 export default function DefaultLayout({ children }: DefaultLayoutProps) {
-  // Get state and toggle function from context
-  const { isSidebarOpen, toggleSidebar, isAnimating } = useSidebar(); // Assuming you add isAnimating to context if needed
-
-  // Note: The isAnimating logic with setTimeout would also need to move into the SidebarProvider if you want to keep that delayed button visibility.
+  const { isSidebarOpen, toggleSidebar } = useSidebar();
 
   return (
     <div className="relative flex min-h-screen">
-
-      {/* --- Button to OPEN sidebar (uses context) --- */}
-      {/* Conditionally render based on context state */}
-      {/* Add !isAnimating check if you move that logic to context */}
+      {/* Open button */}
       {!isSidebarOpen && (
-          <Tooltip content="Expand sidebar" placement="right">
-             <Button
-                 isIconOnly size="sm" variant="light"
-                 className={`
-                    fixed top-4 left-4 z-50
-                    border border-divider bg-background hover:bg-default-100
-                    `}
-                 aria-label="Expand sidebar"
-                 onPress={toggleSidebar} // Use toggle from context
-             >
-                 <Icon icon="mdi:chevron-double-right" width={18} className="text-default-600" />
-             </Button>
-          </Tooltip>
+        <Tooltip content="Expand sidebar" placement="right">
+          <Button
+            isIconOnly size="sm" variant="light"
+            className="fixed top-4 left-4 z-50 border border-divider bg-background hover:bg-default-100"
+            aria-label="Expand sidebar"
+            onPress={toggleSidebar}
+          >
+            <Icon icon="mdi:chevron-double-right" width={18} className="text-default-600" />
+          </Button>
+        </Tooltip>
       )}
-      {/* --- END: Open Button --- */}
 
-      {/* Sidebar Wrapper (uses context state) */}
+      {/* Sidebar itself */}
       <div
         className={`
-          ${SIDEBAR_WIDTH_CLASS}
-          fixed inset-y-0 left-0 z-40
+          ${SIDEBAR_WIDTH_CLASS} fixed inset-y-0 left-0 z-40
           transform transition-transform duration-${ANIMATION_DURATION} ease-in-out
-          bg-background border-r border-divider
-          flex flex-col
+          bg-background border-r border-divider flex flex-col
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        {/* Pass context values down OR let SidebarComponent consume context directly */}
-        <SidebarComponent /* isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} isAnimating={isAnimating} */ />
+        <SidebarComponent />
       </div>
 
-      {/* Main Content Area Wrapper (uses context state) */}
-      <div className={`
-          flex flex-col flex-1 transition-all duration-${ANIMATION_DURATION} ease-in-out
-          pl-16 md:pl-4
-          ${isSidebarOpen ? SIDEBAR_MARGIN_CLASS : 'ml-0'}
-      `}>
-         {/* Header */}
-         <header className={`
-            sticky top-0 z-20 flex items-center justify-between h-16 px-6
-            bg-background/80 backdrop-blur border-b border-divider
-         `}>
-              {/* Mobile-only Hamburger (uses context) */}
-               {/* Add !isAnimating check if needed */}
-              {!isSidebarOpen && (
-                <button
-                    onClick={toggleSidebar} // Use toggle from context
-                    className="p-2 rounded-md text-default-700 hover:bg-default-100 md:hidden"
-                    aria-label="Open sidebar"
-                >
-                    <Icon icon="mdi:menu" width={24} />
-                </button>
-              )}
-              <div className="flex-1 pl-10 md:pl-0"> {/* Placeholder */} </div>
-              <div>{/* Right side content */}</div>
-         </header>
+      {/* Main area */}
+      <div
+        className={`
+          flex flex-col flex-1
+          transition-all duration-${ANIMATION_DURATION} ease-in-out
+          ${isSidebarOpen ? 'md:ml-32' : 'md:ml-0'}
+        `}
+      >
+        <header
+          className={`
+            sticky top-0 z-20 flex items-center justify-between h-16
+            px-6 bg-background/80 backdrop-blur border-b border-divider
+          `}
+        >
+          {!isSidebarOpen && (
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-md text-default-700 hover:bg-default-100 md:hidden"
+              aria-label="Open sidebar"
+            >
+              <Icon icon="mdi:menu" width={24} />
+            </button>
+          )}
+          <div className="flex-1" />
+          <div>{/* right side */}</div>
+        </header>
 
-         {/* Main Content */}
-         <main className="container mx-auto px-6 py-4 flex-grow">
-           {children}
-         </main>
+        {/* notice we dropped `container mx-auto` */}
+        <main className="w-full px-6 py-4 flex-grow">
+          {children}
+        </main>
 
-         {/* Footer */}
-         <footer className="w-full flex items-center justify-center py-3 border-t border-divider">
-           {/* Footer content */}
-         </footer>
+        <footer className="w-full flex items-center justify-center py-3 border-t border-divider">
+          {/* Footer */}
+        </footer>
       </div>
     </div>
   );

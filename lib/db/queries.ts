@@ -46,6 +46,36 @@ const db = drizzle(client, { schema, logger: process.env.NODE_ENV === 'developme
 
 // === Helper Function for Supabase Auth ===
 
+export interface TeamMemberInfo {
+  id: number;
+  role: string;
+  userId: number;
+  teamId: number;
+  joinedAt: Date;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+}
+
+
+export interface TeamDataWithMembers {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  stripeProductId: string | null;
+  planName: string | null;
+  subscriptionStatus: string | null;
+  teamMembers: TeamMemberInfo[];
+}
+
+
+
+
 /**
  * Gets the authenticated Supabase user for the current request.
  * Returns null if not authenticated or on error.
@@ -98,11 +128,18 @@ export async function getAuthenticatedUser(): Promise<schema.User | null> {
  * Gets the currently authenticated user based on Supabase session.
  * Uses the helper function.
  */
-export async function getUser(): Promise<User | null> {
-  // Note: This function name conflicts with the schema import 'user'.
-  // Consider renaming this function, e.g., `getAuthenticatedUser`.
-  // For now, keeping original name but implementation uses helper.
-  return getAuthenticatedUser();
+
+/**
+ * Fetch a single user by email.
+ * @param email The user's email address
+ * @returns The User object or null if not found
+ */
+export async function getUser(email: string): Promise<User | null> {
+  const results = await db
+    .select()
+    .from(schema.user)
+    .where(eq(schema.user.email, email));
+  return results.length > 0 ? results[0] : null;
 }
 
 /**
@@ -145,37 +182,34 @@ export async function getUserById(id: string): Promise<User | null> {
  * in Supabase Auth (e.g., by a trigger) to ensure the ID matches.
  * If used for direct signup, ensure the ID passed matches Supabase Auth ID.
  */
-export async function createUser(userData: NewUser): Promise<User[]> {
-  // Hash password if provided (assuming direct creation, adjust if using trigger)
-  if (userData.passwordHash) { // Check if passwordHash needs hashing or is already hashed
-      // If userData.passwordHash contains a plain password, hash it here.
-      // If it's already hashed (e.g., from Supabase trigger), use it directly.
-      // Example hashing (if plain password was passed somehow):
-      // const salt = genSaltSync(10);
-      // userData.passwordHash = hashSync(userData.passwordHash, salt);
-  }
+/**
+ * Create a new user record with hashed password.
+ * @param email The user's email
+ * @param password Plaintext password (will be hashed)
+ * @returns The newly created User
+ */
+export async function createUser(
+  email: string,
+  password: string
+): Promise<User> {
+  // Hash the password
+  const salt = genSaltSync(10);
+  const pinHash = hashSync(password, salt);
 
-  // Ensure essential fields are present if not defaulted in DB/schema
-  const valuesToInsert: NewUser = {
-      ...userData,
-      // Ensure ID is provided if not using defaultRandom (which we removed)
-      // id: userData.id, // This MUST match Supabase Auth ID
-      createdAt: userData.createdAt ?? new Date(),
-      updatedAt: userData.updatedAt ?? new Date(),
-      role: userData.role ?? 'member',
-      isPinSet: userData.isPinSet ?? false,
-      // passwordHash should be set correctly before this point
-  };
+  // Insert into DB
+  const [inserted] = await db
+    .insert(schema.user)
+    .values({
+      email,
+      pinHash,
+      role: 'member',
+      isPinSet: true,
+    })
+    .returning();
 
-  try {
-    // Drizzle returns the inserted rows by default
-    const insertedUsers = await db.insert(schema.user).values(valuesToInsert).returning();
-    return insertedUsers;
-  } catch (error) {
-    console.error('Failed to create user in database:', error);
-    throw error;
-  }
+  return inserted;
 }
+
 
 // --- Team Related Functions ---
 
@@ -218,43 +252,37 @@ export async function getTeamById(teamId: number): Promise<Team | null> {
  * Returns the Team data along with members and their user details.
  */
 export async function getTeamDataForCurrentUser(): Promise<TeamDataWithMembers | null> {
-  const user = await getAuthenticatedUser(); // Use Supabase auth helper
-  if (!user?.id) { // Check for user and user.id
-    return null;
-  }
+  const user = await getAuthenticatedUser();
+  if (!user?.id) return null;
 
-  try {
-    // Find the first team membership for the user
-    const membership = await db.query.teamMembers.findFirst({
-      where: eq(schema.teamMembers.userId, user.id), // Match UUID
-      // Use 'with' to fetch related data based on schema relations
-      with: {
-        team: { // Fetch the associated team
-          with: {
-            teamMembers: { // Within the team, fetch all members
-              with: {
-                user: { // For each member, fetch user details
-                  // Select specific user columns to avoid over-fetching
-                  columns: {
-                    id: true,
-                    name: true, // Ensure 'name' column exists in your User table
-                    email: true,
-                  }
+  // Convert user.id (string UUID) to match teamMembers.userId column type if needed
+  // Assuming teamMembers.userId is stored as text/uuid not integer
+  const membership = await db.query.teamMembers.findFirst({
+    where: eq(schema.teamMembers.userId, user.id),
+    with: {
+      team: {
+        with: {
+          teamMembers: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  name: true,
+                  email: true,
                 }
               }
             }
           }
         }
       }
-    });
+    }
+  });
 
-    // The result structure matches TeamDataWithMembers if relations are set up correctly
-    return membership?.team || null;
-  } catch (error) {
-      console.error(`Failed to get team data for user ${user.id}:`, error);
-      throw error; // Re-throw or handle as needed
-  }
+  if (!membership) return null;
+  // membership.team matches TeamDataWithMembers
+  return membership.team as TeamDataWithMembers;
 }
+
 
 /**
  * Gets a team by its Stripe Customer ID.
