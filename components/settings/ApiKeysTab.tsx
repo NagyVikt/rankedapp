@@ -56,6 +56,9 @@ const apiKeyConfigs: ApiKeyConfig[] = [
   // Add more providers here as needed
 ];
 
+const ApiKeyManagerX = ApiKeyManager as any;
+
+
 interface ApiKeysTabProps {
     className?: string;
 }
@@ -69,7 +72,7 @@ export default function ApiKeysTab({ className }: ApiKeysTabProps) {
       <div className="space-y-4">
         {/* Map over the configurations and render a manager for each */}
         {apiKeyConfigs.map((config) => (
-          <ApiKeyManager key={config.id} config={config} />
+          <ApiKeyManagerX key={config.id} config={config} />
         ))}
       </div>
     </div>
