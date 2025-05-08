@@ -32,7 +32,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 // Explicitly define the return type as JSX.Element
 export function SidebarProvider({ children }: { children: ReactNode }): JSX.Element {
   // State for sidebar visibility, default to closed
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // State to track if the sidebar is currently animating
   const [isAnimating, setIsAnimating] = useState(false);
   // Ref to hold the timeout ID for clearing if needed
