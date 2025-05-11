@@ -29,7 +29,7 @@ export interface SidebarItem {
 
 // Primary flat list
 export const items: SidebarItem[] = [
-  { key: 'home',      href: '/dashboard',               icon: 'solar:home-2-linear',                 title: 'Home' },
+  // { key: 'home',      href: '/dashboard',               icon: 'solar:home-2-linear',                 title: 'Home' },
   { key: 'webshops',  href: '/dashboard/webshops',      icon: 'solar:widget-2-outline',             title: 'Webshops'  },
   { key: 'tasks',     href: '/dashboard/tasks',         icon: 'solar:checklist-minimalistic-outline',title: 'Tasks',    endContent: <Icon icon="solar:add-circle-line-duotone" className="text-default-400" width={24}/> },
 
@@ -37,22 +37,25 @@ export const items: SidebarItem[] = [
     key: 'ADS',
     href: '/dashboard/ads',
   icon:"solar:megaphone-linear" ,
-    title: 'Ads',
+    title: 'Gallery',
   },
   {
     key: 'Satori',
     href: '/dashboard/satori',
-    icon:"solar:lightbulb-linear",
-    title: 'Satori',
+    icon:"solar:megaphone-linear",
+    title: 'Satori - Ad designer',
   },
   
 
   { key: 'emails',   href: '/dashboard/emails',       icon: 'solar:sort-by-time-linear',           title: 'Email Designer', endContent: <Chip size="sm" variant="flat">New</Chip> },
   { key: 'campaign-maanger',   href: '/dashboard/emails/campaign-manager',       icon: 'solar:sort-by-time-linear',           title: 'Advertising campaign', },
+  { key: 'sent-emails',   href: '/dashboard/emails/sent-emails',       icon: 'solar:sort-by-time-linear',           title: 'Sent emails', },
 
-  { key: 'agents',   href: '/dashboard/tracker',       icon: 'solar:sort-by-time-linear',           title: 'AI Agents', endContent: <Chip size="sm" variant="flat">New</Chip> },
 
   { key: 'analytics', href: '/dashboard/analytics',     icon: 'solar:chart-outline',                 title: 'Analytics' },
+
+  { key: 'agents',   href: '/dashboard/tracker',       icon: 'solar:sort-by-time-linear',           title: 'AI Agents Settings', endContent: <Chip size="sm" variant="flat">New</Chip> },
+
   { key: 'settings',  href: '/dashboard/settings',      icon: 'solar:settings-outline',              title: 'Settings' },
   // { key: 'acitivity',  href: '/dashboard/activity',      icon: 'solar:settings-outline',              title: 'Activity' },
 
