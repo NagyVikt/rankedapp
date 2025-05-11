@@ -100,7 +100,7 @@ export const navigationSections: SidebarSection[] = [
       {
         key: 'campaign-manager',
         icon: 'solar:target-bold-duotone',
-        title: 'Advertising Campaign',
+        title: 'Campaign Manager',
         type: SidebarItemType.Dropdown,
         isInitiallyOpen: false,
         endContent: ({ isItemOpen }) => (
@@ -127,7 +127,7 @@ export const navigationSections: SidebarSection[] = [
         key: 'email-stats-toggle',
         title: 'Show Email Stats', // Title won't be directly visible, used for key and logic
         type: SidebarItemType.EmailStatsToggle,
-        isInitiallyOpen: true, // Stats are visible by default
+        isInitiallyOpen: false, // Stats are visible by default
         // The endContent will render the toggle button in SidebarComponent
         endContent: ({ isItemOpen, onToggle }) => (
           <button
@@ -175,7 +175,7 @@ export const navigationSections: SidebarSection[] = [
     key: 'general',
     title: 'General',
     className: 'mt-4 pt-2',
-    isCollapsed: true,
+    isCollapsed: false,
     items: [
       {
         key: 'analytics',

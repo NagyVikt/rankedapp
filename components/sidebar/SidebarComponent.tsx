@@ -1,4 +1,3 @@
-// src/components/sidebar/SidebarComponent.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -8,7 +7,8 @@ import { useSidebar } from '@/context/SidebarContext'; // Ensure this path is co
 import {
   Avatar, Button, Card, CardBody, CardFooter, ScrollShadow, Spacer,
   Skeleton, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-  useDisclosure, Input, Divider, Progress, Tooltip as HeroUITooltip // Renamed to avoid conflict
+  useDisclosure, Input, Divider, Progress, Tooltip as HeroUITooltip,
+  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem // Added Dropdown components
 } from '@heroui/react'; // Ensure this path is correct and all components are exported
 import { Icon } from '@iconify/react';
 import useSWR from 'swr';
@@ -31,9 +31,15 @@ const PLUGIN_CARD_VISIBILITY_KEY = 'sidebarPluginCardVisible'; // More specific 
 
 // Example credit data (in a real app, this would come from props or context/API)
 const totalCredits = 10000;
-const usedCredits = 3500; 
+const usedCredits = 3500;
 const creditsLeft = totalCredits - usedCredits;
 const creditUsagePercentage = (usedCredits / totalCredits) * 100;
+
+// Language options
+const languageOptions = [
+  { key: 'en', name: 'English', flag: 'twemoji:flag-united-kingdom' },
+  { key: 'hu', name: 'Hungarian', flag: 'twemoji:flag-hungary', disabled: true, tooltip: 'Coming soon' },
+];
 
 
 export default function SidebarComponent() {
@@ -52,6 +58,13 @@ export default function SidebarComponent() {
   // Referral Link state
   const [referralLink, setReferralLink] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // Language state
+  const [selectedLanguageKey, setSelectedLanguageKey] = useState<React.Key>('en');
+  const selectedLanguage = React.useMemo(
+    () => languageOptions.find(lang => lang.key === selectedLanguageKey) || languageOptions[0],
+    [selectedLanguageKey]
+  );
 
   useEffect(() => {
     if (user && typeof window !== 'undefined') { // Ensure window is defined for origin
@@ -80,7 +93,7 @@ export default function SidebarComponent() {
         return acc;
       }, {} as Record<string, boolean>)
   );
-  
+
   // State for email statistics visibility
   const [isEmailStatsVisible, setIsEmailStatsVisible] = useState(
     // Find the toggle item and get its initial state, default to true if not found
@@ -104,7 +117,7 @@ export default function SidebarComponent() {
   const toggleDropdownItem = (itemKey: string) => {
     setOpenDropdownItems(prev => ({ ...prev, [itemKey]: !prev[itemKey] }));
   };
-  
+
   const toggleEmailStatsVisibility = () => {
     setIsEmailStatsVisible(prev => !prev);
   };
@@ -154,7 +167,7 @@ export default function SidebarComponent() {
       <Skeleton className="w-1/3 h-4 rounded-md" /> {/* Slightly taller */}
     </div>
   );
-  
+
   const CreditsSkeleton = () => (
     <div className="mt-auto pt-4 border-t border-divider px-3 pb-2"> {/* Increased px */}
       <div className="mb-2 space-y-1.5"> {/* Added space-y */}
@@ -182,9 +195,9 @@ export default function SidebarComponent() {
             </div>
         );
     }
-    
+
     // Conditionally render statistic items based on isEmailStatsVisible
-    if (item.isStatistic) { 
+    if (item.isStatistic) {
         if (!isEmailStatsVisible && item.key.includes('-stat')) return null; // Hide only email stats if toggle is off
         return (
             <div key={`${item.key}-${index}`} className={`flex justify-between items-center ${item.className || 'text-sm text-default-600 px-3 py-0.5'} ${isSubItem ? 'pl-10' : 'pl-4'}`}> {/* Consistent padding */}
@@ -286,31 +299,71 @@ export default function SidebarComponent() {
 
         {/* User Information Section - Improved Alignment */}
         <div className="px-2 space-y-3"> {/* Added space-y-3 for separation between profile and referral */}
-            <div className="flex items-center gap-3"> {/* Avatar + Name/Role */}
+            <div className="flex items-start gap-3"> {/* Changed to items-start for better alignment with dropdown */}
                 <Skeleton isLoaded={!isLoadingUser} className="rounded-full w-12 h-12 text-lg flex-shrink-0">
-                    {/* Content for Skeleton (Avatar) */}
                     <Avatar
                         isBordered
-                        size="lg" // This should map to w-12 h-12
+                        size="lg"
                         src={user?.avatarUrl ?? undefined}
                         name={user?.name?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase() ?? 'U'}
-                        className="w-12 h-12 text-lg" // Explicit sizing for consistency
+                        className="w-12 h-12 text-lg"
                     />
                 </Skeleton>
-                {/* Text Column - takes remaining space */}
                 <div className="flex flex-col justify-center flex-grow overflow-hidden">
-                    <Skeleton isLoaded={!isLoadingUser} className="h-5 w-4/5 rounded-lg mb-1.5"> {/* Realistic width for name skeleton */}
+                    <Skeleton isLoaded={!isLoadingUser} className="h-5 w-4/5 rounded-lg mb-1.5">
                         {user && <p className="text-base font-semibold text-foreground truncate leading-tight">{user.name ?? user.email ?? 'Unknown User'}</p>}
                     </Skeleton>
-                    <Skeleton isLoaded={!isLoadingUser} className="h-4 w-3/5 rounded-lg"> {/* Realistic width for role skeleton */}
+                    <Skeleton isLoaded={!isLoadingUser} className="h-4 w-3/5 rounded-lg">
                         {user && <p className="text-xs text-default-500 truncate leading-tight">{user.role ?? 'No Role'}</p>}
                     </Skeleton>
                 </div>
+                {/* Language Switcher Dropdown */}
+                <Skeleton isLoaded={!isLoadingUser} className="w-12 h-8 rounded-md ml-auto flex-shrink-0">
+                    {user && (
+                        <Dropdown placement="bottom-end">
+                            <DropdownTrigger>
+                                <Button isIconOnly variant="light" className="w-10 h-10 min-w-0 data-[hover=true]:bg-default-100 dark:data-[hover=true]:bg-default-50">
+                                    <Icon icon={selectedLanguage.flag} width={24} height={24} />
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                aria-label="Language Selection"
+                                variant="flat"
+                                disallowEmptySelection
+                                selectionMode="single"
+                                selectedKeys={new Set([selectedLanguageKey.toString()])}
+                                onSelectionChange={(keys) => {
+                                    // Since we only allow 'en' for now
+                                    const newKey = Array.from(keys)[0];
+                                    if (newKey === 'en') {
+                                        setSelectedLanguageKey(newKey);
+                                    }
+                                    // For 'hu', it's disabled, so selection won't change to it via UI.
+                                    // If it could, we'd add logic here.
+                                }}
+                                itemClasses={{
+                                    base: "gap-2",
+                                }}
+                            >
+                                {languageOptions.map((lang) => (
+                                    <DropdownItem
+                                        key={lang.key}
+                                        description={lang.disabled ? lang.tooltip : undefined}
+                                        startContent={<Icon icon={lang.flag} width={20} height={20} />}
+                                        isDisabled={lang.disabled}
+                                        className={lang.disabled ? "opacity-50 cursor-not-allowed" : ""}
+                                    >
+                                        {lang.name}
+                                    </DropdownItem>
+                                ))}
+                            </DropdownMenu>
+                        </Dropdown>
+                    )}
+                </Skeleton>
             </div>
 
             {/* Referral Link Section - Improved Alignment */}
-            {/* Skeleton for the entire referral box */}
-            <Skeleton isLoaded={!isLoadingUser} className="h-20 rounded-lg"> {/* h-20 is 80px, should be enough */}
+            <Skeleton isLoaded={!isLoadingUser} className="h-20 rounded-lg">
                 {user && referralLink && (
                     <div className="p-3 bg-default-100 dark:bg-default-50 rounded-lg shadow-sm border border-default-200 dark:border-default-700">
                         <p className="text-xs font-medium text-default-700 dark:text-default-300 mb-1.5">Your Referral Link:</p>
@@ -318,9 +371,9 @@ export default function SidebarComponent() {
                             <Input
                                 isReadOnly
                                 size="sm"
-                                variant="bordered" 
+                                variant="bordered"
                                 value={referralLink}
-                                className="flex-grow" 
+                                className="flex-grow"
                                 classNames={{
                                     inputWrapper: "h-9 text-xs bg-background dark:bg-default-100 border-default-300 dark:border-default-200 focus-within:border-primary dark:focus-within:border-primary",
                                     input: "text-default-700 dark:text-default-200 placeholder:text-default-400"
@@ -328,12 +381,12 @@ export default function SidebarComponent() {
                                 placeholder="Generating link..."
                             />
                             <HeroUITooltip content={copied ? "Copied!" : "Copy link"} placement="top" color="primary">
-                                <Button 
-                                    isIconOnly 
-                                    size="md" 
-                                    variant={copied ? "flat" : "light"} 
-                                    color={copied ? "success" : "default"} 
-                                    onPress={handleCopyReferralLink} 
+                                <Button
+                                    isIconOnly
+                                    size="md"
+                                    variant={copied ? "flat" : "light"}
+                                    color={copied ? "success" : "default"}
+                                    onPress={handleCopyReferralLink}
                                     className="w-9 h-9 min-w-0 flex-shrink-0"
                                 >
                                     <Icon icon={copied ? "mdi:check-circle-outline" : "mdi:content-copy"} width={18} />
@@ -352,7 +405,6 @@ export default function SidebarComponent() {
         <ScrollShadow className="flex-grow -mr-4 pr-4 py-2" hideScrollBar>
           {isSidebarLoading ? (
             <nav className="flex flex-col gap-0.5">
-              {/* More comprehensive skeleton for nav */}
               {[...Array(3)].map((_, i) => <NavItemSkeleton key={`navskel-${i}`} />)}
               <SectionTitleSkeleton />
               {[...Array(4)].map((_, i) => <NavItemSkeleton key={`navskel2-${i}`} />)}
@@ -397,20 +449,20 @@ export default function SidebarComponent() {
               ))}
             </nav>
           )}
-          
+
           <Spacer y={8} />
 
           {isPluginCardVisible && (
-             isSidebarLoading ? <Skeleton className="mx-2 h-40 rounded-lg mb-10" /> : ( // Taller skeleton for card
+             isSidebarLoading ? <Skeleton className="mx-2 h-40 rounded-lg mb-10" /> : (
             <Card className="mx-2 overflow-visible mb-10 relative" shadow="sm" isBlurred>
               <Button
                 isIconOnly size="sm" variant="light"
-                className="absolute top-1.5 right-1.5 z-10 text-default-500 hover:text-danger hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-full w-7 h-7 min-w-0" // Slightly larger close button
+                className="absolute top-1.5 right-1.5 z-10 text-default-500 hover:text-danger hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-full w-7 h-7 min-w-0"
                 aria-label="Hide plugin card" onPress={handleHidePluginCard}
               >
                 <Icon icon="mdi:close" width={18} />
               </Button>
-              <CardBody className="items-center py-5 text-center pt-7"> {/* Increased pt for close button */}
+              <CardBody className="items-center py-5 text-center pt-7">
                 <h3 className="text-base font-medium text-default-700">Download Our Plugin 🚀</h3>
                 <p className="p-4 text-sm text-default-500">
                   Download our plugin to get the most out of your Webshop.
@@ -431,23 +483,23 @@ export default function SidebarComponent() {
 
         {/* Credits Section */}
         {isSidebarLoading ? <CreditsSkeleton /> : (
-            <div className="mt-auto pt-4 border-t border-divider px-3 pb-2"> {/* Increased px */}
+            <div className="mt-auto pt-4 border-t border-divider px-3 pb-2">
                 <div className="mb-2">
-                    <div className="flex justify-between text-xs text-default-600 dark:text-default-400 mb-1"> {/* Increased mb */}
+                    <div className="flex justify-between text-xs text-default-600 dark:text-default-400 mb-1">
                         <span className="font-medium">Credits Used</span>
                         <span className="font-semibold">{usedCredits.toLocaleString()} / {totalCredits.toLocaleString()}</span>
                     </div>
-                    <Progress 
-                        value={creditUsagePercentage} 
+                    <Progress
+                        value={creditUsagePercentage}
                         color="primary"
-                        size="sm" 
+                        size="sm"
                         aria-label="Credit usage"
                         classNames={{
-                            indicator: "bg-primary", // Ensure indicator is primary
+                            indicator: "bg-primary",
                             label: "text-primary-foreground"
                         }}
-                    /> 
-                    <div className="text-xs text-default-500 dark:text-default-500 mt-1 text-right"> {/* Increased mt */}
+                    />
+                    <div className="text-xs text-default-500 dark:text-default-500 mt-1 text-right">
                         {creditsLeft.toLocaleString()} Credits Left
                     </div>
                 </div>
@@ -456,9 +508,9 @@ export default function SidebarComponent() {
 
         {/* Bottom Actions Area */}
         {isSidebarLoading ? (
-            <div className="flex flex-col gap-1 pt-2 border-t border-divider px-1"> {/* Added px-1 for skeleton alignment */}
-                <Skeleton className="h-10 rounded-md mx-1" /> {/* Added mx-1 */}
-                <Skeleton className="h-10 rounded-md mx-1" /> {/* Added mx-1 */}
+            <div className="flex flex-col gap-1 pt-2 border-t border-divider px-1">
+                <Skeleton className="h-10 rounded-md mx-1" />
+                <Skeleton className="h-10 rounded-md mx-1" />
             </div>
         ) : (
             <div className="flex flex-col gap-1 pt-2 border-t border-divider">
@@ -487,7 +539,7 @@ export default function SidebarComponent() {
               <ModalHeader className="flex flex-col gap-1 text-lg font-medium">Add New Webshop</ModalHeader>
               <ModalBody>
                 <Input autoFocus label="Shop Name" placeholder="e.g., My Awesome Store" variant="bordered" value={newName} onValueChange={setNewName} radius="md" />
-                <Input label="Shop URL" placeholder="[https://example.com](https://example.com)" variant="bordered" value={newUrl} onValueChange={setNewUrl} radius="md" />
+                <Input label="Shop URL" placeholder="https://example.com" variant="bordered" value={newUrl} onValueChange={setNewUrl} radius="md" />
               </ModalBody>
               <ModalFooter>
                 <Button variant="flat" color="default" onPress={onCloseModalCallback} radius="md">Cancel</Button>
