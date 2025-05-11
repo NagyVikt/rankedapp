@@ -7,8 +7,8 @@ export const siteConfig = {
     {
       label: "Playground",
       href: "/",
+      icon: "lucide:layout-grid", // Example icon
     },
-  
     {
       label: "Pricing",
       href: "/pricing",
