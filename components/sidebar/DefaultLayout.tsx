@@ -12,8 +12,8 @@ interface DefaultLayoutProps {
 }
 
 // Define constants for tailwind classes to ensure consistency
-const SIDEBAR_WIDTH_CLASS = 'w-64'; // Corresponds to 16rem or 256px
-const MAIN_CONTENT_MARGIN_LEFT_CLASS_OPEN = 'md:ml-64'; // Margin for main content when sidebar is open (matches sidebar width on md+)
+const SIDEBAR_WIDTH_CLASS = 'w-80'; // Corresponds to 16rem or 256px
+const MAIN_CONTENT_MARGIN_LEFT_CLASS_OPEN = 'md:ml-80'; // Margin for main content when sidebar is open (matches sidebar width on md+)
 const MAIN_CONTENT_MARGIN_LEFT_CLASS_CLOSED = 'md:ml-0'; // No margin when sidebar is closed
 const TRANSITION_DURATION_CLASS = 'duration-300'; // Tailwind class for 300ms transition
 
@@ -38,7 +38,7 @@ export default function DefaultLayout({ children, disableMarginShift = false }: 
             aria-label="Expand sidebar"
             onPress={toggleSidebar}
           >
-            <Icon icon="mdi:chevron-double-right" width={18} />
+            <Icon icon="mdi:chevron-double-right" width={22} />
           </Button>
         </Tooltip>
       )}
