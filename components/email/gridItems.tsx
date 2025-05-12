@@ -220,7 +220,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/marketing',
     blockId:     'marketing',
-    title:       'Marketing',
+    title:       'Cart template',
     count:       1,
     iconSvg:     marketingIconSvg,
     snippetHtml: marketingSnippetHtml,
@@ -230,7 +230,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/pricing',
     blockId:     'pricing',
-    title:       'Pricing',
+    title:       'Pricing template',
     count:       1,
     iconSvg:     pricingIconSvg,
     snippetHtml: pricingSnippetHtml,
@@ -240,7 +240,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/text',
     blockId:     'text',
-    title:       'Text',
+    title:       'Emoji template',
     count:       1,
     iconSvg:     textIconSvg,
     snippetHtml: textSnippetHtml,
