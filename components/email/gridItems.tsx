@@ -100,7 +100,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/gallery',
     blockId:     'gallery',
-    title:       'Gallery',
+    title:       'Christmas template',
     count:       4,
     iconSvg:     galleryIconSvg,
     snippetHtml: gallerySnippetHtml,
@@ -110,7 +110,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/ecommerce',
     blockId:     'ecommerce',
-    title:       'Ecommerce',
+    title:       'Thanksgiving template',
     count:       5,
     iconSvg:     ecommerceIconSvg,
     snippetHtml: ecommerceSnippetHtml,
@@ -120,7 +120,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/articles',
     blockId:     'articles',
-    title:       'Articles',
+    title:       'Labor Day template',
     count:       6,
     iconSvg:     articlesIconSvg,
     snippetHtml: articlesSnippetHtml,
@@ -130,7 +130,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/buttons',
     blockId:     'buttons',
-    title:       'Buttons',
+    title:       'Enviromental Impact template',
     count:       6,
     previewHtml: buttonsPreviewHtml,
     iconSvg:     buttonsIconSvg,
@@ -140,7 +140,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/headers',
     blockId:     'headers',
-    title:       'Headers',
+    title:       'Thank You template',
     count:       6,
     iconSvg:     headersIconSvg,
     snippetHtml: headersSnippetHtml,
@@ -150,7 +150,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/footers',
     blockId:     'footers',
-    title:       'Footers',
+    title:       'Gift template',
     count:       2,
     iconSvg:     footersIconSvg,
     snippetHtml: footersSnippetHtml,
@@ -160,7 +160,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/divider',
     blockId:     'divider',
-    title:       'Divider',
+    title:       'Doughnut template',
     count:       1,
     iconSvg:     dividerIconSvg,
     snippetHtml: dividerSnippetHtml,
@@ -170,7 +170,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/features',
     blockId:     'features',
-    title:       'Features',
+    title:       'Advanture template',
     count:       4,
     iconSvg:     featuresIconSvg,
     snippetHtml: featuresSnippetHtml,
@@ -180,7 +180,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/grid',
     blockId:     'grid',
-    title:       'Grid',
+    title:       '50% OFF template',
     count:       4,
     iconSvg:     gridIconSvg,
     snippetHtml: gridSnippetHtml,
@@ -190,7 +190,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/heading',
     blockId:     'heading',
-    title:       'Heading',
+    title:       'Lorem Ipsum template',
     count:       1,
     iconSvg:     headingIconSvg,
     snippetHtml: headingSnippetHtml,
@@ -200,7 +200,7 @@ export const gridItems: ComponentItem[] = [
   {
     href:        '/components/link',
     blockId:     'link',
-    title:       'Link',
+    title:       'Water template',
     count:       1,
     iconSvg:     linkIconSvg,
     snippetHtml: linkSnippetHtml,

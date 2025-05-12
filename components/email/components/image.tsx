@@ -1,6 +1,6 @@
 // components/gallery.tsx
 import React from 'react'
-import { galleryPreviewHtml } from '../previews/gallery'
+import { imagePreviewHtml } from '../previews/image'
 
 /**
  * This React component simply renders your snippet HTML
@@ -13,7 +13,7 @@ export default function ImageBlock() {
     <div
       // dangerouslySetInnerHTML is the easiest way to drop
       // raw HTML + inline styles straight into a React tree.
-      dangerouslySetInnerHTML={{ __html: galleryPreviewHtml }}
+      dangerouslySetInnerHTML={{ __html: imagePreviewHtml }}
     />
   )
 }
