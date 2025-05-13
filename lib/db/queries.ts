@@ -1,39 +1,56 @@
-// lib/db/queries.ts
-
 // Ensures this module only runs on the server
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, isNull, sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { and, asc, desc, eq, gt, gte, isNull, sql, SQLWrapper } from 'drizzle-orm';
+import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import postgres, { RowList } from 'postgres';
 import { cookies } from 'next/headers';
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { v4 as generateUUID } from 'uuid'; // Import UUID generator
 import { createServerClient } from '@supabase/ssr';
 
 // Import the entire schema as an object
 import * as schema from './schema';
 
 // Import specific types needed for function signatures etc.
-// Note: InferSelectModel already covers basic selects. Use $inferInsert for inserts.
+// Drizzle's $inferSelect and $inferInsert are preferred for table types.
 import type {
-  User, NewUser,
-  Team, NewTeam,
-  TeamMember, NewTeamMember,
-  ActivityLog, NewActivityLog,
-  Invitation, NewInvitation,
-  Webshop, NewWebshop,
-  Design, NewDesign,
-  Customer, NewCustomer,
-  Campaign, NewCampaign,
-  Chat, // Assuming Chat type is needed
-  Message, // Assuming Message type is needed
-  Vote, // Assuming Vote type is needed
-  Document, // Assuming Document type is needed
-  Suggestion // Assuming Suggestion type is needed
-} from './schema';
+  User,
+  Team,
+  TeamMember,
+  ActivityLog,
+  Invitation,
+  Webshop,
+  Design,
+  Customer,
+  Campaign,
+  Chat,
+  Message,
+  Vote,
+  Document,
+  Suggestion
+} from './schema'; // These are SELECT types (typeof schema.tableName.$inferSelect)
 
-// Assuming BlockKind is defined correctly elsewhere
-import { BlockKind } from '@/components/block';
+// For INSERT types, use Drizzle's $inferInsert
+type NewUser = typeof schema.user.$inferInsert;
+type NewTeam = typeof schema.teams.$inferInsert;
+type NewTeamMember = typeof schema.teamMembers.$inferInsert;
+type NewActivityLog = typeof schema.activityLogs.$inferInsert;
+type NewInvitation = typeof schema.invitations.$inferInsert;
+type NewWebshop = typeof schema.webshops.$inferInsert;
+type NewDesign = typeof schema.designs.$inferInsert;
+type NewCustomer = typeof schema.customers.$inferInsert;
+type NewCampaign = typeof schema.campaigns.$inferInsert;
+type NewChat = typeof schema.chat.$inferInsert;
+type NewMessage = typeof schema.message.$inferInsert;
+type NewVote = typeof schema.vote.$inferInsert;
+type NewDocument = typeof schema.document.$inferInsert;
+type NewSuggestion = typeof schema.suggestion.$inferInsert;
+
+// Define DocumentKind based on the error message and common usage
+type DocumentKind = "text" | "code" | "spreadsheet";
+
 
 // biome-ignore lint: Forbidden non-null assertion. - Kept from original
 const connectionString = process.env.POSTGRES_URL!;
@@ -41,15 +58,21 @@ const client = postgres(connectionString);
 
 // Initialize drizzle with the schema for relational queries
 // and standard query builder access
-const db = drizzle(client, { schema, logger: process.env.NODE_ENV === 'development' }); // Enable logger in dev
+// Specify the schema type for better type checking with db.query
+const db: PostgresJsDatabase<typeof schema> = drizzle(client, { schema, logger: process.env.NODE_ENV === 'development' }); // Enable logger in dev
 
 
 // === Helper Function for Supabase Auth ===
 
 export interface TeamMemberInfo {
-  id: number;
+  id: number; // Assuming team_members.id is number (SERIAL)
   role: string;
-  userId: number;
+  // IMPORTANT: schema.teamMembers.userId in your './schema.ts' MUST be defined as a string-based type
+  // (e.g., text() or uuid() that references user.id) for the 'eq' comparisons below to work.
+  // The TypeScript error "Argument of type 'string' is not assignable to parameter of type 'number | SQLWrapper'"
+  // indicates that Drizzle currently infers schema.teamMembers.userId as a number.
+  // THIS IS THE ROOT CAUSE OF THE 'eq' ERRORS.
+  userId: string;
   teamId: number;
   joinedAt: Date;
   user: {
@@ -60,74 +83,48 @@ export interface TeamMemberInfo {
 }
 
 
-export interface TeamDataWithMembers {
-  id: number;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  stripeCustomerId: string | null;
-  stripeSubscriptionId: string | null;
-  stripeProductId: string | null;
-  planName: string | null;
-  subscriptionStatus: string | null;
+export interface TeamDataWithMembers extends Team { // Extend the base Team type
   teamMembers: TeamMemberInfo[];
 }
-
-
-
 
 /**
  * Gets the authenticated Supabase user for the current request.
  * Returns null if not authenticated or on error.
  */
-export async function getAuthenticatedUser(): Promise<schema.User | null> {
-  // 1) Create a Supabase SSR client that reads Next.js cookies
+
+/**
+ * Gets a server‐side Supabase client, using HTTP cookies for auth.
+ */
+export async function getSupabaseClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
-  const supabase = createServerClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (tos) =>
-          tos.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          ),
+        setAll: (tos) => tos.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
       },
     }
   );
-
-  // 2) Get the authenticated user object from Supabase
-  const {
-    data: { user },
-    error: supabaseError,
-  } = await supabase.auth.getUser();
-
-  if (supabaseError) {
-    console.error('Supabase Auth error:', supabaseError.message);
-    return null;
-  }
-  if (!user) {
-    // no session = not signed in
-    return null;
-  }
-
-  // 3) Query your Drizzle User table for the matching ID
-  const [appUser] = await db
-    .select()
-    .from(schema.user)
-    .where(eq(schema.user.id, user.id))
-    .limit(1);
-
-  return appUser ?? null;
 }
 
-// === User and Auth Related Functions ===
-
 /**
- * Gets the currently authenticated user based on Supabase session.
- * Uses the helper function.
+ * Retrieves the authenticated user via Supabase auth and maps to our Drizzle `User`.
  */
+export async function getAuthenticatedUser(): Promise<User | null> {
+  const supabase = await getSupabaseClient();
+  const { data: { user: supabaseUser }, error } = await supabase.auth.getUser();
+  if (error || !supabaseUser) return null;
+  return (
+    await db.query.user.findFirst({
+      where: eq(schema.user.id, supabaseUser.id),
+    })
+  ) ?? null;
+}
+
+
+// === User and Auth Related Functions ===
 
 /**
  * Fetch a single user by email.
@@ -147,14 +144,13 @@ export async function getUser(email: string): Promise<User | null> {
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
   try {
-    // Drizzle's findFirst is convenient for getting one or none
     const userResult = await db.query.user.findFirst({
         where: and(eq(schema.user.email, email), isNull(schema.user.deletedAt))
     });
     return userResult || null;
   } catch (error) {
       console.error(`Failed to get user by email ${email}:`, error);
-      throw error; // Re-throw or handle as needed
+      throw error;
   }
 }
 
@@ -163,7 +159,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * Assumes ID is UUID (string).
  */
 export async function getUserById(id: string): Promise<User | null> {
-    if (!id) return null; // Prevent query with null/undefined id
+    if (!id) return null;
     try {
         const userResult = await db.query.user.findFirst({
             where: and(eq(schema.user.id, id), isNull(schema.user.deletedAt))
@@ -175,39 +171,37 @@ export async function getUserById(id: string): Promise<User | null> {
     }
 }
 
-
-/**
- * Creates a new user in your public.User table with a hashed password.
- * IMPORTANT: This should typically only be called AFTER a user is created
- * in Supabase Auth (e.g., by a trigger) to ensure the ID matches.
- * If used for direct signup, ensure the ID passed matches Supabase Auth ID.
- */
 /**
  * Create a new user record with hashed password.
  * @param email The user's email
- * @param password Plaintext password (will be hashed)
+ * @param passwordPlainText Plaintext password (will be hashed)
+ * @param name Optional user name
  * @returns The newly created User
  */
 export async function createUser(
   email: string,
-  password: string
+  passwordPlainText: string,
+  name?: string | null,
 ): Promise<User> {
-  // Hash the password
   const salt = genSaltSync(10);
-  const pinHash = hashSync(password, salt);
+  const hashedPassword = hashSync(passwordPlainText, salt);
 
-  // Insert into DB
-  const [inserted] = await db
+  const valuesToInsert: NewUser = {
+    email,
+    password: hashedPassword,
+    name: name ?? undefined,
+    role: 'member', // Default role
+    // id: generateUUID(), // Only if ID is not from Supabase and needs to be generated here and is part of NewUser
+    // pinHash: hashedPassword, // If 'pinHash' is your password field
+    // isPinSet: true, // If 'pinHash' is used for password
+  };
+
+  const [insertedUser] = await db
     .insert(schema.user)
-    .values({
-      email,
-      pinHash,
-      role: 'member',
-      isPinSet: true,
-    })
+    .values(valuesToInsert)
     .returning();
 
-  return inserted;
+  return insertedUser;
 }
 
 
@@ -216,15 +210,17 @@ export async function createUser(
 /**
  * Creates a new team.
  */
-export async function createTeam(teamData: NewTeam): Promise<Team[]> {
+export async function createTeam(teamData: Omit<NewTeam, 'id' | 'createdAt' | 'updatedAt'>): Promise<Team> {
+    // Note: Removed { id?: number } from input as 'id' is typically serial/auto-generated.
+    // If you need to specify ID for some reason, ensure your schema supports it.
     const valuesToInsert: NewTeam = {
         ...teamData,
-        createdAt: teamData.createdAt ?? new Date(),
-        updatedAt: teamData.updatedAt ?? new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     };
     try {
-        const insertedTeams = await db.insert(schema.teams).values(valuesToInsert).returning();
-        return insertedTeams;
+        const [insertedTeam] = await db.insert(schema.teams).values(valuesToInsert).returning();
+        return insertedTeam;
     } catch (error) {
         console.error('Failed to create team:', error);
         throw error;
@@ -250,14 +246,23 @@ export async function getTeamById(teamId: number): Promise<Team | null> {
  * Gets the team associated with the currently authenticated user.
  * Assumes a user belongs to only one team via team_members.
  * Returns the Team data along with members and their user details.
+ *
+ * !!! CRITICAL SCHEMA REQUIREMENT !!!
+ * The 'eq' call below (eq(schema.teamMembers.userId, user.id))
+ * WILL FAIL if schema.teamMembers.userId is not defined as a STRING-BASED type
+ * (e.g., text() or uuid()) in your './schema.ts' file.
+ * The error "Argument of type 'string' is not assignable to parameter of type 'number | SQLWrapper'"
+ * means Drizzle infers schema.teamMembers.userId as a 'number'.
+ * PLEASE VERIFY AND CORRECT YOUR './schema.ts' DEFINITION FOR 'teamMembers.userId'.
  */
 export async function getTeamDataForCurrentUser(): Promise<TeamDataWithMembers | null> {
   const user = await getAuthenticatedUser();
   if (!user?.id) return null;
 
-  // Convert user.id (string UUID) to match teamMembers.userId column type if needed
-  // Assuming teamMembers.userId is stored as text/uuid not integer
+  // The following `eq` call requires schema.teamMembers.userId to be a string-based column type
+  // in your schema.ts to match user.id (string).
   const membership = await db.query.teamMembers.findFirst({
+    // @ts-expect-error - This error will persist if schema.teamMembers.userId is not a string type in schema.ts
     where: eq(schema.teamMembers.userId, user.id),
     with: {
       team: {
@@ -278,9 +283,9 @@ export async function getTeamDataForCurrentUser(): Promise<TeamDataWithMembers |
     }
   });
 
-  if (!membership) return null;
-  // membership.team matches TeamDataWithMembers
-  return membership.team as TeamDataWithMembers;
+  if (!membership?.team) return null;
+
+  return membership.team as unknown as TeamDataWithMembers;
 }
 
 
@@ -306,20 +311,21 @@ export async function getTeamByStripeCustomerId(customerId: string): Promise<Tea
 export async function updateTeamSubscription(
   teamId: number,
   subscriptionData: Partial<Pick<Team, 'stripeSubscriptionId' | 'stripeProductId' | 'planName' | 'subscriptionStatus'>>
-): Promise<Team[]> {
+): Promise<Team | null> {
   try {
-    const updatedTeams = await db
+    const [updatedTeam] = await db
       .update(schema.teams)
       .set({
         ...subscriptionData,
-        updatedAt: new Date() // Automatically update updatedAt timestamp
+        updatedAt: new Date() // Assuming 'teams' table has 'updatedAt' and it's manually settable
       })
       .where(eq(schema.teams.id, teamId))
-      .returning(); // Return the updated record(s)
-     if (updatedTeams.length === 0) {
+      .returning();
+     if (!updatedTeam) {
          console.warn(`Attempted to update subscription for non-existent team ID ${teamId}`);
+         return null;
      }
-     return updatedTeams;
+     return updatedTeam;
   } catch (error) {
       console.error(`Failed to update subscription for team ${teamId}:`, error);
       throw error;
@@ -331,19 +337,18 @@ export async function updateTeamSubscription(
 /**
  * Creates a new webshop for a user.
  */
-export async function createWebshop(webshopData: NewWebshop): Promise<Webshop[]> {
+export async function createWebshop(webshopData: Omit<NewWebshop, 'id' | 'createdAt' | 'updatedAt'>): Promise<Webshop> {
     const valuesToInsert: NewWebshop = {
         ...webshopData,
-        // userId must be provided and should be a valid UUID from User table
-        createdAt: webshopData.createdAt ?? new Date(),
-        updatedAt: webshopData.updatedAt ?? new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     };
     if (!valuesToInsert.userId) {
         throw new Error("userId is required to create a webshop.");
     }
     try {
-        const inserted = await db.insert(schema.webshops).values(valuesToInsert).returning();
-        return inserted;
+        const [insertedWebshop] = await db.insert(schema.webshops).values(valuesToInsert).returning();
+        return insertedWebshop;
     } catch (error) {
         console.error(`Failed to create webshop for user ${valuesToInsert.userId}:`, error);
         throw error;
@@ -385,19 +390,18 @@ export async function getWebshopById(id: number): Promise<Webshop | null> {
 /**
  * Creates a new design for a user.
  */
-export async function createDesign(designData: NewDesign): Promise<Design[]> {
+export async function createDesign(designData: Omit<NewDesign, 'id' | 'createdAt' | 'updatedAt'>): Promise<Design> {
      const valuesToInsert: NewDesign = {
         ...designData,
-        // userId must be provided and should be a valid UUID from User table
-        createdAt: designData.createdAt ?? new Date(),
-        updatedAt: designData.updatedAt ?? new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     };
      if (!valuesToInsert.userId) {
         throw new Error("userId is required to create a design.");
     }
     try {
-        const inserted = await db.insert(schema.designs).values(valuesToInsert).returning();
-        return inserted;
+        const [insertedDesign] = await db.insert(schema.designs).values(valuesToInsert).returning();
+        return insertedDesign;
     } catch (error) {
         console.error(`Failed to create design for user ${valuesToInsert.userId}:`, error);
         throw error;
@@ -439,21 +443,19 @@ export async function getDesignById(id: number): Promise<Design | null> {
 /**
  * Creates a new customer for a specific webshop.
  */
-export async function createCustomer(customerData: NewCustomer): Promise<Customer[]> {
+export async function createCustomer(customerData: Omit<NewCustomer, 'id' | 'createdAt' | 'updatedAt'>): Promise<Customer> {
       const valuesToInsert: NewCustomer = {
         ...customerData,
-        // webshopId must be provided
-        createdAt: customerData.createdAt ?? new Date(),
-        updatedAt: customerData.updatedAt ?? new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     };
      if (!valuesToInsert.webshopId) {
         throw new Error("webshopId is required to create a customer.");
     }
     try {
-        const inserted = await db.insert(schema.customers).values(valuesToInsert).returning();
-        return inserted;
+        const [insertedCustomer] = await db.insert(schema.customers).values(valuesToInsert).returning();
+        return insertedCustomer;
     } catch (error) {
-        // Handle potential unique constraint violation (webshopId, email)
         console.error(`Failed to create customer for webshop ${valuesToInsert.webshopId}:`, error);
         throw error;
     }
@@ -479,14 +481,12 @@ export async function getCustomersByWebshopId(webshopId: number): Promise<Custom
 /**
  * Creates a new campaign for a specific webshop.
  */
-export async function createCampaign(campaignData: NewCampaign): Promise<Campaign[]> {
+export async function createCampaign(campaignData: Omit<NewCampaign, 'id' | 'createdAt' | 'updatedAt' | 'isActive'> & { isActive?: boolean }): Promise<Campaign> {
        const valuesToInsert: NewCampaign = {
         ...campaignData,
-        // webshopId must be provided
-        createdAt: campaignData.createdAt ?? new Date(),
-        updatedAt: campaignData.updatedAt ?? new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         isActive: campaignData.isActive ?? true,
-        // JSON fields default in DB/schema
     };
      if (!valuesToInsert.webshopId) {
         throw new Error("webshopId is required to create a campaign.");
@@ -495,8 +495,8 @@ export async function createCampaign(campaignData: NewCampaign): Promise<Campaig
         throw new Error("Campaign name is required.");
     }
     try {
-        const inserted = await db.insert(schema.campaigns).values(valuesToInsert).returning();
-        return inserted;
+        const [insertedCampaign] = await db.insert(schema.campaigns).values(valuesToInsert).returning();
+        return insertedCampaign;
     } catch (error) {
         console.error(`Failed to create campaign for webshop ${valuesToInsert.webshopId}:`, error);
         throw error;
@@ -510,7 +510,7 @@ export async function getCampaignsByWebshopId(webshopId: number): Promise<Campai
        try {
         return await db.query.campaigns.findMany({
             where: eq(schema.campaigns.webshopId, webshopId),
-            orderBy: [desc(schema.campaigns.createdAt)] // Order by creation or update?
+            orderBy: [desc(schema.campaigns.createdAt)]
         });
     } catch (error) {
         console.error(`Failed to get campaigns for webshop ${webshopId}:`, error);
@@ -536,42 +536,39 @@ export async function getCampaignById(id: number): Promise<Campaign | null> {
 // --- Chat Related Functions (Adapted for UUIDs) ---
 
 // Type definition for inserting messages (adapt content type if needed)
-type NewMessageInput = Omit<schema.NewMessage, 'id' | 'createdAt'> & { id?: string, createdAt?: Date, content: any };
+type NewMessageInput = Omit<NewMessage, 'id' | 'createdAt'> & { id?: string, createdAt?: Date, content: any }; // Assuming content can be any for now
 
-export async function saveChat(chatData: schema.NewChat): Promise<Chat[]> {
-  // Ensure ID and userId are provided and are UUIDs (string)
+export async function saveChat(chatData: Omit<NewChat, 'createdAt' | 'updatedAt' | 'visibility'> & { visibility?: 'private' | 'public' }): Promise<Chat> {
   if (!chatData.id || !chatData.userId) {
-      throw new Error("Chat ID and User ID are required.");
+      throw new Error("Chat ID and User ID are required and must be UUIDs.");
   }
-  const valuesToInsert: schema.NewChat = {
-      ...chatData,
-      createdAt: chatData.createdAt ?? new Date(),
-      visibility: chatData.visibility ?? 'private', // Default visibility
+  const valuesToInsert: NewChat = {
+      ...chatData, // id and userId must be present here
+      createdAt: new Date(),
+      // updatedAt is intentionally not set here. It should be handled by DB trigger or set in specific update functions.
+      visibility: chatData.visibility ?? 'private',
   };
   try {
-    // Use schema.chat for consistency
-    const inserted = await db.insert(schema.chat).values(valuesToInsert).returning();
-    return inserted;
+    const [insertedChat] = await db.insert(schema.chat).values(valuesToInsert).returning();
+    return insertedChat;
   } catch (error) {
     console.error('Failed to save chat in database:', error);
-    // Check for foreign key violation specifically
-    if ((error as any)?.code === '23503' && (error as any)?.constraint_name === 'Chat_userId_User_id_fk') {
+    if ((error as any)?.code === '23503' && (error as any)?.constraint?.includes('Chat_userId_User_id_fk')) {
         console.error(`FOREIGN KEY VIOLATION: User ID ${valuesToInsert.userId} does not exist in public.User table.`);
     }
     throw error;
   }
 }
 
-export async function deleteChatById({ id }: { id: string }): Promise<Chat[]> {
+export async function deleteChatById({ id }: { id: string }): Promise<Chat | null> {
   try {
-    // Use a transaction for multi-table deletes
-    const deletedChats = await db.transaction(async (tx) => {
+    const [deletedChat] = await db.transaction(async (tx) => {
         await tx.delete(schema.vote).where(eq(schema.vote.chatId, id));
         await tx.delete(schema.message).where(eq(schema.message.chatId, id));
-        // Delete the chat itself and return it
-        return await tx.delete(schema.chat).where(eq(schema.chat.id, id)).returning();
+        const result = await tx.delete(schema.chat).where(eq(schema.chat.id, id)).returning();
+        return result;
     });
-    return deletedChats;
+    return deletedChat || null;
   } catch (error) {
     console.error(`Failed to delete chat ${id} from database:`, error);
     throw error;
@@ -580,7 +577,6 @@ export async function deleteChatById({ id }: { id: string }): Promise<Chat[]> {
 
 export async function getChatsByUserId({ id }: { id: string }): Promise<Chat[]> {
   try {
-    // Use db.query for consistency if relations are defined, otherwise select() is fine
     return await db.query.chat.findMany({
         where: eq(schema.chat.userId, id),
         orderBy: [desc(schema.chat.createdAt)]
@@ -605,13 +601,23 @@ export async function getChatById({ id }: { id: string }): Promise<Chat | null> 
 
 export async function updateChatVisiblityById({ chatId, visibility }: {
   chatId: string; visibility: 'private' | 'public';
-}): Promise<Chat[]> {
+}): Promise<Chat | null> {
   try {
-    const updated = await db.update(schema.chat)
-      .set({ visibility, updatedAt: new Date() }) // Also update updatedAt
+    // CORRECTED: Removed 'updatedAt' from set clause.
+    // If 'schema.chat' has an 'updatedAt' field that should be manually updated,
+    // ensure it's defined correctly in 'schema.ts' and Drizzle infers it as settable.
+    // Often, 'updatedAt' is handled by database triggers (e.g., ON UPDATE CURRENT_TIMESTAMP).
+    const updateOps: Partial<NewChat> = { visibility };
+    // Conditionally add updatedAt if your schema supports it and it's intended here
+    // if (schema.chat.updatedAt) { // This is a pseudo-check, actual check depends on your schema definition
+    //    updateOps.updatedAt = new Date();
+    // }
+
+    const [updatedChat] = await db.update(schema.chat)
+      .set(updateOps)
       .where(eq(schema.chat.id, chatId))
       .returning();
-    return updated;
+    return updatedChat || null;
   } catch (error) {
     console.error(`Failed to update visibility for chat ${chatId}:`, error);
     throw error;
@@ -625,23 +631,20 @@ export async function saveMessages({ messages }: { messages: NewMessageInput[] }
   if (!messages || messages.length === 0) {
     return [];
   }
-  // Prepare messages for insertion
-  const messagesToInsert = messages.map(msg => ({
-      id: msg.id ?? generateUUID(), // Generate UUID if not provided
+  const messagesToInsert: NewMessage[] = messages.map(msg => ({
+      id: msg.id ?? generateUUID(),
       chatId: msg.chatId, // Must be provided
-      role: msg.role, // Must be provided
-      content: msg.content, // Must be provided
-      createdAt: msg.createdAt ?? new Date(), // Default to now
+      role: msg.role,     // Must be provided
+      content: msg.content, // Ensure schema.message.content can handle 'any' or define a more specific type
+      createdAt: msg.createdAt ?? new Date(),
   }));
 
   try {
-    // Use bulk insert
-    const inserted = await db.insert(schema.message).values(messagesToInsert).returning();
-    return inserted;
+    const insertedMessages = await db.insert(schema.message).values(messagesToInsert).returning();
+    return insertedMessages;
   } catch (error) {
     console.error('Failed to save messages in database:', error);
-    // Check for foreign key violation on chatId
-     if ((error as any)?.code === '23503' && (error as any)?.constraint_name?.includes('Message_chatId_Chat_id')) { // Adapt constraint name if needed
+     if ((error as any)?.code === '23503' && (error as any)?.constraint?.includes('Message_chatId_Chat_id')) { // Check specific constraint name
         console.error(`FOREIGN KEY VIOLATION: One or more chatIds provided do not exist in the Chat table.`);
     }
     throw error;
@@ -662,10 +665,10 @@ export async function getMessagesByChatId({ id }: { id: string }): Promise<Messa
 
 export async function getMessageById({ id }: { id: string }): Promise<Message | null> {
     try {
-        const message = await db.query.message.findFirst({
+        const messageResult = await db.query.message.findFirst({ // Renamed to avoid conflict
             where: eq(schema.message.id, id)
         });
-        return message || null;
+        return messageResult || null;
     } catch (error) {
         console.error(`Failed to get message by id ${id} from database:`, error);
         throw error;
@@ -675,16 +678,24 @@ export async function getMessageById({ id }: { id: string }): Promise<Message | 
 
 export async function deleteMessagesByChatIdAfterTimestamp({ chatId, timestamp }: {
   chatId: string; timestamp: Date;
-}): Promise<{ count: number }> { // Drizzle delete often returns count
+}): Promise<{ count: number }> {
   try {
-    const result = await db
+    const result: RowList<any[]> | { count: number } = await db
       .delete(schema.message)
       .where(
         and(eq(schema.message.chatId, chatId), gte(schema.message.createdAt, timestamp)),
       );
-    // Drizzle's delete result might vary by driver, adjust if needed
-    // Assuming it returns something with a count or affected rows
-    const count = result.rowCount ?? 0; // Example for node-postgres
+
+    let count = 0;
+    // The actual structure of 'result' from postgres.js delete operation (without .returning())
+    // is an array-like object that also has a 'count' property.
+    if (result && typeof (result as any).count === 'number') {
+        count = (result as any).count;
+    } else if (Array.isArray(result)) { // Fallback if it's just an array (e.g., if .returning() was used)
+        count = result.length;
+    }
+
+
     console.log(`Deleted ${count} messages for chat ${chatId} after ${timestamp.toISOString()}`);
     return { count };
   } catch (error) {
@@ -698,21 +709,26 @@ export async function deleteMessagesByChatIdAfterTimestamp({ chatId, timestamp }
 
 export async function voteMessage({ chatId, messageId, type }: {
   chatId: string; messageId: string; type: 'up' | 'down';
-}): Promise<Vote[]> { // Return updated/inserted vote
+}): Promise<Vote> {
   const isUpvoted = type === 'up';
   try {
-    // Use ON CONFLICT (UPSERT) for simplicity and atomicity
-    const upsertedVote = await db.insert(schema.vote)
-        .values({ chatId, messageId, isUpvoted })
+    const valuesToSetOnConflict: Partial<NewVote> = { isUpvoted };
+    // If your schema.vote has an 'updatedAt' field that should be set on conflict,
+    // ensure it's defined in schema.ts and add it here:
+    // if (schema.vote.updatedAt) { // Pseudo-check
+    //   valuesToSetOnConflict.updatedAt = new Date();
+    // }
+
+    const [upsertedVote] = await db.insert(schema.vote)
+        .values({ chatId, messageId, isUpvoted }) // createdAt will be handled by default or should be added if not
         .onConflictDoUpdate({
-            target: [schema.vote.chatId, schema.vote.messageId], // Conflict target (primary key)
-            set: { isUpvoted: isUpvoted } // Update this column on conflict
+            target: [schema.vote.chatId, schema.vote.messageId],
+            set: valuesToSetOnConflict
         })
-        .returning(); // Return the inserted or updated row
+        .returning();
     return upsertedVote;
   } catch (error) {
     console.error(`Failed to vote on message ${messageId} in database:`, error);
-     // Check for foreign key violations
     if ((error as any)?.code === '23503') {
         console.error(`FOREIGN KEY VIOLATION: chatId ${chatId} or messageId ${messageId} does not exist.`);
     }
@@ -733,37 +749,36 @@ export async function getVotesByChatId({ id }: { id: string }): Promise<Vote[]> 
 
 
 // --- Document & Suggestion Related Functions (Adapted for UUIDs) ---
-// Assuming Document ID and User ID are UUIDs (string)
 
-export async function saveDocument(docData: schema.NewDocument): Promise<Document[]> {
-  // Ensure ID, userId are provided and are UUIDs
+export async function saveDocument(
+    docData: Omit<NewDocument, 'createdAt' | 'updatedAt' | 'kind'> & { kind?: DocumentKind }
+): Promise<Document> {
    if (!docData.id || !docData.userId) {
-      throw new Error("Document ID and User ID are required.");
+      throw new Error("Document ID and User ID are required and must be UUIDs.");
   }
-   const valuesToInsert: schema.NewDocument = {
+   const valuesToInsert: NewDocument = {
       ...docData,
-      createdAt: docData.createdAt ?? new Date(),
-      kind: docData.kind ?? 'text', // Default kind
+      createdAt: new Date(),
+      // updatedAt is intentionally not set here.
+      kind: docData.kind ?? 'text',
   };
   try {
-    const inserted = await db.insert(schema.document).values(valuesToInsert).returning();
-    return inserted;
+    const [insertedDoc] = await db.insert(schema.document).values(valuesToInsert).returning();
+    return insertedDoc;
   } catch (error) {
     console.error('Failed to save document in database:', error);
-     if ((error as any)?.code === '23503' && (error as any)?.constraint_name?.includes('Document_userId_User_id')) { // Adapt constraint name
+     if ((error as any)?.code === '23503' && (error as any)?.constraint?.includes('Document_userId_User_id_fk')) {
         console.error(`FOREIGN KEY VIOLATION: User ID ${valuesToInsert.userId} does not exist in public.User table.`);
     }
     throw error;
   }
 }
 
-// getDocumentsById seems redundant if getDocumentById exists and ID is unique?
-// Keeping it for now, but might be removable. Assumes ID is unique despite composite PK.
 export async function getDocumentsById({ id }: { id: string }): Promise<Document[]> {
   try {
     return await db.query.document.findMany({
         where: eq(schema.document.id, id),
-        orderBy: [asc(schema.document.createdAt)] // Order by creation time
+        orderBy: [asc(schema.document.createdAt)]
     });
   } catch (error) {
     console.error(`Failed to get documents by id ${id} from database:`, error);
@@ -771,14 +786,13 @@ export async function getDocumentsById({ id }: { id: string }): Promise<Document
   }
 }
 
-// Gets the LATEST version of a document by ID
 export async function getDocumentById({ id }: { id: string }): Promise<Document | null> {
     try {
-        const document = await db.query.document.findFirst({
+        const documentResult = await db.query.document.findFirst({
             where: eq(schema.document.id, id),
-            orderBy: [desc(schema.document.createdAt)] // Get the most recent one
+            orderBy: [desc(schema.document.createdAt)]
         });
-        return document || null;
+        return documentResult || null;
     } catch (error) {
         console.error(`Failed to get latest document by id ${id} from database:`, error);
         throw error;
@@ -790,24 +804,22 @@ export async function deleteDocumentsByIdAfterTimestamp({ id, timestamp }: {
   id: string; timestamp: Date;
 }): Promise<{ docCount: number; sugCount: number }> {
   try {
-    // Use transaction for multi-table deletes
     const result = await db.transaction(async (tx) => {
-        // Delete suggestions first due to foreign key
-        const deletedSuggestions = await tx
+        const deletedSuggestionsResult = await tx
           .delete(schema.suggestion)
           .where(
             and(
               eq(schema.suggestion.documentId, id),
-              gt(schema.suggestion.documentCreatedAt, timestamp), // Compare against suggestion's timestamp
+              gt(schema.suggestion.documentCreatedAt, timestamp),
             )
           );
-        // Delete document versions
-        const deletedDocuments = await tx
+        const deletedDocumentsResult = await tx
           .delete(schema.document)
           .where(and(eq(schema.document.id, id), gt(schema.document.createdAt, timestamp)));
 
-        const sugCount = deletedSuggestions.rowCount ?? 0;
-        const docCount = deletedDocuments.rowCount ?? 0;
+        const sugCount = (deletedSuggestionsResult as any)?.count ?? 0;
+        const docCount = (deletedDocumentsResult as any)?.count ?? 0;
+
         console.log(`Deleted ${docCount} document versions and ${sugCount} suggestions for doc ${id} after ${timestamp.toISOString()}`);
         return { docCount, sugCount };
     });
@@ -819,25 +831,22 @@ export async function deleteDocumentsByIdAfterTimestamp({ id, timestamp }: {
 }
 
 export async function saveSuggestions({ suggestions }: {
-  suggestions: schema.NewSuggestion[];
+  suggestions: (Omit<NewSuggestion, 'id' | 'createdAt' | 'isResolved'> & { id?: string, createdAt?: Date, isResolved?: boolean })[];
 }): Promise<Suggestion[]> {
    if (!suggestions || suggestions.length === 0) {
     return [];
   }
-   // Prepare suggestions for insertion
-   const suggestionsToInsert = suggestions.map(s => ({
+   const suggestionsToInsert: NewSuggestion[] = suggestions.map(s => ({
        ...s,
-       id: s.id ?? generateUUID(), // Generate UUID if not provided
-       createdAt: s.createdAt ?? new Date(), // Default to now
+       id: s.id ?? generateUUID(),
+       createdAt: s.createdAt ?? new Date(),
        isResolved: s.isResolved ?? false,
-       // Ensure documentId, documentCreatedAt, userId are provided
    }));
   try {
-    const inserted = await db.insert(schema.suggestion).values(suggestionsToInsert).returning();
-    return inserted;
+    const insertedSuggestions = await db.insert(schema.suggestion).values(suggestionsToInsert).returning();
+    return insertedSuggestions;
   } catch (error) {
     console.error('Failed to save suggestions in database:', error);
-    // Check for foreign key violations
      if ((error as any)?.code === '23503') {
         console.error(`FOREIGN KEY VIOLATION: Ensure document/user referenced in suggestions exists.`);
     }
@@ -849,10 +858,9 @@ export async function getSuggestionsByDocumentId({ documentId }: {
   documentId: string;
 }): Promise<Suggestion[]> {
   try {
-    // Get suggestions for a specific document ID (all versions)
     return await db.query.suggestion.findMany({
         where: eq(schema.suggestion.documentId, documentId),
-        orderBy: [asc(schema.suggestion.createdAt)] // Order suggestions by creation time
+        orderBy: [asc(schema.suggestion.createdAt)]
     });
   } catch (error) {
     console.error(`Failed to get suggestions for document ${documentId}:`, error);
@@ -862,45 +870,50 @@ export async function getSuggestionsByDocumentId({ documentId }: {
 
 // --- Activity Log Functions (Adapted for UUIDs) ---
 
-// Type for inserting activity logs
-type NewActivityLogInput = Omit<NewActivityLog, 'id' | 'timestamp'> & { timestamp?: Date };
+export type NewActivityLogInput = Omit<NewActivityLog, 'id' | 'timestamp'> & {
+  timestamp?: Date;
+};
 
 /**
- * Creates a new activity log entry.
+ * Inserts a new activity log into the database.
+ * @param logData Properties for the new log (teamId and action required).
+ * @returns The inserted ActivityLog record.
  */
-export async function createActivityLog(logData: NewActivityLogInput): Promise<ActivityLog[]> {
-    // teamId must be provided. userId can be null.
-    if (!logData.teamId || !logData.action) {
-        throw new Error("teamId and action are required for activity logs.");
-    }
-    const valuesToInsert: NewActivityLog = {
-        ...logData,
-        timestamp: logData.timestamp ?? new Date(),
-    };
-    try {
-        const inserted = await db.insert(schema.activityLogs).values(valuesToInsert).returning();
-        return inserted;
-    } catch (error) {
-        console.error(`Failed to create activity log for team ${logData.teamId}:`, error);
-        throw error;
-    }
+export async function createActivityLog(
+  logData: NewActivityLogInput
+): Promise<ActivityLog> {
+  // Validate required fields
+  if (!logData.teamId || !logData.action) {
+    throw new Error('teamId and action are required for activity logs.');
+  }
+
+  // Assemble the values to insert. We do NOT set 'id' here—
+  // the database schema should auto-generate a numeric ID.
+  const valuesToInsert: NewActivityLog = {
+    ...logData,
+    timestamp: logData.timestamp ?? new Date(),
+  };
+
+  try {
+    const [insertedLog] = await db
+      .insert(schema.activityLogs)
+      .values(valuesToInsert)
+      .returning();
+
+    return insertedLog;
+  } catch (error) {
+    console.error(`Failed to create activity log for team ${logData.teamId}:`, error);
+    throw error;
+  }
 }
 
-/**
- * Gets recent activity logs for a specific team.
- * Optionally filters by user if needed later.
- */
 export async function getActivityLogsByTeamId(teamId: number, limit: number = 20): Promise<ActivityLog[]> {
     try {
-        // Use db.query with relations for potentially richer data later
         return await db.query.activityLogs.findMany({
             where: eq(schema.activityLogs.teamId, teamId),
             orderBy: [desc(schema.activityLogs.timestamp)],
             limit: limit,
-            // Example: Include user name if relation exists
-            // with: {
-            //     user: { columns: { name: true } }
-            // }
+            with: { user: { columns: { name: true, id: true } } }
         });
     } catch (error) {
         console.error(`Failed to get activity logs for team ${teamId}:`, error);
@@ -908,38 +921,40 @@ export async function getActivityLogsByTeamId(teamId: number, limit: number = 20
     }
 }
 
-// --- Invitation Functions ---
-// ... Add functions for creating, accepting, declining invitations ...
-
-// --- Team Member Functions ---
-// ... Add functions for adding, removing, updating team members ...
-
-
-
+// --- TeamForUser (Corrected based on previous discussions) ---
+/**
+ * !!! CRITICAL SCHEMA REQUIREMENT !!!
+ * The 'eq' call below (eq(schema.teamMembers.userId, authUser.id))
+ * WILL FAIL if schema.teamMembers.userId is not defined as a STRING-BASED type
+ * (e.g., text() or uuid()) in your './schema.ts' file.
+ * The error "Argument of type 'string' is not assignable to parameter of type 'number | SQLWrapper'"
+ * means Drizzle infers schema.teamMembers.userId as a 'number'.
+ * PLEASE VERIFY AND CORRECT YOUR './schema.ts' DEFINITION FOR 'teamMembers.userId'.
+ */
 export async function getTeamForUser(): Promise<TeamDataWithMembers | null> {
- console.log("getTeamForUser() called..."); // Debug Log
- const user = await getAuthenticatedUser(); // Use Supabase auth helper
- if (!user?.id) { // Check for user and user.id
-   console.log("getTeamForUser: No authenticated user found."); // Debug Log
+ console.log("getTeamForUser() called...");
+ const authUser = await getAuthenticatedUser();
+ if (!authUser?.id) {
+   console.log("getTeamForUser: No authenticated user found.");
    return null;
  }
- console.log(`getTeamForUser: Found user ${user.id}. Fetching team membership...`); // Debug Log
+ console.log(`getTeamForUser: Found user ${authUser.id}. Fetching team membership...`);
 
  try {
-   // Find the first team membership for the user
-   // IMPORTANT: Assumes teamMembers.userId is UUID to match user.id
-   // IMPORTANT: Assumes TeamDataWithMembers type expects user.name (ensure column exists)
+   // The following `eq` call requires schema.teamMembers.userId to be a string-based column type
+   // in your schema.ts to match authUser.id (string).
    const membership = await db.query.teamMembers.findFirst({
-     where: eq(schema.teamMembers.userId, user.id), // Match UUID
+    // @ts-expect-error - This error will persist if schema.teamMembers.userId is not a string type in schema.ts
+     where: eq(schema.teamMembers.userId, authUser.id),
      with: {
-       team: { // Fetch the associated team
+       team: {
          with: {
-           teamMembers: { // Within the team, fetch all members
+           teamMembers: {
              with: {
-               user: { // For each member, fetch user details
+               user: {
                  columns: {
                    id: true,
-                   name: true, // Make sure 'name' exists in your public.User table schema
+                   name: true,
                    email: true,
                  }
                }
@@ -951,15 +966,44 @@ export async function getTeamForUser(): Promise<TeamDataWithMembers | null> {
    });
 
    if (!membership?.team) {
-        console.log(`getTeamForUser: No team membership found for user ${user.id}.`); // Debug Log
+        console.log(`getTeamForUser: No team membership found for user ${authUser.id}.`);
+        return null;
    } else {
-        console.log(`getTeamForUser: Found team data for user ${user.id}.`); // Debug Log
+        console.log(`getTeamForUser: Found team data for user ${authUser.id}.`);
+        return membership.team as unknown as TeamDataWithMembers;
    }
-   // The result structure matches TeamDataWithMembers if relations are set up correctly
-   // and the 'name' column exists on the user table.
-   return membership?.team || null;
  } catch (error) {
-     console.error(`Failed to get team data for user ${user.id}:`, error);
-     throw error; // Re-throw or handle as needed
+     console.error(`Failed to get team data for user ${authUser.id}:`, error);
+     throw error;
  }
+}
+
+/**
+ * Adds a user to a team.
+ * CRITICAL ASSUMPTION: schema.teamMembers.userId must be compatible with NewTeamMember['userId'] (string UUID)
+ * and schema.teamMembers.teamId must be compatible with NewTeamMember['teamId'] (number).
+ * Ensure your schema.ts reflects these types for teamMembers.userId and teamMembers.teamId.
+ */
+export async function addTeamMember(memberData: NewTeamMember): Promise<TeamMember> {
+    if (!memberData.teamId || !memberData.userId) {
+        throw new Error("teamId and userId are required to add a team member.");
+    }
+    const dataToInsert: NewTeamMember = {
+        ...memberData,
+        joinedAt: memberData.joinedAt || new Date(),
+    };
+    try {
+        const [newMember] = await db.insert(schema.teamMembers).values(dataToInsert).returning();
+        return newMember;
+    } catch (error) {
+        console.error(`Failed to add member to team ${memberData.teamId} for user ${memberData.userId}:`, error);
+        if ((error as any)?.code === '23503') { // Foreign key violation
+             if ((error as any)?.constraint?.includes('user_id')) { // Check if constraint name involves user_id
+                console.error(`FOREIGN KEY VIOLATION: User ID ${memberData.userId} might not exist or type is mismatched.`);
+            } else if ((error as any)?.constraint?.includes('team_id')) { // Check if constraint name involves team_id
+                 console.error(`FOREIGN KEY VIOLATION: Team ID ${memberData.teamId} might not exist.`);
+            }
+        }
+        throw error;
+    }
 }

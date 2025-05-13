@@ -1,5 +1,5 @@
 {
-  "name": "ai-chatbot",
+  "name": "ranked",
   "version": "0.1.1",
   "private": true,
   "scripts": {
@@ -151,6 +151,7 @@
     "tailwindcss-animate": "^1.0.7",
     "unlayer2be": "^1.1.5",
     "usehooks-ts": "^3.1.0",
+    "uuid": "^11.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

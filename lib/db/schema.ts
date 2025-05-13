@@ -20,20 +20,21 @@ import { User } from 'lucide-react';
 
 
 
+
 export const user = pgTable('User', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  name: varchar('name', { length: 255 }), // Add this line
-  email: varchar('email', { length: 64 }).notNull(),
-  // --- Added PIN fields ---
-  pinHash: text('pinHash'), // Stores the hashed PIN (nullable if PIN is not set)
-  isPinSet: boolean('isPinSet').notNull().default(false), // Tracks if a PIN has been set
-  // ------------------------
-  role: varchar('role', { length: 20 }).notNull().default('member'),
-  createdAt: timestamp('createdAt').notNull().defaultNow(),
-  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
-  deletedAt: timestamp('deletedAt'),
-  // Add emailVerified column if it's missing from your original schema but used in actions.ts
-  emailVerified: timestamp('emailVerified'), // Stores timestamp of verification, null if not verified
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name'),
+  email: text('email').notNull().unique(),
+  // --- Ensure you have a password column defined ---
+  password: text('password').notNull(), // Add this line if missing
+  // -------------------------------------------------
+  pinHash: text('pinHash'),
+  isPinSet: boolean('isPinSet').default(false).notNull(),
+  role: text('role').default('user').notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date' }),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
 });
 
 
