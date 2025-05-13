@@ -146,7 +146,6 @@
     "recharts": "^2.15.3",
     "remark-gfm": "^4.0.0",
     "satori": "^0.12.2",
-
     "server-only": "^0.0.1",
     "sonner": "^1.5.0",
     "stripe": "latest",

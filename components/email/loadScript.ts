@@ -31,7 +31,7 @@ const runCallbacks = () => {
 
 export const loadScript = (
   callback: Function,
-  scriptUrl = defaultScriptUrl
+  scriptUrl = defaultScriptUrl,
 ) => {
   addCallback(callback);
 

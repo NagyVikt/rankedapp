@@ -15,6 +15,9 @@ if (!process.env.POSTGRES_URL) {
 const sql = postgres(process.env.POSTGRES_URL, { max: 1 });
 
 // 2. Pass the imported 'schema' to the drizzle function
-export const db = drizzle(sql, { schema: schema, logger: process.env.NODE_ENV === 'development' }); // Or just { schema } if using ES6 shorthand
+export const db = drizzle(sql, {
+  schema: schema,
+  logger: process.env.NODE_ENV === 'development',
+}); // Or just { schema } if using ES6 shorthand
 
 // Using `logger: process.env.NODE_ENV === 'development'` is also recommended for debugging during development

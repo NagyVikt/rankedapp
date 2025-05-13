@@ -51,13 +51,15 @@ const PurePreviewMessage = ({
     useDeepResearch();
 
   // Track sources from search and extract results
-  const [searchSources, setSearchSources] = useState<Array<{
-    title: string;
-    url: string;
-    description: string;
-    source: string;
-    relevance: number;
-  }>>([]);
+  const [searchSources, setSearchSources] = useState<
+    Array<{
+      title: string;
+      url: string;
+      description: string;
+      source: string;
+      relevance: number;
+    }>
+  >([]);
 
   useEffect(() => {
     if (message.toolInvocations) {
@@ -71,14 +73,19 @@ const PurePreviewMessage = ({
 
       message.toolInvocations.forEach((toolInvocation: any) => {
         try {
-          if (toolInvocation.toolName === 'search' && toolInvocation.state === 'result') {
-            const searchResults = toolInvocation.result.data.map((item: any, index: number) => ({
-              title: item.title,
-              url: item.url,
-              description: item.description,
-              source: new URL(item.url).hostname,
-              relevance: 1 - (index * 0.1), // Decrease relevance for each subsequent result
-            }));
+          if (
+            toolInvocation.toolName === 'search' &&
+            toolInvocation.state === 'result'
+          ) {
+            const searchResults = toolInvocation.result.data.map(
+              (item: any, index: number) => ({
+                title: item.title,
+                url: item.url,
+                description: item.description,
+                source: new URL(item.url).hostname,
+                relevance: 1 - index * 0.1, // Decrease relevance for each subsequent result
+              }),
+            );
             sources.push(...searchResults);
           }
         } catch (error) {
@@ -87,7 +94,7 @@ const PurePreviewMessage = ({
       });
 
       setSearchSources(sources);
-      sources.forEach(source => addSource(source));
+      sources.forEach((source) => addSource(source));
     }
   }, [message.toolInvocations, addSource]);
 

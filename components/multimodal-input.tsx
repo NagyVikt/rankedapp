@@ -75,7 +75,6 @@ function PureMultimodalInput({
   const { width } = useWindowSize();
   const { state: deepResearchState } = useDeepResearch();
 
-
   useEffect(() => {
     if (textareaRef.current) {
       adjustHeight();
@@ -241,14 +240,16 @@ function PureMultimodalInput({
       )}
 
       <div className="flex flex-col gap-2">
-        {searchMode === 'deep-research' && <DeepResearch
-          isActive={searchMode === 'deep-research'}
-          onToggle={() => {}}
-          isLoading={isLoading}
-          activity={deepResearchState.activity}
-          sources={deepResearchState.sources}
-          deepResearch={searchMode === 'deep-research'}
-        />}
+        {searchMode === 'deep-research' && (
+          <DeepResearch
+            isActive={searchMode === 'deep-research'}
+            onToggle={() => {}}
+            isLoading={isLoading}
+            activity={deepResearchState.activity}
+            sources={deepResearchState.sources}
+            deepResearch={searchMode === 'deep-research'}
+          />
+        )}
 
         <Textarea
           ref={textareaRef}
@@ -279,18 +280,21 @@ function PureMultimodalInput({
 
       <div className="absolute bottom-0 p-2 flex flex-row gap-2 justify-start items-center">
         <AttachmentsButton fileInputRef={fileInputRef} isLoading={isLoading} />
-        <Tabs value={searchMode} onValueChange={(value) => {
-          setSearchMode(value as SearchMode);
-        }}>
+        <Tabs
+          value={searchMode}
+          onValueChange={(value) => {
+            setSearchMode(value as SearchMode);
+          }}
+        >
           <TabsList className="bg-transparent border rounded-full p-1 h-fit">
-            <TabsTrigger 
-              value="search" 
+            <TabsTrigger
+              value="search"
               className="rounded-full px-3 py-1.5 h-fit flex items-center gap-2 data-[state=inactive]:bg-transparent data-[state=active]:bg-orange-50 hover:bg-orange-50/50 data-[state=active]:text-orange-600 border-0 data-[state=active]:shadow-none transition-colors"
             >
               <Search size={14} />
               Search
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="deep-research"
               className="rounded-full px-3 py-1.5 h-fit flex items-center gap-2 data-[state=inactive]:bg-transparent data-[state=active]:bg-orange-50 hover:bg-orange-50/50 data-[state=active]:text-orange-600 border-0 data-[state=active]:shadow-none transition-colors"
             >

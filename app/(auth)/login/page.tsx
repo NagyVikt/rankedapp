@@ -1,5 +1,5 @@
 // Ensure this directive is at the very top of the file
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -42,9 +42,12 @@ export default function LoginPageImproved() {
       toast.dismiss(loadingToastId);
       if (!res.ok) {
         // Attempt to parse error, provide fallback
-        const errorData = await res.json().catch(() => ({ error: 'Login failed. Please try again.' }));
-        const errorMessage = errorData?.error || `Login failed (Status: ${res.status})`;
-        console.error("Login API Error:", errorMessage);
+        const errorData = await res
+          .json()
+          .catch(() => ({ error: 'Login failed. Please try again.' }));
+        const errorMessage =
+          errorData?.error || `Login failed (Status: ${res.status})`;
+        console.error('Login API Error:', errorMessage);
         toast.error(errorMessage);
       } else {
         // Login successful via API route
@@ -61,31 +64,31 @@ export default function LoginPageImproved() {
         return; // Prevent setLoading(false) in finally block after successful redirect starts
       }
     } catch (error) {
-        toast.dismiss(loadingToastId);
-        console.error("Login submit fetch error:", error);
-        toast.error('An unexpected network error occurred. Please try again.');
+      toast.dismiss(loadingToastId);
+      console.error('Login submit fetch error:', error);
+      toast.error('An unexpected network error occurred. Please try again.');
     } finally {
-        // Only set loading false if not successful redirecting
-       if (!pathname.startsWith('/chat')) { // Avoid state update if redirect might have happened
-         setLoading(false);
-       }
+      // Only set loading false if not successful redirecting
+      if (!pathname.startsWith('/chat')) {
+        // Avoid state update if redirect might have happened
+        setLoading(false);
+      }
     }
   }
   // Placeholder handlers for social logins
   const handleGoogleLogin = () => {
     toast.loading('Redirecting to Google...');
     // Add your Google OAuth redirection logic here
-    console.log("Attempting Google login");
-     // Example: window.location.href = '/api/auth/google';
+    console.log('Attempting Google login');
+    // Example: window.location.href = '/api/auth/google';
   };
 
   const handleGithubLogin = () => {
     toast.loading('Redirecting to GitHub...');
     // Add your GitHub OAuth redirection logic here
-    console.log("Attempting GitHub login");
-     // Example: window.location.href = '/api/auth/github';
+    console.log('Attempting GitHub login');
+    // Example: window.location.href = '/api/auth/github';
   };
-
 
   return (
     // Provides context for toasts
@@ -133,7 +136,8 @@ export default function LoginPageImproved() {
               labelPlacement="outside" // Clearer label positioning
               autoComplete="current-password"
               type={showPassword ? 'text' : 'password'}
-              endContent={ // Using button for better accessibility & control
+              endContent={
+                // Using button for better accessibility & control
                 <button
                   className="focus:outline-none"
                   type="button"
@@ -141,7 +145,11 @@ export default function LoginPageImproved() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <Icon
-                    icon={showPassword ? 'solar:eye-closed-linear' : 'solar:eye-bold'}
+                    icon={
+                      showPassword
+                        ? 'solar:eye-closed-linear'
+                        : 'solar:eye-bold'
+                    }
                     className="pointer-events-none text-2xl text-default-400"
                   />
                 </button>
@@ -157,18 +165,20 @@ export default function LoginPageImproved() {
               >
                 Remember me
               </Checkbox>
-              <Link href="/forgot-password" size="sm"> {/* Use HeroUI Link */}
+              <Link href="/forgot-password" size="sm">
+                {' '}
+                {/* Use HeroUI Link */}
                 Forgot password?
               </Link>
             </div>
 
             {/* --- Submit Button --- */}
             <Button
-                color="primary"
-                type="submit"
-                isLoading={loading} // Use HeroUI loading state
-                fullWidth // Make button span full width
-                size="lg" // Larger button for primary action
+              color="primary"
+              type="submit"
+              isLoading={loading} // Use HeroUI loading state
+              fullWidth // Make button span full width
+              size="lg" // Larger button for primary action
             >
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
@@ -177,7 +187,9 @@ export default function LoginPageImproved() {
           {/* --- OR Divider --- */}
           <div className="flex items-center gap-4 py-2">
             <Divider className="flex-1" />
-            <p className="shrink-0 text-tiny font-medium text-default-500">OR CONTINUE WITH</p>
+            <p className="shrink-0 text-tiny font-medium text-default-500">
+              OR CONTINUE WITH
+            </p>
             <Divider className="flex-1" />
           </div>
 
@@ -193,7 +205,13 @@ export default function LoginPageImproved() {
               Continue with Google
             </Button>
             <Button
-              startContent={<Icon className="text-default-700" icon="fe:github" width={24} />} // Adjusted icon color
+              startContent={
+                <Icon
+                  className="text-default-700"
+                  icon="fe:github"
+                  width={24}
+                />
+              } // Adjusted icon color
               variant="bordered" // Consistent bordered style
               fullWidth
               onClick={handleGithubLogin}
@@ -206,7 +224,9 @@ export default function LoginPageImproved() {
           {/* --- Sign Up Link --- */}
           <p className="mt-4 text-center text-small">
             Need an account?&nbsp;
-            <Link href="/register" size="sm" className="font-medium"> {/* Use HeroUI Link */}
+            <Link href="/register" size="sm" className="font-medium">
+              {' '}
+              {/* Use HeroUI Link */}
               Sign Up
             </Link>
           </p>

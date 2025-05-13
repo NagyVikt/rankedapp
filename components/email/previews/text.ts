@@ -28,7 +28,6 @@ export const textPreviewHtml = `
   </div>
 `;
 
-
 export const textIconSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="32" viewBox="0 0 64 32">
   <defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -587,4 +586,3 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_4 .
 </html>
 
 `;
-

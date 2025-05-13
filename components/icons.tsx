@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { IconSvgProps } from "@/types";
+import { IconSvgProps } from '@/types';
 
 export const Logo: React.FC<IconSvgProps> = ({
   size = 36,
@@ -184,7 +184,6 @@ export const SearchIcon = (props: IconSvgProps) => (
       strokeWidth="2"
     />
   </svg>
-
 );
 
 import { SVGProps } from 'react';
@@ -1355,5 +1354,3 @@ export function ExternalLinkIcon({
     </svg>
   );
 }
-
-

@@ -1,7 +1,7 @@
 // app/api/auth/login/route.ts
-import { NextResponse }       from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { cookies }            from 'next/headers';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
@@ -12,16 +12,16 @@ export async function POST(req: Request) {
   // ② Create the Supabase client with cookie helpers
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,  // anon key is sufficient here
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // anon key is sufficient here
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (tos) =>
           tos.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            cookieStore.set(name, value, options),
           ),
       },
-    }
+    },
   );
 
   // ③ Sign in; Supabase will now set HTTP-only cookies on the response

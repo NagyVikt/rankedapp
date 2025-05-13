@@ -1,12 +1,12 @@
 // components/settings/WooConnectionItem.tsx
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from "@heroui/react";
-import { Icon as Iconify } from "@iconify/react";
-import { WooEntry } from "./WooCommerceTab";
+import React from 'react';
+import { Button } from '@heroui/react';
+import { Icon as Iconify } from '@iconify/react';
+import { WooEntry } from './WooCommerceTab';
 
-import type { Shop } from "@/lib/shops";
+import type { Shop } from '@/lib/shops';
 
 interface Props {
   entry: WooEntry;
@@ -22,11 +22,15 @@ export default function WooConnectionItem({ entry, shop, onRemove }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <p className="text-small font-medium">Consumer Key</p>
-          <div className="mt-1 p-2 bg-white rounded border">{mask(entry.consumerKey)}</div>
+          <div className="mt-1 p-2 bg-white rounded border">
+            {mask(entry.consumerKey)}
+          </div>
         </div>
         <div>
           <p className="text-small font-medium">Consumer Secret</p>
-          <div className="mt-1 p-2 bg-white rounded border">{mask(entry.consumerSecret)}</div>
+          <div className="mt-1 p-2 bg-white rounded border">
+            {mask(entry.consumerSecret)}
+          </div>
         </div>
         <div>
           <p className="text-small font-medium">Linked Shop</p>

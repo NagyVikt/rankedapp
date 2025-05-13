@@ -1,16 +1,16 @@
-import {DangerCircleSvg} from "./danger-circle";
-import {DefaultCircleSvg} from "./default-circle";
-import {SuccessCircleSvg} from "./success-circle";
-import {WarningCircleSvg} from "./warning-circle";
+import { DangerCircleSvg } from './danger-circle';
+import { DefaultCircleSvg } from './default-circle';
+import { SuccessCircleSvg } from './success-circle';
+import { WarningCircleSvg } from './warning-circle';
 
 export const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Inactive", uid: "inactive"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  { name: 'Active', uid: 'active' },
+  { name: 'Inactive', uid: 'inactive' },
+  { name: 'Paused', uid: 'paused' },
+  { name: 'Vacation', uid: 'vacation' },
 ] as const;
 
-export type StatusOptions = (typeof statusOptions)[number]["name"];
+export type StatusOptions = (typeof statusOptions)[number]['name'];
 
 export const statusColorMap: Record<StatusOptions, JSX.Element> = {
   Active: SuccessCircleSvg,
@@ -20,14 +20,14 @@ export const statusColorMap: Record<StatusOptions, JSX.Element> = {
 };
 
 type Teams =
-  | "Design"
-  | "Product"
-  | "Marketing"
-  | "Management"
-  | "Engineering"
-  | "Sales"
-  | "Support"
-  | "Other"
+  | 'Design'
+  | 'Product'
+  | 'Marketing'
+  | 'Management'
+  | 'Engineering'
+  | 'Sales'
+  | 'Support'
+  | 'Other'
   | (string & {});
 
 export type MemberInfo = {
@@ -46,139 +46,139 @@ export type Users = {
     icon: React.ReactNode;
   };
   role: string;
-  workerType: "Contractor" | "Employee";
+  workerType: 'Contractor' | 'Employee';
   status: StatusOptions;
   startDate: Date;
   teams: Teams[];
 };
 
 export type ColumnsKey =
-  | "workerID"
-  | "externalWorkerID"
-  | "memberInfo"
-  | "country"
-  | "role"
-  | "workerType"
-  | "status"
-  | "startDate"
-  | "teams"
-  | "actions";
+  | 'workerID'
+  | 'externalWorkerID'
+  | 'memberInfo'
+  | 'country'
+  | 'role'
+  | 'workerType'
+  | 'status'
+  | 'startDate'
+  | 'teams'
+  | 'actions';
 
 export const INITIAL_VISIBLE_COLUMNS: ColumnsKey[] = [
-  "workerID",
-  "externalWorkerID",
-  "memberInfo",
-  "country",
-  "role",
-  "workerType",
-  "status",
-  "startDate",
-  "teams",
-  "actions",
+  'workerID',
+  'externalWorkerID',
+  'memberInfo',
+  'country',
+  'role',
+  'workerType',
+  'status',
+  'startDate',
+  'teams',
+  'actions',
 ];
 
 export const columns = [
-  {name: "Worker ID", uid: "workerID"},
-  {name: "External Worker ID", uid: "externalWorkerID"},
-  {name: "Member", uid: "memberInfo", sortDirection: "ascending"},
-  {name: "Country", uid: "country"},
-  {name: "Role", uid: "role"},
-  {name: "Worker Type", uid: "workerType"},
-  {name: "Status", uid: "status", info: "The user's current status"},
-  {name: "Start Date", uid: "startDate", info: "The date the user started"},
-  {name: "Teams", uid: "teams"},
-  {name: "Actions", uid: "actions"},
+  { name: 'Worker ID', uid: 'workerID' },
+  { name: 'External Worker ID', uid: 'externalWorkerID' },
+  { name: 'Member', uid: 'memberInfo', sortDirection: 'ascending' },
+  { name: 'Country', uid: 'country' },
+  { name: 'Role', uid: 'role' },
+  { name: 'Worker Type', uid: 'workerType' },
+  { name: 'Status', uid: 'status', info: "The user's current status" },
+  { name: 'Start Date', uid: 'startDate', info: 'The date the user started' },
+  { name: 'Teams', uid: 'teams' },
+  { name: 'Actions', uid: 'actions' },
 ];
 
 const names = [
-  "Alice Johnson",
-  "Bob Smith",
-  "Charlie Brown",
-  "David Wilson",
-  "Eve Martinez",
-  "Frank Thompson",
-  "Grace Garcia",
-  "Hannah Lee",
-  "Isaac Anderson",
-  "Julia Roberts",
-  "Liam Williams",
-  "Mia White",
-  "Noah Harris",
-  "Olivia Martin",
-  "Peyton Jones",
-  "Quinn Taylor",
-  "Ryan Moore",
-  "Sophia Davis",
-  "Marcus Lopez",
-  "Uma Thomas",
-  "Victoria Jackson",
-  "William Green",
-  "Xavier Hill",
-  "Yara Scott",
-  "Zoe Baker",
-  "Aaron Carter",
-  "Bella Brown",
-  "Carter Black",
-  "Daisy Clark",
-  "Ethan Hunt",
-  "Fiona Apple",
-  "George King",
-  "Harper Knight",
-  "Ivy Lane",
-  "Jack Frost",
-  "Kylie Reed",
-  "Lucas Grant",
-  "Molly Shaw",
-  "Nathan Ford",
-  "Oliver Stone",
-  "Penelope Cruz",
-  "Quentin Cook",
-  "Ruby Fox",
-  "Sarah Miles",
-  "Travis Shaw",
-  "Ursula Major",
-  "Vera Mindy",
-  "Wesley Snipes",
-  "Xena Warrior",
-  "Yvette Fielding",
+  'Alice Johnson',
+  'Bob Smith',
+  'Charlie Brown',
+  'David Wilson',
+  'Eve Martinez',
+  'Frank Thompson',
+  'Grace Garcia',
+  'Hannah Lee',
+  'Isaac Anderson',
+  'Julia Roberts',
+  'Liam Williams',
+  'Mia White',
+  'Noah Harris',
+  'Olivia Martin',
+  'Peyton Jones',
+  'Quinn Taylor',
+  'Ryan Moore',
+  'Sophia Davis',
+  'Marcus Lopez',
+  'Uma Thomas',
+  'Victoria Jackson',
+  'William Green',
+  'Xavier Hill',
+  'Yara Scott',
+  'Zoe Baker',
+  'Aaron Carter',
+  'Bella Brown',
+  'Carter Black',
+  'Daisy Clark',
+  'Ethan Hunt',
+  'Fiona Apple',
+  'George King',
+  'Harper Knight',
+  'Ivy Lane',
+  'Jack Frost',
+  'Kylie Reed',
+  'Lucas Grant',
+  'Molly Shaw',
+  'Nathan Ford',
+  'Oliver Stone',
+  'Penelope Cruz',
+  'Quentin Cook',
+  'Ruby Fox',
+  'Sarah Miles',
+  'Travis Shaw',
+  'Ursula Major',
+  'Vera Mindy',
+  'Wesley Snipes',
+  'Xena Warrior',
+  'Yvette Fielding',
 ];
 
 const roles = [
-  "Software Engineer",
-  "Marketing Specialist",
-  "Human Resources Manager",
-  "Data Analyst",
-  "Project Manager",
-  "Sales Executive",
-  "Graphic Designer",
-  "Operations Coordinator",
-  "Product Manager",
-  "Customer Service Representative",
-  "Network Administrator",
-  "Quality Assurance Tester",
-  "Business Analyst",
-  "Content Writer",
-  "UX/UI Designer",
-  "Accountant",
-  "Supply Chain Analyst",
-  "Clinical Research Coordinator",
-  "Social Media Manager",
-  "Web Developer",
-  "SEO Specialist",
-  "Event Planner",
-  "Logistics Manager",
-  "Technical Support Specialist",
-  "Public Relations Officer",
-  "Compliance Officer",
-  "Financial Advisor",
-  "Environmental Scientist",
-  "Occupational Therapist",
-  "Real Estate Agent",
+  'Software Engineer',
+  'Marketing Specialist',
+  'Human Resources Manager',
+  'Data Analyst',
+  'Project Manager',
+  'Sales Executive',
+  'Graphic Designer',
+  'Operations Coordinator',
+  'Product Manager',
+  'Customer Service Representative',
+  'Network Administrator',
+  'Quality Assurance Tester',
+  'Business Analyst',
+  'Content Writer',
+  'UX/UI Designer',
+  'Accountant',
+  'Supply Chain Analyst',
+  'Clinical Research Coordinator',
+  'Social Media Manager',
+  'Web Developer',
+  'SEO Specialist',
+  'Event Planner',
+  'Logistics Manager',
+  'Technical Support Specialist',
+  'Public Relations Officer',
+  'Compliance Officer',
+  'Financial Advisor',
+  'Environmental Scientist',
+  'Occupational Therapist',
+  'Real Estate Agent',
 ];
 
 const countries = [
   {
-    name: "Argentina",
+    name: 'Argentina',
     icon: (
       <svg
         fill="none"
@@ -207,14 +207,19 @@ const countries = [
         </g>
         <defs>
           <clipPath id="clip0_3080_19703">
-            <rect fill="white" height="16" transform="translate(0 0.5)" width="16" />
+            <rect
+              fill="white"
+              height="16"
+              transform="translate(0 0.5)"
+              width="16"
+            />
           </clipPath>
         </defs>
       </svg>
     ),
   },
   {
-    name: "Portugal",
+    name: 'Portugal',
     icon: (
       <svg
         fill="none"
@@ -224,7 +229,14 @@ const countries = [
         xmlns="http://www.w3.org/2000/svg"
       >
         <g clipPath="url(#clip0_3080_19727)">
-          <mask height="17" id="mask0_3080_19727" maskUnits="userSpaceOnUse" width="16" x="0" y="0">
+          <mask
+            height="17"
+            id="mask0_3080_19727"
+            maskUnits="userSpaceOnUse"
+            width="16"
+            x="0"
+            y="0"
+          >
             <path d="M16 0.5H0V16.5H16V0.5Z" fill="white" />
           </mask>
           <g mask="url(#mask0_3080_19727)">
@@ -252,14 +264,19 @@ const countries = [
         </g>
         <defs>
           <clipPath id="clip0_3080_19727">
-            <rect fill="white" height="16" transform="translate(0 0.5)" width="16" />
+            <rect
+              fill="white"
+              height="16"
+              transform="translate(0 0.5)"
+              width="16"
+            />
           </clipPath>
         </defs>
       </svg>
     ),
   },
   {
-    name: "Germany",
+    name: 'Germany',
     icon: (
       <svg
         fill="none"
@@ -284,14 +301,19 @@ const countries = [
         </g>
         <defs>
           <clipPath id="clip0_3080_19754">
-            <rect fill="white" height="16" transform="translate(0 0.5)" width="16" />
+            <rect
+              fill="white"
+              height="16"
+              transform="translate(0 0.5)"
+              width="16"
+            />
           </clipPath>
         </defs>
       </svg>
     ),
   },
   {
-    name: "United States",
+    name: 'United States',
     icon: (
       <svg
         fill="none"
@@ -301,7 +323,14 @@ const countries = [
         xmlns="http://www.w3.org/2000/svg"
       >
         <g clipPath="url(#clip0_3080_19788)">
-          <mask height="17" id="mask0_3080_19788" maskUnits="userSpaceOnUse" width="16" x="0" y="0">
+          <mask
+            height="17"
+            id="mask0_3080_19788"
+            maskUnits="userSpaceOnUse"
+            width="16"
+            x="0"
+            y="0"
+          >
             <path d="M16 0.417969H0V16.418H16V0.417969Z" fill="white" />
           </mask>
           <g mask="url(#mask0_3080_19788)">
@@ -340,7 +369,7 @@ const countries = [
     ),
   },
   {
-    name: "China",
+    name: 'China',
     icon: (
       <svg
         fill="none"
@@ -377,7 +406,12 @@ const countries = [
         </g>
         <defs>
           <clipPath id="clip0_3080_19813">
-            <rect fill="white" height="16" transform="translate(0 0.5)" width="16" />
+            <rect
+              fill="white"
+              height="16"
+              transform="translate(0 0.5)"
+              width="16"
+            />
           </clipPath>
         </defs>
       </svg>
@@ -391,7 +425,8 @@ const generateMockUserData = (count: number): Users[] => {
   for (let i = 0; i < count; i++) {
     const selectedName = names[Math.floor(Math.random() * names.length)];
     const selectedRole = roles[Math.floor(Math.random() * roles.length)];
-    const selectedCountry = countries[Math.floor(Math.random() * countries.length)];
+    const selectedCountry =
+      countries[Math.floor(Math.random() * countries.length)];
 
     const user: Users = {
       id: i,
@@ -399,30 +434,32 @@ const generateMockUserData = (count: number): Users[] => {
       externalWorkerID: `EXT-${Math.floor(Math.random() * 1000)}`,
       memberInfo: {
         avatar: `https://i.pravatar.cc/150?img=${i}`,
-        email: `${selectedName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+        email: `${selectedName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
         name: selectedName,
       },
       country: selectedCountry,
       role: selectedRole,
-      workerType: Math.random() > 0.5 ? "Contractor" : "Employee",
+      workerType: Math.random() > 0.5 ? 'Contractor' : 'Employee',
       status:
         Math.random() > 0.5
-          ? "Active"
+          ? 'Active'
           : Math.random() > 0.5
-            ? "Paused"
+            ? 'Paused'
             : Math.random() > 0.5
-              ? "Vacation"
-              : "Inactive",
-      startDate: new Date(new Date().getTime() - Math.random() * (24 * 60 * 60 * 1000 * 40)),
+              ? 'Vacation'
+              : 'Inactive',
+      startDate: new Date(
+        new Date().getTime() - Math.random() * (24 * 60 * 60 * 1000 * 40),
+      ),
       teams: [
-        "Design",
-        "Product",
-        "Marketing",
-        "Management",
-        "Engineering",
-        "Sales",
-        "Support",
-        "Other",
+        'Design',
+        'Product',
+        'Marketing',
+        'Management',
+        'Engineering',
+        'Sales',
+        'Support',
+        'Other',
       ].filter(() => Math.random() > 0.5),
     };
 

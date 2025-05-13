@@ -3,6 +3,6 @@ const previewTabs = [
   'PNG (Satori + resvg-js)', // https://github.com/yisibl/resvg-js
   'PDF (Satori + PDFKit)',
   'HTML (Native)',
-]
+];
 
-export default previewTabs
+export default previewTabs;

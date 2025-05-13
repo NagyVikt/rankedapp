@@ -1,6 +1,6 @@
 // components/gallery.tsx
-import React from 'react'
-import { imagePreviewHtml } from '../previews/image'
+import React from 'react';
+import { imagePreviewHtml } from '../previews/image';
 
 /**
  * This React component simply renders your snippet HTML
@@ -15,5 +15,5 @@ export default function ImageBlock() {
       // raw HTML + inline styles straight into a React tree.
       dangerouslySetInnerHTML={{ __html: imagePreviewHtml }}
     />
-  )
+  );
 }

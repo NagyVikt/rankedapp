@@ -13,14 +13,14 @@ import { Icon } from '@iconify/react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail]           = useState('');
-  const [password, setPassword]     = useState('');
-  const [confirm, setConfirm]       = useState('');
-  const [showPassword, setShowPwd]  = useState(false);
-  const [showConfirm, setShowCnf]   = useState(false);
-  const [agree, setAgree]           = useState(false);
-  const [errorMessage, setError]    = useState<string | null>(null);
-  const [loading, setLoading]       = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPwd] = useState(false);
+  const [showConfirm, setShowCnf] = useState(false);
+  const [agree, setAgree] = useState(false);
+  const [errorMessage, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +56,9 @@ export default function RegisterPage() {
     } else {
       // Optionally, you can show a success message or redirect with a query param
       // For example, redirect to login with a message to check email for verification
-      router.push('/login?message=Registration successful! Please check your email to verify your account.');
+      router.push(
+        '/login?message=Registration successful! Please check your email to verify your account.',
+      );
     }
   };
 
@@ -107,7 +109,9 @@ export default function RegisterPage() {
                 className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <Icon
-                  icon={showPassword ? 'solar:eye-closed-bold' : 'solar:eye-bold'}
+                  icon={
+                    showPassword ? 'solar:eye-closed-bold' : 'solar:eye-bold'
+                  }
                   className="text-lg"
                 />
               </button>
@@ -132,7 +136,9 @@ export default function RegisterPage() {
                 className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <Icon
-                  icon={showConfirm ? 'solar:eye-closed-bold' : 'solar:eye-bold'}
+                  icon={
+                    showConfirm ? 'solar:eye-closed-bold' : 'solar:eye-bold'
+                  }
                   className="text-lg"
                 />
               </button>
@@ -148,11 +154,21 @@ export default function RegisterPage() {
             className="dark:text-gray-300"
           >
             I agree to the{' '}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+            >
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+            >
               Privacy Policy
             </a>
           </Checkbox>
@@ -171,7 +187,10 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{' '}
-          <a href="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+          <a
+            href="/login"
+            className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+          >
             Log In
           </a>
         </p>

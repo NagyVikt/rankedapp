@@ -11,7 +11,7 @@ export const CardBody = forwardRef<HTMLDivElement, CardProps>(
   function CardBodyWithRef(props, ref) {
     // RawCardBody must itself forward that ref to its root DOM node
     return <RawCardBody {...props} ref={ref} />;
-  }
+  },
 );
 
 CardBody.displayName = 'CardBody';

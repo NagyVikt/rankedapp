@@ -34,18 +34,21 @@ type DeleteState = {
 
 export default function SecurityPage() {
   // 3) Hook into the password‐update action
-  const [passwordState, passwordAction, isPasswordPending] =
-    useActionState<PasswordState, FormData>(
-      updatePassword,
-      { currentPassword: '', newPassword: '', confirmPassword: '', error: '' }
-    );
+  const [passwordState, passwordAction, isPasswordPending] = useActionState<
+    PasswordState,
+    FormData
+  >(updatePassword, {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    error: '',
+  });
 
   // 4) Hook into the delete‐account action
-  const [deleteState, deleteAction, isDeletePending] =
-    useActionState<DeleteState, FormData>(
-      deleteAccount,
-      { password: '', error: '' }
-    );
+  const [deleteState, deleteAction, isDeletePending] = useActionState<
+    DeleteState,
+    FormData
+  >(deleteAccount, { password: '', error: '' });
 
   return (
     <section className="flex-1 p-4 lg:p-8">

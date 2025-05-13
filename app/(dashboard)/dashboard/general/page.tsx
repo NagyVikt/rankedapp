@@ -3,13 +3,18 @@
 import React, { useActionState, Suspense } from 'react';
 import { Button } from '@/components/stripe/button'; // Assuming these are correct paths
 import { Input } from '@/components/stripe/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/stripe/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/stripe/card';
 import { Label } from '@/components/stripe/label';
 import { Loader2 } from 'lucide-react';
 import { updateAccount } from '@/app/(login)/actions'; // Assuming this is your server action
 import { User } from '@/lib/db/schema'; // Assuming this is your User type
 import useSWR from 'swr';
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Discriminated union for error vs success states
 export type ActionState =
@@ -67,12 +72,31 @@ function AccountFormWithData({ state }: { state: ActionState }) {
     return (
       <>
         <div>
-          <Label htmlFor="name" className="mb-2 block">Name</Label>
-          <Input id="name" name="name" defaultValue={state.name} disabled placeholder="Loading name..." className="w-full rounded-md" />
+          <Label htmlFor="name" className="mb-2 block">
+            Name
+          </Label>
+          <Input
+            id="name"
+            name="name"
+            defaultValue={state.name}
+            disabled
+            placeholder="Loading name..."
+            className="w-full rounded-md"
+          />
         </div>
         <div>
-          <Label htmlFor="email" className="mb-2 block">Email</Label>
-          <Input id="email" name="email" type="email" defaultValue={state.email} disabled placeholder="Loading email..." className="w-full rounded-md" />
+          <Label htmlFor="email" className="mb-2 block">
+            Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={state.email}
+            disabled
+            placeholder="Loading email..."
+            className="w-full rounded-md"
+          />
         </div>
       </>
     );
@@ -97,13 +121,13 @@ export default function GeneralPage() {
       email: user?.email ?? '',
       error: '',
     }),
-    [user?.name, user?.email]
+    [user?.name, user?.email],
   );
 
-  const [state, formAction, isPending] = useActionState<
-    ActionState,
-    FormData
-  >(updateAccount, initialActionState);
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
+    updateAccount,
+    initialActionState,
+  );
 
   return (
     <section className="flex-1 p-4 lg:p-8 bg-gray-50 dark:bg-neutral-900">
@@ -162,4 +186,3 @@ export default function GeneralPage() {
     </section>
   );
 }
-

@@ -5,11 +5,11 @@ import React, {
   createContext,
   useState,
   useContext,
-  useRef,        // Import useRef for timeout management
-  useEffect,     // Import useEffect for cleanup
-  useMemo,       // Import useMemo for optimization
+  useRef, // Import useRef for timeout management
+  useEffect, // Import useEffect for cleanup
+  useMemo, // Import useMemo for optimization
   ReactNode,
-  JSX // Import JSX for return type
+  JSX, // Import JSX for return type
 } from 'react';
 
 // --- Define Animation Duration ---
@@ -19,7 +19,7 @@ const ANIMATION_DURATION = 300; // milliseconds
 // --- Define the Context Type ---
 interface SidebarContextType {
   isSidebarOpen: boolean;
-  isAnimating: boolean;   // Add the animating state flag
+  isAnimating: boolean; // Add the animating state flag
   toggleSidebar: () => void;
   setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>; // Expose setter if needed directly
 }
@@ -30,7 +30,11 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 // --- Create the Provider Component ---
 // Explicitly define the return type as JSX.Element
-export function SidebarProvider({ children }: { children: ReactNode }): JSX.Element {
+export function SidebarProvider({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element {
   // State for sidebar visibility, default to closed
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // State to track if the sidebar is currently animating
@@ -49,7 +53,7 @@ export function SidebarProvider({ children }: { children: ReactNode }): JSX.Elem
     }
 
     setIsAnimating(true); // Set animating flag to true
-    setIsSidebarOpen(prev => !prev); // Toggle the actual open/closed state
+    setIsSidebarOpen((prev) => !prev); // Toggle the actual open/closed state
 
     // Set a timer to turn off the animating flag after the CSS transition completes
     animationTimeoutRef.current = setTimeout(() => {
@@ -71,18 +75,19 @@ export function SidebarProvider({ children }: { children: ReactNode }): JSX.Elem
 
   // --- Memoize Context Value ---
   // Prevents unnecessary re-renders of consumers if the value object reference hasn't changed
-  const value = useMemo(() => ({
-    isSidebarOpen,
-    isAnimating, // Include isAnimating in the context value
-    toggleSidebar,
-    setIsSidebarOpen
-  }), [isSidebarOpen, isAnimating, toggleSidebar]); // Add isAnimating and toggleSidebar as a dependency
+  const value = useMemo(
+    () => ({
+      isSidebarOpen,
+      isAnimating, // Include isAnimating in the context value
+      toggleSidebar,
+      setIsSidebarOpen,
+    }),
+    [isSidebarOpen, isAnimating, toggleSidebar],
+  ); // Add isAnimating and toggleSidebar as a dependency
 
   // --- Provide the Context ---
   return (
-    <SidebarContext.Provider value={value}>
-      {children}
-    </SidebarContext.Provider>
+    <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
   );
 }
 

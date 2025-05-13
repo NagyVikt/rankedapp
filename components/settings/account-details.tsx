@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import useSWR from 'swr';
@@ -18,21 +18,18 @@ import {
 import { Icon } from '@iconify/react';
 import countries from './countries'; // Assuming this file exists and exports country data
 
-
-
-
-
 // Define fetcher for SWR
 // This function fetches data from the given URL.
 // It includes credentials in the request and throws an error if the response is not ok.
-const fetcher = (url: string) => fetch(url, { credentials: 'include' }).then(r => {
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((r) => {
     if (!r.ok) {
-        // If the response status is not OK, throw an error.
-        throw new Error(`HTTP error! status: ${r.status}`);
+      // If the response status is not OK, throw an error.
+      throw new Error(`HTTP error! status: ${r.status}`);
     }
     // Otherwise, parse the response as JSON.
     return r.json();
-});
+  });
 
 // Define the User type more explicitly based on expected API response
 // This interface describes the structure of a user object.
@@ -42,14 +39,13 @@ interface User {
   role: string;
   avatarUrl?: string; // Optional: URL for the user's avatar image
   firstName?: string; // Optional: User's first name
-  lastName?: string;  // Optional: User's last name
+  lastName?: string; // Optional: User's last name
   phoneNumber?: string; // Optional: User's phone number
   countryCode?: string; // Optional: User's country code (e.g., 'US', 'GB')
-  state?: string;       // Optional: User's state or province
-  address?: string;     // Optional: User's street address
-  zipCode?: string;     // Optional: User's zip or postal code
+  state?: string; // Optional: User's state or province
+  address?: string; // Optional: User's street address
+  zipCode?: string; // Optional: User's zip or postal code
 }
-
 
 // Define your country type
 interface Country {
@@ -61,7 +57,9 @@ interface Country {
 
 // SimpleSkeleton component displays a placeholder for loading content.
 const SimpleSkeleton = ({ className }: { className?: string }) => (
-  <div className={`bg-gray-200 dark:bg-gray-700 rounded animate-pulse ${className}`}></div>
+  <div
+    className={`bg-gray-200 dark:bg-gray-700 rounded animate-pulse ${className}`}
+  ></div>
 );
 
 const CardX = Card as any;
@@ -76,84 +74,116 @@ const SimpleSkeletonX = SimpleSkeleton as any;
 const AvatarX = Avatar as any;
 const BadgeX = Badge as any;
 
-
 // AccountDetailsSkeleton component displays a structured placeholder for the account details section while loading.
 const AccountDetailsSkeleton = ({ className }: { className?: string }) => (
   // Apply className prop to the outer div
-  <div className={`space-y-6 max-w-xl p-2 ${className}`}> {/* Added max-w and padding to match card */}
+  <div className={`space-y-6 max-w-xl p-2 ${className}`}>
+    {' '}
+    {/* Added max-w and padding to match card */}
     {/* Header Skeleton */}
-    <div className="flex flex-col items-start px-4 pb-0 pt-4"> {/* Mimic CardHeader */}
-        <SimpleSkeletonX className="h-6 w-40 rounded mb-4" /> {/* Title "Account Details" */}
-        <div className="flex items-center gap-4 py-4">
-            <SimpleSkeletonX className="h-14 w-14 rounded-full" /> {/* Avatar placeholder */}
-            <div className="flex flex-col gap-1.5">
-                <SimpleSkeletonX className="h-5 w-32 rounded" /> {/* Name placeholder */}
-                <SimpleSkeletonX className="h-4 w-24 rounded" /> {/* Role placeholder */}
-            </div>
+    <div className="flex flex-col items-start px-4 pb-0 pt-4">
+      {' '}
+      {/* Mimic CardHeader */}
+      <SimpleSkeletonX className="h-6 w-40 rounded mb-4" />{' '}
+      {/* Title "Account Details" */}
+      <div className="flex items-center gap-4 py-4">
+        <SimpleSkeletonX className="h-14 w-14 rounded-full" />{' '}
+        {/* Avatar placeholder */}
+        <div className="flex flex-col gap-1.5">
+          <SimpleSkeletonX className="h-5 w-32 rounded" />{' '}
+          {/* Name placeholder */}
+          <SimpleSkeletonX className="h-4 w-24 rounded" />{' '}
+          {/* Role placeholder */}
         </div>
-        <SimpleSkeletonX className="h-4 w-3/4 rounded" /> {/* Description line placeholder */}
+      </div>
+      <SimpleSkeletonX className="h-4 w-3/4 rounded" />{' '}
+      {/* Description line placeholder */}
     </div>
-
     {/* Form Skeleton */}
-    <div className="space-y-4 px-4"> {/* Mimic CardBody padding */}
+    <div className="space-y-4 px-4">
+      {' '}
+      {/* Mimic CardBody padding */}
       {/* Row 1 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
       </div>
-       {/* Row 2 */}
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Row 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
-        </div>
-      </div>
-       {/* Row 3 */}
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
-        </div>
-        <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
       </div>
-       {/* Row 4 */}
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Row 3 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
         <div className="space-y-1.5">
-            <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-            <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
         </div>
       </div>
-       {/* Zip Code (Single Column) */}
-       <div className="w-full md:w-1/2 pr-2"> {/* Match grid gap */}
-         <div className="space-y-1.5">
-              <SimpleSkeletonX className="h-4 w-20 rounded" /> {/* Label placeholder */}
-              <SimpleSkeletonX className="h-10 w-full rounded" /> {/* Input placeholder */}
-          </div>
-       </div>
+      {/* Row 4 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
+        </div>
+        <div className="space-y-1.5">
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
+        </div>
+      </div>
+      {/* Zip Code (Single Column) */}
+      <div className="w-full md:w-1/2 pr-2">
+        {' '}
+        {/* Match grid gap */}
+        <div className="space-y-1.5">
+          <SimpleSkeletonX className="h-4 w-20 rounded" />{' '}
+          {/* Label placeholder */}
+          <SimpleSkeletonX className="h-10 w-full rounded" />{' '}
+          {/* Input placeholder */}
+        </div>
+      </div>
     </div>
-
-     {/* Buttons Skeleton */}
-     <div className="flex justify-end gap-2 pt-2 px-4 pb-4"> {/* Reduced top padding, added horizontal/bottom padding */}
-        <SimpleSkeletonX className="h-9 w-20 rounded-full" /> {/* Button placeholder */}
-        <SimpleSkeletonX className="h-9 w-28 rounded-full" /> {/* Button placeholder */}
-     </div>
+    {/* Buttons Skeleton */}
+    <div className="flex justify-end gap-2 pt-2 px-4 pb-4">
+      {' '}
+      {/* Reduced top padding, added horizontal/bottom padding */}
+      <SimpleSkeletonX className="h-9 w-20 rounded-full" />{' '}
+      {/* Button placeholder */}
+      <SimpleSkeletonX className="h-9 w-28 rounded-full" />{' '}
+      {/* Button placeholder */}
+    </div>
   </div>
 );
 // --- End Skeleton Components ---
@@ -162,7 +192,7 @@ const AccountDetailsSkeletonX = AccountDetailsSkeleton as any;
 
 // Define props if any are passed from a parent component (e.g., className for styling)
 interface AccountDetailsProps {
-    className?: string; // Optional className prop
+  className?: string; // Optional className prop
 }
 
 // AccountDetails component is the main component for displaying and editing user account information.
@@ -171,9 +201,9 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
   // It fetches from '/api/user' using the defined 'fetcher'.
   // 'suspense: false' means we handle loading state manually.
   const { data, error, mutate } = useSWR<{ user: User }>(
-      '/api/user', // API endpoint to fetch user data
-      fetcher,
-      { suspense: false } // Disable SWR suspense to manually handle loading states
+    '/api/user', // API endpoint to fetch user data
+    fetcher,
+    { suspense: false }, // Disable SWR suspense to manually handle loading states
   );
   const isLoading = !data && !error; // Determine loading state: true if no data and no error yet
   const user = data?.user; // Extract user object from the fetched data
@@ -212,7 +242,7 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
     preventDefaults(e);
     // Only set dragging to false if the mouse leaves the drop area entirely, not just child elements
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-        setIsDragging(false);
+      setIsDragging(false);
     }
   };
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -224,13 +254,14 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
     setIsDragging(false); // Reset dragging state
     const files = e.dataTransfer.files; // Get dropped files
     if (files && files.length > 0) {
-        const file = files[0];
-        if (file && file.type.startsWith('image/')) { // Check if the dropped file is an image
-            setSelectedFile(file);
-        } else {
-            alert("Please drop an image file."); // Alert if not an image
-            setSelectedFile(null);
-        }
+      const file = files[0];
+      if (file && file.type.startsWith('image/')) {
+        // Check if the dropped file is an image
+        setSelectedFile(file);
+      } else {
+        alert('Please drop an image file.'); // Alert if not an image
+        setSelectedFile(null);
+      }
     }
   };
 
@@ -238,16 +269,18 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-        const file = files[0];
-        if (file && file.type.startsWith('image/')) { // Check if selected file is an image
-            setSelectedFile(file);
-        } else {
-            alert("Please select an image file."); // Alert if not an image
-            setSelectedFile(null);
-            if (fileInputRef.current) { // Reset file input value
-                fileInputRef.current.value = "";
-            }
+      const file = files[0];
+      if (file && file.type.startsWith('image/')) {
+        // Check if selected file is an image
+        setSelectedFile(file);
+      } else {
+        alert('Please select an image file.'); // Alert if not an image
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          // Reset file input value
+          fileInputRef.current.value = '';
         }
+      }
     }
   };
 
@@ -259,8 +292,9 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
   // Handler to Remove Image Preview
   const handleRemovePreview = () => {
     setSelectedFile(null); // Clear selected file
-    if (fileInputRef.current) { // Reset file input value
-        fileInputRef.current.value = "";
+    if (fileInputRef.current) {
+      // Reset file input value
+      fileInputRef.current.value = '';
     }
   };
 
@@ -276,7 +310,9 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
   };
 
   // Placeholder for Form Submit Logic
-  const handleDetailsSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleDetailsSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault(); // Prevent default form submission
     // In a real application, gather form data and send it to an API endpoint
     alert('Simulating saving details...');
@@ -290,7 +326,6 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
   // Helper function to safely get user values, providing a fallback for undefined properties
   const getUserValue = (key: keyof User) => user?.[key] ?? '';
 
-
   // --- Render Loading State using Skeleton ---
   if (isLoading) {
     // Render the specific skeleton for this section
@@ -300,20 +335,23 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
 
   // --- Render Error State ---
   if (error) {
-      return (
-          <div className={`p-4 text-danger text-center ${className}`}>
-              Error loading account details: {error.message}. Please try refreshing.
-          </div>
-      );
+    return (
+      <div className={`p-4 text-danger text-center ${className}`}>
+        Error loading account details: {error.message}. Please try refreshing.
+      </div>
+    );
   }
 
   // --- Render "No User Data" State ---
-   if (!user) {
-       // Handle case where data is fetched but user is null/undefined
-       // This indicates an issue with the API response or data structure
-       return <div className={`p-4 text-warning text-center ${className}`}>Could not retrieve user information.</div>;
-   }
-
+  if (!user) {
+    // Handle case where data is fetched but user is null/undefined
+    // This indicates an issue with the API response or data structure
+    return (
+      <div className={`p-4 text-warning text-center ${className}`}>
+        Could not retrieve user information.
+      </div>
+    );
+  }
 
   // --- Render Account Details Card ---
   return (
@@ -344,16 +382,21 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
               <AvatarX
                 className="h-14 w-14 text-large"
                 src={getUserValue('avatarUrl')}
-                name={!getUserValue('avatarUrl') ? getUserValue('name') : undefined}
+                name={
+                  !getUserValue('avatarUrl') ? getUserValue('name') : undefined
+                }
               />
             </BadgeX>
             <div className="flex flex-col">
               <p className="font-medium">{getUserValue('name')}</p>
-              <span className="text-small text-default-500">{getUserValue('role')}</span>
+              <span className="text-small text-default-500">
+                {getUserValue('role')}
+              </span>
             </div>
           </div>
           <p className="text-small text-default-400">
-            The photo will be used for your profile, and will be visible to other users of the platform.
+            The photo will be used for your profile, and will be visible to
+            other users of the platform.
           </p>
         </CardHeaderX>
 
@@ -392,7 +435,12 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
                   <AutocompleteItemX
                     key={item.code}
                     value={item.code}
-                    startContent={<AvatarX alt="Country Flag" src={`https://flagcdn.com/${item.code.toLowerCase()}.svg`} />}
+                    startContent={
+                      <AvatarX
+                        alt="Country Flag"
+                        src={`https://flagcdn.com/${item.code.toLowerCase()}.svg`}
+                      />
+                    }
                   >
                     {item.name}
                   </AutocompleteItemX>
@@ -400,7 +448,12 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
               </AutocompleteX>
             </div>
             <div className="mt-6 flex w-full justify-end gap-2">
-              <ButtonX radius="full" variant="bordered" type="button" onPress={() => console.log('Cancel')}>
+              <ButtonX
+                radius="full"
+                variant="bordered"
+                type="button"
+                onPress={() => console.log('Cancel')}
+              >
                 Cancel
               </ButtonX>
               <ButtonX color="primary" radius="full" type="submit">
@@ -441,7 +494,9 @@ export default function AccountDetails({ className }: AccountDetailsProps) {
                 onClick={handleAreaClick}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAreaClick(); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAreaClick();
+                }}
               >
                 {previewUrl && selectedFile ? (
                   <ImageX

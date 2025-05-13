@@ -1,4 +1,3 @@
-
 export const marketingPreviewHtml = `
   <!-- 1) subtle grid overlay behind the entire 2:1 region -->
   <div
@@ -930,4 +929,3 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_text_1 .v-c
 </html>
 
 `;
-

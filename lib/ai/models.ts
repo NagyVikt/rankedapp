@@ -19,7 +19,7 @@ export const models: Array<Model> = [
     label: 'GPT 4o Mini',
     apiIdentifier: 'gpt-4o-mini',
     description: 'Affordable for complex, multi-step tasks',
-  }
+  },
 ] as const;
 
 export const reasoningModels: Array<Model> = [
@@ -40,7 +40,7 @@ export const reasoningModels: Array<Model> = [
     label: 'o3-mini',
     apiIdentifier: 'o3-mini',
     description: 'For deep reasoning and complex, multi-step tasks, cheaper.',
-  }
+  },
 ] as const;
 
 export const DEFAULT_MODEL_NAME: string = 'gpt-4o';

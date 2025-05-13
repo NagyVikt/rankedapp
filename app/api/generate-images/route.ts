@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ImageModel, experimental_generateImage as generateImage } from "ai";
-import { openai } from "@ai-sdk/openai";
-import { fireworks } from "@ai-sdk/fireworks";
-import { replicate } from "@ai-sdk/replicate";
-import { vertex } from "@ai-sdk/google-vertex/edge";
-import { ProviderKey } from "@/lib/provider-config";
-import { GenerateImageRequest } from "@/lib/api-types";
+import { NextRequest, NextResponse } from 'next/server';
+import { ImageModel, experimental_generateImage as generateImage } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { fireworks } from '@ai-sdk/fireworks';
+import { replicate } from '@ai-sdk/replicate';
+import { vertex } from '@ai-sdk/google-vertex/edge';
+import { ProviderKey } from '@/lib/provider-config';
+import { GenerateImageRequest } from '@/lib/api-types';
 
 /**
  * Intended to be slightly less than the maximum execution time allowed by the
@@ -13,41 +13,41 @@ import { GenerateImageRequest } from "@/lib/api-types";
  */
 const TIMEOUT_MILLIS = 55 * 1000;
 
-const DEFAULT_IMAGE_SIZE = "1024x1024";
-const DEFAULT_ASPECT_RATIO = "1:1";
+const DEFAULT_IMAGE_SIZE = '1024x1024';
+const DEFAULT_ASPECT_RATIO = '1:1';
 
 interface ProviderConfig {
   createImageModel: (modelId: string) => ImageModel;
-  dimensionFormat: "size" | "aspectRatio";
+  dimensionFormat: 'size' | 'aspectRatio';
 }
 
 const providerConfig: Record<ProviderKey, ProviderConfig> = {
   openai: {
     createImageModel: openai.image,
-    dimensionFormat: "size",
+    dimensionFormat: 'size',
   },
   fireworks: {
     createImageModel: fireworks.image,
-    dimensionFormat: "aspectRatio",
+    dimensionFormat: 'aspectRatio',
   },
   replicate: {
     createImageModel: replicate.image,
-    dimensionFormat: "size",
+    dimensionFormat: 'size',
   },
   vertex: {
     createImageModel: vertex.image,
-    dimensionFormat: "aspectRatio",
+    dimensionFormat: 'aspectRatio',
   },
 };
 
 const withTimeout = <T>(
   promise: Promise<T>,
-  timeoutMillis: number
+  timeoutMillis: number,
 ): Promise<T> => {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error("Request timed out")), timeoutMillis)
+      setTimeout(() => reject(new Error('Request timed out')), timeoutMillis),
     ),
   ]);
 };
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (!prompt || !provider || !modelId || !providerConfig[provider]) {
-      const error = "Invalid request parameters";
+      const error = 'Invalid request parameters';
       console.error(`${error} [requestId=${requestId}]`);
       return NextResponse.json({ error }, { status: 400 });
     }
@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
     const generatePromise = generateImage({
       model: config.createImageModel(modelId),
       prompt,
-      ...(config.dimensionFormat === "size"
+      ...(config.dimensionFormat === 'size'
         ? { size: DEFAULT_IMAGE_SIZE }
         : { aspectRatio: DEFAULT_ASPECT_RATIO }),
-      ...(provider !== "openai" && {
+      ...(provider !== 'openai' && {
         seed: Math.floor(Math.random() * 1000000),
       }),
       // Vertex AI only accepts a specified seed if watermark is disabled.
@@ -81,14 +81,14 @@ export async function POST(req: NextRequest) {
       if (warnings?.length > 0) {
         console.warn(
           `Warnings [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
-          warnings
+          warnings,
         );
       }
       console.log(
         `Completed image request [requestId=${requestId}, provider=${provider}, model=${modelId}, elapsed=${(
           (performance.now() - startstamp) /
           1000
-        ).toFixed(1)}s].`
+        ).toFixed(1)}s].`,
       );
 
       return {
@@ -99,20 +99,20 @@ export async function POST(req: NextRequest) {
 
     const result = await withTimeout(generatePromise, TIMEOUT_MILLIS);
     return NextResponse.json(result, {
-      status: "image" in result ? 200 : 500,
+      status: 'image' in result ? 200 : 500,
     });
   } catch (error) {
     // Log full error detail on the server, but return a generic error message
     // to avoid leaking any sensitive information to the client.
     console.error(
       `Error generating image [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
-      error
+      error,
     );
     return NextResponse.json(
       {
-        error: "Failed to generate image. Please try again later.",
+        error: 'Failed to generate image. Please try again later.',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

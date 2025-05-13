@@ -64,7 +64,14 @@
       textShadow: '0 3px 5px rgba(0,0,0,0.5)', // Add shadow to headline
     }}
   >
-    <div style={{ fontSize: '38px', letterSpacing: '3px', opacity: 0.95, fontWeight: 600 }}>
+    <div
+      style={{
+        fontSize: '38px',
+        letterSpacing: '3px',
+        opacity: 0.95,
+        fontWeight: 600,
+      }}
+    >
       SUPER DELICIOUS
     </div>
     <div
@@ -132,7 +139,9 @@
     >
       50%
     </div>
-    <div style={{ fontSize: '16px', fontWeight: 600, textTransform: 'uppercase' }}>
+    <div
+      style={{ fontSize: '16px', fontWeight: 600, textTransform: 'uppercase' }}
+    >
       OFF
     </div>
   </div>
@@ -157,8 +166,14 @@
       transition: 'transform 0.2s ease, background-color 0.2s ease', // Basic transition (won't work directly in Satori's static SVG/PNG)
     }}
     // Basic hover effect simulation (won't work in static images)
-    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ffd633'; e.currentTarget.style.transform = 'translateX(-50%) scale(1.05)'; }}
-    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#ffcc00'; e.currentTarget.style.transform = 'translateX(-50%) scale(1)'; }}
+    onMouseOver={(e) => {
+      e.currentTarget.style.backgroundColor = '#ffd633';
+      e.currentTarget.style.transform = 'translateX(-50%) scale(1.05)';
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.backgroundColor = '#ffcc00';
+      e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+    }}
   >
     ORDER NOW
   </button>
@@ -199,4 +214,4 @@
     <span>Your Address, ZIP</span>
     <span>📍</span> {/* Icon after text */}
   </div>
-</div>
+</div>;

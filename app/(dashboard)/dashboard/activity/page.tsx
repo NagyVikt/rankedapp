@@ -1,6 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/stripe/card'; // Assuming this path is correct
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/stripe/card'; // Assuming this path is correct
 import {
   Settings,
   LogOut,
@@ -15,7 +20,10 @@ import {
   type LucideIcon,
   // LucideProps, // LucideProps might not be needed if LucideIcon is sufficient
 } from 'lucide-react';
-import { ActivityType, activityLogs as activityLogsSchema } from '@/lib/db/schema'; // Assuming ActivityType enum and schema are defined here
+import {
+  ActivityType,
+  activityLogs as activityLogsSchema,
+} from '@/lib/db/schema'; // Assuming ActivityType enum and schema are defined here
 
 // Using the function you provided.
 // Ensure this function is correctly defined and exported from your queries file.
@@ -38,7 +46,6 @@ type ActivityLog = typeof activityLogsSchema.$inferSelect; // Infer type from Dr
 //   userId?: string | null; // If your logs have userId
 //   // Add any other properties that your log objects might have
 // }
-
 
 const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.SIGN_UP]: UserPlus,
@@ -68,10 +75,14 @@ function getRelativeTime(date: Date | string | null | undefined): string {
 
   if (diffInSeconds < 5) return 'just now';
   if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`; // Approx 30 days
-  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`; // Approx 12 months
+  if (diffInSeconds < 3600)
+    return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400)
+    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000)
+    return `${Math.floor(diffInSeconds / 86400)} days ago`; // Approx 30 days
+  if (diffInSeconds < 31536000)
+    return `${Math.floor(diffInSeconds / 2592000)} months ago`; // Approx 12 months
 
   return `${Math.floor(diffInSeconds / 31536000)} years ago`;
 }
@@ -106,9 +117,9 @@ function formatAction(action: ActivityType | null | undefined): string {
     // case ActivityType.SOME_OTHER_ACTION:
     //   return 'Some other action performed';
     default:
-       const exhaustiveCheck: never = action;
-       console.warn(`Unhandled activity type: ${exhaustiveCheck}`);
-       return `An unrecognized action occurred: ${action}`;
+      const exhaustiveCheck: never = action;
+      console.warn(`Unhandled activity type: ${exhaustiveCheck}`);
+      return `An unrecognized action occurred: ${action}`;
   }
 }
 
@@ -123,32 +134,45 @@ export default async function ActivityPage() {
     logs = await getActivityLogsByTeamId(teamId); // Default limit is 20 from your function
     // If you want a different limit: await getActivityLogsByTeamId(teamId, 50);
   } catch (error) {
-    console.error("Failed to fetch activity logs:", error);
+    console.error('Failed to fetch activity logs:', error);
     // You might want to display an error message in the UI here
   }
 
   return (
     <section className="flex-1 p-4 lg:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <h1 className="text-xl lg:text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
-        Activity Log (Team ID: {teamId}) {/* Indicate which team's logs are shown */}
+        Activity Log (Team ID: {teamId}){' '}
+        {/* Indicate which team's logs are shown */}
       </h1>
       <Card className="shadow-lg dark:bg-gray-800 border dark:border-gray-700">
         <CardHeader>
-          <CardTitle className="text-lg dark:text-gray-200">Recent Activity</CardTitle>
+          <CardTitle className="text-lg dark:text-gray-200">
+            Recent Activity
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {logs.length > 0 ? (
             <ul className="space-y-4">
               {logs.map((log: ActivityLog) => {
                 // Ensure log.action is a valid key for iconMap
-                const currentAction = log.action && Object.values(ActivityType).includes(log.action as ActivityType)
-                                      ? log.action as ActivityType
-                                      : null;
-                const IconComponent = currentAction && iconMap[currentAction] ? iconMap[currentAction] : Settings;
+                const currentAction =
+                  log.action &&
+                  Object.values(ActivityType).includes(
+                    log.action as ActivityType,
+                  )
+                    ? (log.action as ActivityType)
+                    : null;
+                const IconComponent =
+                  currentAction && iconMap[currentAction]
+                    ? iconMap[currentAction]
+                    : Settings;
                 const formattedAction = formatAction(currentAction);
 
                 return (
-                  <li key={log.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150">
+                  <li
+                    key={log.id}
+                    className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                  >
                     <div className="bg-orange-100 dark:bg-orange-800 rounded-full p-2 flex-shrink-0 mt-1">
                       <IconComponent className="w-5 h-5 text-orange-600 dark:text-orange-300" />
                     </div>
@@ -160,7 +184,9 @@ export default async function ActivityPage() {
                           <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                             (IP: {log.ipAddress})
                           </span>
-                        ) : ''}
+                        ) : (
+                          ''
+                        )}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         {getRelativeTime(log.timestamp)}

@@ -1,31 +1,35 @@
 // app/dashboard/webshops/[shop]/products/page.tsx
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Icon } from "@iconify/react";
-import { useShops } from "@/context/shops";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Icon } from '@iconify/react';
+import { useShops } from '@/context/shops';
 
-import { StockBadge } from "@/components/webshop/widget/StockBadge";
-import { Price } from "@/components/webshop/widget/Price";
-import { ModifiedDate } from "@/components/webshop/widget/ModifiedDate";
-import { RankBadge } from "@/components/webshop/widget/RankBadge";
-import { ProductImage } from "@/components/webshop/widget/ProductImage";
-import { ProductNameLink } from "@/components/webshop/widget/ProductNameLink";
-import { PaginationControls } from "@/components/webshop/widget/PaginationControls";
-import { Button, Skeleton } from "@heroui/react";
-import ProductPopup from "@/components/products/ProductPopup";
+import { StockBadge } from '@/components/webshop/widget/StockBadge';
+import { Price } from '@/components/webshop/widget/Price';
+import { ModifiedDate } from '@/components/webshop/widget/ModifiedDate';
+import { RankBadge } from '@/components/webshop/widget/RankBadge';
+import { ProductImage } from '@/components/webshop/widget/ProductImage';
+import { ProductNameLink } from '@/components/webshop/widget/ProductNameLink';
+import { PaginationControls } from '@/components/webshop/widget/PaginationControls';
+import { Button, Skeleton } from '@heroui/react';
+import ProductPopup from '@/components/products/ProductPopup';
 interface WooEntry {
   consumerKey: string;
   consumerSecret: string;
   selectedShopUrl: string;
 }
-interface WooMeta { id: number; key: string; value: any; }
+interface WooMeta {
+  id: number;
+  key: string;
+  value: any;
+}
 interface Product {
   id: number;
   name: string;
   price: string;
-  stock_status: "instock" | "outofstock";
+  stock_status: 'instock' | 'outofstock';
   stock_quantity: number;
   date_modified: string;
   images: { src: string }[];
@@ -39,13 +43,13 @@ interface ProductDetail extends Product {
 // same slugify as your API
 function slugify(url: string) {
   return url
-    .replace(/^https?:\/\/(www\.)?/, "")
-    .replace(/\/$/, "")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^https?:\/\/(www\.)?/, '')
+    .replace(/\/$/, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
     .toLowerCase();
 }
 
-type SortDir = "asc" | "desc" | null;
+type SortDir = 'asc' | 'desc' | null;
 
 export default function ProductsPage() {
   const { shop: shopSlug } = useParams() as { shop: string };
@@ -54,9 +58,7 @@ export default function ProductsPage() {
   // — Woo creds from localStorage
   const [connections, setConnections] = useState<WooEntry[]>([]);
   useEffect(() => {
-    setConnections(
-      JSON.parse(localStorage.getItem("wooConnections") || "[]")
-    );
+    setConnections(JSON.parse(localStorage.getItem('wooConnections') || '[]'));
   }, []);
   const connection = connections.find((c) => {
     const base = slugify(c.selectedShopUrl);
@@ -67,7 +69,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState('USD');
 
   // — pagination & sorting
   const perPage = 25;
@@ -90,17 +92,17 @@ export default function ProductsPage() {
     const slug = slugify(connection!.selectedShopUrl);
     const url = new URL(
       `/api/webshops/${slug}/products`,
-      window.location.origin
+      window.location.origin,
     );
-    url.searchParams.set("page", String(p));
-    url.searchParams.set("per_page", String(perPage));
+    url.searchParams.set('page', String(p));
+    url.searchParams.set('per_page', String(perPage));
     if (order) {
-      url.searchParams.set("sort_price", "1");
-      url.searchParams.set("order", order);
+      url.searchParams.set('sort_price', '1');
+      url.searchParams.set('order', order);
     }
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Server returned ${res.status}`);
-    const tp = res.headers.get("X-WP-TotalPages") ?? "1";
+    const tp = res.headers.get('X-WP-TotalPages') ?? '1';
     setTotalPages(+tp);
     return res.json() as Promise<{ products: Product[]; currency: string }>;
   }
@@ -131,17 +133,17 @@ export default function ProductsPage() {
               all.push(...products);
               done++;
               setProgress(Math.round((done / pages) * 100));
-            })
-          )
+            }),
+          ),
         );
 
         all.sort((a, b) => {
           const bucket = (q: number) => (q <= 0 ? 0 : q < 5 ? 1 : 2);
           const da = bucket(a.stock_quantity),
             db = bucket(b.stock_quantity);
-          if (da !== db) return stockDir === "asc" ? da - db : db - da;
+          if (da !== db) return stockDir === 'asc' ? da - db : db - da;
           const tie = a.stock_quantity - b.stock_quantity;
-          return stockDir === "asc" ? tie : -tie;
+          return stockDir === 'asc' ? tie : -tie;
         });
 
         setAllProducts(all);
@@ -177,7 +179,7 @@ export default function ProductsPage() {
     setDetailLoading(true);
     setDetailError(null);
     fetch(
-      `/api/webshops/${slugify(connection!.selectedShopUrl)}/products/${selectedId}`
+      `/api/webshops/${slugify(connection!.selectedShopUrl)}/products/${selectedId}`,
     )
       .then((r) => {
         if (!r.ok) throw new Error(`${r.status}`);
@@ -265,7 +267,8 @@ export default function ProductsPage() {
     shops.find((s) => s.url === connection.selectedShopUrl)?.name ??
     connection.selectedShopUrl;
 
-  const cycle = (d: SortDir) => (d === null ? "asc" : d === "asc" ? "desc" : null);
+  const cycle = (d: SortDir) =>
+    d === null ? 'asc' : d === 'asc' ? 'desc' : null;
 
   return (
     <div className="p-8 space-y-6">
@@ -288,7 +291,11 @@ export default function ProductsPage() {
                   <span>Stock</span>
                   {stockDir && (
                     <Icon
-                      icon={stockDir === "asc" ? "mdi:chevron-up" : "mdi:chevron-down"}
+                      icon={
+                        stockDir === 'asc'
+                          ? 'mdi:chevron-up'
+                          : 'mdi:chevron-down'
+                      }
                       width={16}
                     />
                   )}
@@ -307,7 +314,11 @@ export default function ProductsPage() {
                   <span>Price</span>
                   {priceDir && (
                     <Icon
-                      icon={priceDir === "asc" ? "mdi:chevron-up" : "mdi:chevron-down"}
+                      icon={
+                        priceDir === 'asc'
+                          ? 'mdi:chevron-up'
+                          : 'mdi:chevron-down'
+                      }
                       width={16}
                     />
                   )}
@@ -322,7 +333,8 @@ export default function ProductsPage() {
           <tbody>
             {products.map((p) => {
               const score =
-                p.meta_data.find((m) => m.key === "rank_math_score")?.value ?? "–";
+                p.meta_data.find((m) => m.key === 'rank_math_score')?.value ??
+                '–';
               return (
                 <tr key={p.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-2">
@@ -346,16 +358,16 @@ export default function ProductsPage() {
                     <RankBadge score={score} />
                   </td>
                   <td className="px-4 py-2">
-                  <ProductPopup
-                    shopSlug={shopSlug}
-                    productId={p.id}
-                    trigger={
-                      <Button size="sm" variant="light">
-                        <Icon icon="mdi:pencil-outline" width={16} /> Edit
-                      </Button>
-                    }
-                  />
-                </td>
+                    <ProductPopup
+                      shopSlug={shopSlug}
+                      productId={p.id}
+                      trigger={
+                        <Button size="sm" variant="light">
+                          <Icon icon="mdi:pencil-outline" width={16} /> Edit
+                        </Button>
+                      }
+                    />
+                  </td>
                 </tr>
               );
             })}
@@ -383,7 +395,9 @@ export default function ProductsPage() {
             {detailLoading ? (
               <Skeleton className="h-6 w-1/3 mb-4" />
             ) : detailError ? (
-              <p className="text-red-600">Error loading details: {detailError}</p>
+              <p className="text-red-600">
+                Error loading details: {detailError}
+              </p>
             ) : detail ? (
               <>
                 <h3 className="text-xl font-semibold mb-2">{detail.name}</h3>

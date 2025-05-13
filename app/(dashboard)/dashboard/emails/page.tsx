@@ -1,5 +1,5 @@
 // pages/dashboard/team.tsx
-"use client";
+'use client';
 
 // import React from "react";
 // import EmailBuilder from "@/components/events/EmailBuilder";
@@ -8,12 +8,12 @@
 //   return <EmailBuilder />;
 // }
 
-import MyEmailEditor from '@/components/email/EmailEditor'
+import MyEmailEditor from '@/components/email/EmailEditor';
 
 export default function EmailsPage() {
   return (
     <main>
       <MyEmailEditor />
     </main>
-  )
+  );
 }

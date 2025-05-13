@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import {Avatar, Link} from "@heroui/react";
-import {Icon} from "@iconify/react";
-import {cn} from "@heroui/react";
+import React from 'react';
+import { Avatar, Link } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import { cn } from '@heroui/react';
 
 export type TeamMember = {
   name: string;
@@ -17,14 +17,15 @@ export type TeamMember = {
   };
 };
 
-export type TeamMemberCardProps = React.HTMLAttributes<HTMLDivElement> & TeamMember;
+export type TeamMemberCardProps = React.HTMLAttributes<HTMLDivElement> &
+  TeamMember;
 
 const TeamMemberCard = React.forwardRef<HTMLDivElement, TeamMemberCardProps>(
-  ({children, avatar, name, role, bio, social, className, ...props}, ref) => (
+  ({ children, avatar, name, role, bio, social, className, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "flex flex-col items-center rounded-large bg-content1 px-4 py-6 text-center shadow-small",
+        'flex flex-col items-center rounded-large bg-content1 px-4 py-6 text-center shadow-small',
         className,
       )}
       {...props}
@@ -54,6 +55,6 @@ const TeamMemberCard = React.forwardRef<HTMLDivElement, TeamMemberCardProps>(
   ),
 );
 
-TeamMemberCard.displayName = "TeamMemberCard";
+TeamMemberCard.displayName = 'TeamMemberCard';
 
 export default TeamMemberCard;

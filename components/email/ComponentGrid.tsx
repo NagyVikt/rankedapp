@@ -1,21 +1,21 @@
 // components/ComponentGrid.tsx
-import React from "react"
-import type { ComponentItem } from "./types"
+import React from 'react';
+import type { ComponentItem } from './types';
 
 interface ComponentCardProps {
-  item: ComponentItem
-  onSelect: (item: ComponentItem) => void
+  item: ComponentItem;
+  onSelect: (item: ComponentItem) => void;
 }
 
 function ComponentCard({ item, onSelect }: ComponentCardProps) {
-  const { title, count, previewHtml, iconSvg } = item
+  const { title, count, previewHtml, iconSvg } = item;
 
   const handleKeyDown: React.KeyboardEventHandler = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
-      onSelect(item)
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelect(item);
     }
-  }
+  };
 
   return (
     <div
@@ -54,35 +54,31 @@ function ComponentCard({ item, onSelect }: ComponentCardProps) {
         {title}
       </h3>
       <span className="relative z-10 text-xs text-slate-11">
-        {count} component{count !== 1 && "s"}
+        {count} component{count !== 1 && 's'}
       </span>
 
       <div
         className="pointer-events-none absolute -inset-px opacity-0 mix-blend-color-dodge transition duration-300 group-hover:opacity-100"
         style={{
           background:
-            "radial-gradient(12rem at 50% 50%, rgba(37, 174, 186, 0.3), transparent 80%)",
+            'radial-gradient(12rem at 50% 50%, rgba(37, 174, 186, 0.3), transparent 80%)',
         }}
       />
     </div>
-  )
+  );
 }
 
 interface ComponentGridProps {
-  items: ComponentItem[]
-  onSelect: (item: ComponentItem) => void
+  items: ComponentItem[];
+  onSelect: (item: ComponentItem) => void;
 }
 
 export default function ComponentGrid({ items, onSelect }: ComponentGridProps) {
   return (
     <div className="relative grid grid-cols-1 gap-x-4 px-1 pb-10 md:grid-cols-2 md:px-0 lg:grid-cols-3">
-      {items.map(item => (
-        <ComponentCard
-          key={item.blockId}
-          item={item}
-          onSelect={onSelect}
-        />
+      {items.map((item) => (
+        <ComponentCard key={item.blockId} item={item} onSelect={onSelect} />
       ))}
     </div>
-  )
+  );
 }

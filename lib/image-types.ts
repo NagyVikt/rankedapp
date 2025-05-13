@@ -1,4 +1,4 @@
-import { ProviderKey } from "./provider-config";
+import { ProviderKey } from './provider-config';
 
 export interface GeneratedImage {
   provider: ProviderKey;

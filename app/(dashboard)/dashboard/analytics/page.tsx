@@ -1,7 +1,7 @@
-import React from "react";
-import KpStat from "@/components/analytics/kpstat";
-import Kpstat2 from "@/components/analytics/kpstat2";
-import SalesGraph from "@/components/analytics/salesgraph";
+import React from 'react';
+import KpStat from '@/components/analytics/kpstat';
+import Kpstat2 from '@/components/analytics/kpstat2';
+import SalesGraph from '@/components/analytics/salesgraph';
 
 export default function AnalyticsPage() {
   return (

@@ -1,7 +1,10 @@
-"use client";
+'use client';
 
-import { ThemeProvider as NextThemesProvider, type ThemeProviderProps } from "next-themes"; // Changed: Use direct import for ThemeProviderProps
-import React, { ReactNode, JSX } from "react";
+import {
+  ThemeProvider as NextThemesProvider,
+  type ThemeProviderProps,
+} from 'next-themes'; // Changed: Use direct import for ThemeProviderProps
+import React, { ReactNode, JSX } from 'react';
 
 // Define MyThemeProviderProps to extend ThemeProviderProps from "next-themes".
 // We make 'children' non-optional for our wrapper component.

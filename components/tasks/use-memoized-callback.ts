@@ -1,4 +1,4 @@
-import {useMemo, useRef} from "react";
+import { useMemo, useRef } from 'react';
 
 type noop = (this: any, ...args: any[]) => any;
 

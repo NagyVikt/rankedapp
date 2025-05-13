@@ -1,6 +1,6 @@
-import './globals.css' // Ensure your global styles are imported
+import './globals.css'; // Ensure your global styles are imported
 import React from 'react';
-import Script from 'next/script' // If you use Next.js Script component
+import Script from 'next/script'; // If you use Next.js Script component
 import { Toaster } from 'sonner'; // Or your preferred toast library
 import { ThemeProvider } from '@/components/theme-provider'; // Adjust path
 import { Analytics } from '@vercel/analytics/react'; // If you use Vercel Analytics
@@ -26,10 +26,10 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children, // children will be your page components, often wrapped by DefaultLayout in page.tsx
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-    const hdrs = await headers();
-    const nonce = hdrs.get('x-csp-nonce') ?? '';
+  const hdrs = await headers();
+  const nonce = hdrs.get('x-csp-nonce') ?? '';
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -42,15 +42,21 @@ export default async function RootLayout({
         />
         {/* Add other head elements like favicons, custom fonts etc. */}
       </head>
-      <body className="antialiased bg-background text-foreground"> {/* Base body styling */}
+      <body className="antialiased bg-background text-foreground">
+        {' '}
+        {/* Base body styling */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system" // Or "light", "dark"
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider> {/* Sidebar state is available to Navbar and all children */}
-            <DeepResearchProvider> {/* Assuming this is another global provider */}
+          <SidebarProvider>
+            {' '}
+            {/* Sidebar state is available to Navbar and all children */}
+            <DeepResearchProvider>
+              {' '}
+              {/* Assuming this is another global provider */}
               {/* Global Navbar is rendered first and is sticky */}
               <Navbar />
               <Toaster position="top-center" />

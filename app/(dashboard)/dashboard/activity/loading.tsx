@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/stripe/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/stripe/card';
 
 export default function ActivityPageSkeleton() {
   return (

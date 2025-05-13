@@ -3,7 +3,13 @@
 import { cn } from '@/lib/utils';
 import { ExternalLinkIcon } from './icons';
 import type { HTMLAttributes } from 'react';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import type { Transition, Variants } from 'framer-motion';
 import { motion, useAnimation } from 'framer-motion';
 
@@ -65,7 +71,7 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
           onMouseEnter?.(e);
         }
       },
-      [controls, onMouseEnter]
+      [controls, onMouseEnter],
     );
 
     const handleMouseLeave = useCallback(
@@ -76,7 +82,7 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
           onMouseLeave?.(e);
         }
       },
-      [controls, onMouseLeave]
+      [controls, onMouseLeave],
     );
 
     return (
@@ -100,7 +106,11 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
           <motion.path
             animate={controls}
             d="M21.54 15H17a2 2 0 0 0-2 2v4.54"
-            transition={{ duration: 0.5, delay: 0.25, opacity: { delay: 0.25 } }}
+            transition={{
+              duration: 0.5,
+              delay: 0.25,
+              opacity: { delay: 0.25 },
+            }}
             variants={{
               normal: {
                 pathLength: 1,
@@ -117,7 +127,11 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
           <motion.path
             animate={controls}
             d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"
-            transition={{ duration: 0.5, delay: 0.25, opacity: { delay: 0.25 } }}
+            transition={{
+              duration: 0.5,
+              delay: 0.25,
+              opacity: { delay: 0.25 },
+            }}
             variants={{
               normal: {
                 pathLength: 1,
@@ -134,7 +148,11 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
           <motion.path
             animate={controls}
             d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"
-            transition={{ duration: 0.5, delay: 0.25, opacity: { delay: 0.25 } }}
+            transition={{
+              duration: 0.5,
+              delay: 0.25,
+              opacity: { delay: 0.25 },
+            }}
             variants={{
               normal: {
                 pathLength: 1,
@@ -159,7 +177,7 @@ const EarthIcon = forwardRef<EarthIconHandle, HTMLAttributes<HTMLDivElement>>(
         </svg>
       </div>
     );
-  }
+  },
 );
 
 EarthIcon.displayName = 'EarthIcon';
@@ -195,33 +213,33 @@ export function SearchResults({
               <span className="text-sm font-medium">Sources</span>
             </div>
             {results.map((result, i) => (
-            <a
-              key={i}
-              href={result.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                'flex items-center justify-between w-full px-3 py-2 text-sm',
-                'rounded-lg border bg-background hover:bg-accent transition-colors',
-                'group cursor-pointer'
-              )}
-            >
-              <div className="flex items-center gap-2">
-                {result.favicon && (
-                  <img 
-                    src={result.favicon} 
-                    alt=""
-                    className="w-4 h-4 rounded-sm"
-                  />
+              <a
+                key={i}
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'flex items-center justify-between w-full px-3 py-2 text-sm',
+                  'rounded-lg border bg-background hover:bg-accent transition-colors',
+                  'group cursor-pointer',
                 )}
-                <span className="font-medium">{result.title}</span>
-              </div>
-              <ExternalLinkIcon
-                size={14}
-                className="shrink-0 text-muted-foreground group-hover:text-foreground transition-colors"
-              />
-            </a>
-          ))}
+              >
+                <div className="flex items-center gap-2">
+                  {result.favicon && (
+                    <img
+                      src={result.favicon}
+                      alt=""
+                      className="w-4 h-4 rounded-sm"
+                    />
+                  )}
+                  <span className="font-medium">{result.title}</span>
+                </div>
+                <ExternalLinkIcon
+                  size={14}
+                  className="shrink-0 text-muted-foreground group-hover:text-foreground transition-colors"
+                />
+              </a>
+            ))}
           </>
         )}
       </div>

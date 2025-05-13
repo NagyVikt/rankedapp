@@ -14,12 +14,12 @@ export type ActionState = {
 
 type ValidatedActionFunction<S extends z.ZodType<any, any>, T> = (
   data: z.infer<S>,
-  formData: FormData
+  formData: FormData,
 ) => Promise<T>;
 
 export function validatedAction<S extends z.ZodType<any, any>, T>(
   schema: S,
-  action: ValidatedActionFunction<S, T>
+  action: ValidatedActionFunction<S, T>,
 ) {
   return async (prevState: ActionState, formData: FormData): Promise<T> => {
     const result = schema.safeParse(Object.fromEntries(formData));
@@ -35,12 +35,12 @@ export function validatedAction<S extends z.ZodType<any, any>, T>(
 type ValidatedActionWithUserFunction<S extends z.ZodType<any, any>, T> = (
   data: z.infer<S>,
   formData: FormData,
-  user: User // Expecting a User object
+  user: User, // Expecting a User object
 ) => Promise<T>;
 
 export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
   schema: S,
-  action: ValidatedActionWithUserFunction<S, T>
+  action: ValidatedActionWithUserFunction<S, T>,
 ) {
   return async (prevState: ActionState, formData: FormData): Promise<T> => {
     // Call the new function to get the current authenticated user
@@ -64,7 +64,7 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
 
 type ActionWithTeamFunction<T> = (
   formData: FormData,
-  team: TeamDataWithMembers // Expecting TeamDataWithMembers
+  team: TeamDataWithMembers, // Expecting TeamDataWithMembers
 ) => Promise<T>;
 
 export function withTeam<T>(action: ActionWithTeamFunction<T>) {

@@ -22,7 +22,7 @@ export interface RegisterActionState {
 
 export const register = async (
   _: RegisterActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<RegisterActionState> => {
   try {
     // Validate FormData entries are strings

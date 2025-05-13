@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, {
   useState,
@@ -6,94 +6,100 @@ import React, {
   useEffect,
   forwardRef,
   type Ref,
-} from 'react'
-import dynamic from 'next/dynamic'
-import type { EmailEditorProps, EditorRef } from 'react-email-editor'
-import ComponentGrid from './ComponentGrid'
-import { gridItems } from './gridItems'
-import type { ComponentItem } from './types'
+} from 'react';
+import dynamic from 'next/dynamic';
+import type { EmailEditorProps, EditorRef } from 'react-email-editor';
+import ComponentGrid from './ComponentGrid';
+import { gridItems } from './gridItems';
+import type { ComponentItem } from './types';
 
 const UnlayerEmailEditor = dynamic(
   () => import('react-email-editor').then((mod) => mod.default),
-  { ssr: false }
-) as React.ComponentType<EmailEditorProps & React.RefAttributes<EditorRef>>
+  { ssr: false },
+) as React.ComponentType<EmailEditorProps & React.RefAttributes<EditorRef>>;
 
 const EmailEditor = forwardRef<EditorRef, EmailEditorProps>((props, ref) => (
   <UnlayerEmailEditor {...props} ref={ref as Ref<EditorRef>} />
-))
-EmailEditor.displayName = 'EmailEditor'
+));
+EmailEditor.displayName = 'EmailEditor';
 
 type SavedDesign = {
-  id: number
-  name: string
-  design: any
-}
+  id: number;
+  name: string;
+  design: any;
+};
 
 export default function MyEmailEditor() {
-  const [selectedItem, setSelectedItem] = useState<ComponentItem | null>(null)
-  const [savedDesigns, setSavedDesigns] = useState<SavedDesign[]>([])
-  const editorRef = useRef<EditorRef>(null)
-  const [isReady, setIsReady] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<ComponentItem | null>(null);
+  const [savedDesigns, setSavedDesigns] = useState<SavedDesign[]>([]);
+  const editorRef = useRef<EditorRef>(null);
+  const [isReady, setIsReady] = useState(false);
 
   // 1) Load existing designs from your API
   useEffect(() => {
     fetch('/api/designs')
       .then((res) => res.json())
       .then((designs: SavedDesign[]) => setSavedDesigns(designs))
-      .catch(console.error)
-  }, [])
+      .catch(console.error);
+  }, []);
 
   const handleLoad: EmailEditorProps['onLoad'] = () => {
-    setIsReady(true)
-  }
+    setIsReady(true);
+  };
 
   useEffect(() => {
-    if (!isReady || !selectedItem) return
-    ;(async () => {
+    if (!isReady || !selectedItem) return;
+    (async () => {
       try {
-        const { Unlayer2be } = await import('unlayer2be')
-        const rawDesign = Unlayer2be.fromHtml(selectedItem.snippetHtml)
-        console.log("Design JSON after unlayer2be:", JSON.stringify(rawDesign, null, 2));
-        editorRef.current?.editor?.loadDesign(rawDesign as any)
+        const { Unlayer2be } = await import('unlayer2be');
+        const rawDesign = Unlayer2be.fromHtml(selectedItem.snippetHtml);
+        console.log(
+          'Design JSON after unlayer2be:',
+          JSON.stringify(rawDesign, null, 2),
+        );
+        editorRef.current?.editor?.loadDesign(rawDesign as any);
       } catch (err) {
-        console.error('unlayer2be parse failed:', err)
+        console.error('unlayer2be parse failed:', err);
       }
-    })()
-  }, [selectedItem, isReady])
+    })();
+  }, [selectedItem, isReady]);
 
   const handleSave = () => {
-    const inst = editorRef.current?.editor
-    if (!inst) return
+    const inst = editorRef.current?.editor;
+    if (!inst) return;
 
     inst.exportHtml(async (data: { design: any; html: string }) => {
-      const { design } = data
-      const name = prompt('Name your template', `Template ${savedDesigns.length + 1}`)
-      if (!name) return
+      const { design } = data;
+      const name = prompt(
+        'Name your template',
+        `Template ${savedDesigns.length + 1}`,
+      );
+      if (!name) return;
 
       try {
         const res = await fetch('/api/designs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, design }),
-        })
+        });
 
         if (!res.ok) {
-          console.error('Failed to save design:', await res.text())
-          return
+          console.error('Failed to save design:', await res.text());
+          return;
         }
 
-        const newDesign: SavedDesign = await res.json()
+        const newDesign: SavedDesign = await res.json();
         // prepend the newly‐saved design
-        setSavedDesigns((prev) => [newDesign, ...prev])
+        setSavedDesigns((prev) => [newDesign, ...prev]);
       } catch (err) {
-        console.error('Error saving design:', err)
+        console.error('Error saving design:', err);
       }
-    })
-  }
+    });
+  };
 
   const loadSaved = (sd: SavedDesign) => {
-    editorRef.current?.editor?.loadDesign(sd.design)
-  }
+    editorRef.current?.editor?.loadDesign(sd.design);
+  };
 
   return (
     <div className="flex w-full h-[calc(100vh-50px)]">
@@ -140,5 +146,5 @@ export default function MyEmailEditor() {
         />
       </div>
     </div>
-  )
+  );
 }

@@ -2,17 +2,21 @@
 
 /* --- Base Fullscreen Setup --- */
 .satori-playground-html,
-.satori-playground-body {  padding: 0;
+.satori-playground-body {
+  padding: 0;
   margin: 0 auto;
   overflow-x: hidden;
 
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background-color: #f0f2f5; /* Light background for the body */
 }
 
-*, *::before, *::after {
-    box-sizing: inherit; /* Inherit box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: inherit; /* Inherit box-sizing */
 }
 
 .satori-playground-body {
@@ -39,9 +43,8 @@
 }
 /* Ensure nested PanelGroups also behave correctly */
 .satori-panel-group .react-resizable-panels-panel .satori-panel-group {
-    height: 100%; /* Nested groups should fill parent panel */
+  height: 100%; /* Nested groups should fill parent panel */
 }
-
 
 /* --- Resize Handle Styling --- */
 .satori-resize-handle {
@@ -49,41 +52,46 @@
   position: relative; /* Needed for pseudo-elements */
   outline: none; /* Remove focus outline */
 }
-.satori-resize-handle[data-resize-handle-active] { /* Style when dragging */
-   background-color: #007bff; /* Highlight color */
+.satori-resize-handle[data-resize-handle-active] {
+  /* Style when dragging */
+  background-color: #007bff; /* Highlight color */
 }
 
 /* Horizontal Handle */
-.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle {
+.satori-panel-group[data-panel-group-direction='horizontal']
+  > .satori-resize-handle {
   width: 6px; /* Width of vertical handle */
   cursor: col-resize;
   margin: 0 -3px; /* Center the handle visually over the gap */
   border-left: 3px solid transparent; /* Make clickable area wider */
   border-right: 3px solid transparent;
 }
-.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle:hover {
-   background-color: #bdbdbd;
+.satori-panel-group[data-panel-group-direction='horizontal']
+  > .satori-resize-handle:hover {
+  background-color: #bdbdbd;
 }
-.satori-panel-group[data-panel-group-direction="horizontal"] > .satori-resize-handle[data-resize-handle-active] {
-   background-color: #0056b3;
+.satori-panel-group[data-panel-group-direction='horizontal']
+  > .satori-resize-handle[data-resize-handle-active] {
+  background-color: #0056b3;
 }
-
 
 /* Vertical Handle */
-.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle {
+.satori-panel-group[data-panel-group-direction='vertical']
+  > .satori-resize-handle {
   height: 6px; /* Height of horizontal handle */
   cursor: row-resize;
   margin: -3px 0; /* Center the handle visually */
   border-top: 3px solid transparent; /* Make clickable area wider */
   border-bottom: 3px solid transparent;
 }
-.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle:hover {
-   background-color: #bdbdbd;
+.satori-panel-group[data-panel-group-direction='vertical']
+  > .satori-resize-handle:hover {
+  background-color: #bdbdbd;
 }
-.satori-panel-group[data-panel-group-direction="vertical"] > .satori-resize-handle[data-resize-handle-active] {
-   background-color: #0056b3;
+.satori-panel-group[data-panel-group-direction='vertical']
+  > .satori-resize-handle[data-resize-handle-active] {
+  background-color: #0056b3;
 }
-
 
 /* --- Tabs Component Styling --- */
 .tabs {
@@ -122,7 +130,9 @@
   color: #495057; /* Default text color */
   border-right: 1px solid #dee2e6; /* Separator between tabs */
   white-space: nowrap; /* Prevent text wrapping */
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 .tab:last-child {
   border-right: none; /* No border on the last tab */
@@ -176,8 +186,8 @@
 }
 /* Ensure the direct child div holding the editor fills the container */
 .monaco-container > div {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 /* --- Preview Panel Specific Styles --- */
@@ -204,15 +214,14 @@
 
 /* Style for the wrapper used for SVG preview scaling */
 .svg-wrapper {
-    /* Sizing and transform applied inline */
-    border: 1px dashed #ccc; /* Optional: visualize the bounds */
+  /* Sizing and transform applied inline */
+  border: 1px dashed #ccc; /* Optional: visualize the bounds */
 }
 .svg-wrapper svg {
-    max-width: 100%; /* Ensure SVG scales down within wrapper */
-    max-height: 100%;
-    display: block; /* Remove extra space */
+  max-width: 100%; /* Ensure SVG scales down within wrapper */
+  max-height: 100%;
+  display: block; /* Remove extra space */
 }
-
 
 .preview-card footer {
   flex-shrink: 0; /* Prevent footer shrinking */
@@ -265,15 +274,15 @@
 }
 
 /* Spinner styling */
-.result-container svg[width="24"] { /* Target the spinner specifically */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    fill: #6c757d; /* Spinner color */
-    z-index: 10;
+.result-container svg[width='24'] {
+  /* Target the spinner specifically */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  fill: #6c757d; /* Spinner color */
+  z-index: 10;
 }
-
 
 /* --- Config Panel Specific Styles --- */
 .controller {
@@ -311,52 +320,53 @@
 }
 .controller .control div,
 .controller .control select,
-.controller .control input[type="checkbox"] {
+.controller .control input[type='checkbox'] {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.controller .control input[type="range"] {
+.controller .control input[type='range'] {
   flex-grow: 1;
   cursor: pointer;
 }
-.controller .control input[type="number"],
+.controller .control input[type='number'],
 .controller .control select {
   padding: 4px 8px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 13px;
 }
-.controller .control input[type="number"] {
+.controller .control input[type='number'] {
   width: 70px;
 }
-.controller .control input[type="checkbox"] {
-    height: 16px;
-    width: 16px;
-    cursor: pointer;
+.controller .control input[type='checkbox'] {
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
 }
 .controller .control button {
-    padding: 5px 10px;
-    font-size: 12px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+  padding: 5px 10px;
+  font-size: 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 .controller .control button:hover {
-    background-color: #5a6268;
+  background-color: #5a6268;
 }
 .controller .control a {
-    color: #007bff;
-    text-decoration: none;
-    font-size: 13px;
+  color: #007bff;
+  text-decoration: none;
+  font-size: 13px;
 }
 .controller .control a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
-.controller .control a.disabled { /* Style for disabled links */
+.controller .control a.disabled {
+  /* Style for disabled links */
   opacity: 0.6;
   pointer-events: none;
 }

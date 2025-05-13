@@ -5,10 +5,10 @@ import { redirect } from 'next/navigation';
 
 import { Chat } from '@/components/chat';
 import {
-    DEFAULT_MODEL_NAME,
-    models,
-    reasoningModels,
-    DEFAULT_REASONING_MODEL_NAME
+  DEFAULT_MODEL_NAME,
+  models,
+  reasoningModels,
+  DEFAULT_REASONING_MODEL_NAME,
 } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 import { DataStreamHandler } from '@/components/data-stream-handler';
@@ -20,30 +20,38 @@ export default async function Page() {
 
   // --- Authentication Check using Supabase SSR ---
   const supabase = await supabaseServer(); // Get Supabase client instance
-  console.log("[/app/chat Page] Attempting supabase.auth.getUser()...");
-  const { data: { user }, error: authError } = await supabase.auth.getUser(); // Use getUser()
+  console.log('[/app/chat Page] Attempting supabase.auth.getUser()...');
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser(); // Use getUser()
 
   if (authError) {
-      // Handle potential errors during authentication check
-      console.error("[/app/chat Page] Supabase auth error:", authError.message);
-      // Redirect to login or show an error page, depending on desired behavior
-      redirect('/login?error=auth_check_failed');
+    // Handle potential errors during authentication check
+    console.error('[/app/chat Page] Supabase auth error:', authError.message);
+    // Redirect to login or show an error page, depending on desired behavior
+    redirect('/login?error=auth_check_failed');
   }
 
   // If no authenticated user is found, redirect to the login page
   if (!user) {
-    console.log("[/app/chat Page] No authenticated user found, redirecting to login.");
+    console.log(
+      '[/app/chat Page] No authenticated user found, redirecting to login.',
+    );
     redirect('/login');
   }
   // --- End Authentication Check ---
 
   // User is authenticated, proceed to load chat settings
-  console.log(`[/app/chat Page] User ${user.id} authenticated. Setting up new chat UI.`);
+  console.log(
+    `[/app/chat Page] User ${user.id} authenticated. Setting up new chat UI.`,
+  );
 
   // Read model preferences from cookies
-  const cookieStore =  await cookies(); // Use await
+  const cookieStore = await cookies(); // Use await
   const modelIdFromCookie = cookieStore.get('model-id')?.value;
-  const reasoningModelIdFromCookie = cookieStore.get('reasoning-model-id')?.value;
+  const reasoningModelIdFromCookie =
+    cookieStore.get('reasoning-model-id')?.value;
 
   // Determine selected models, using defaults if cookies aren't set or invalid
   const selectedModelId =
@@ -51,8 +59,8 @@ export default async function Page() {
     DEFAULT_MODEL_NAME;
 
   const selectedReasoningModelId =
-    reasoningModels.find((model) => model.id === reasoningModelIdFromCookie)?.id ||
-    DEFAULT_REASONING_MODEL_NAME;
+    reasoningModels.find((model) => model.id === reasoningModelIdFromCookie)
+      ?.id || DEFAULT_REASONING_MODEL_NAME;
 
   // Render the Chat component for a new chat session
   return (

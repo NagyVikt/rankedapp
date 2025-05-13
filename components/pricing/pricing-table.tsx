@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React from "react";
-import {Icon} from "@iconify/react";
+import React from 'react';
+import { Icon } from '@iconify/react';
 import {
   Button,
   Card,
@@ -14,14 +14,16 @@ import {
   Spacer,
   Tab,
   Tabs,
-} from "@heroui/react";
-import {cn} from "@heroui/react";
+} from '@heroui/react';
+import { cn } from '@heroui/react';
 
-import {FrequencyEnum} from "./pricing-types";
-import {frequencies, tiers} from "./pricing-tiers";
+import { FrequencyEnum } from './pricing-types';
+import { frequencies, tiers } from './pricing-tiers';
 
 export default function PricingTable() {
-  const [selectedFrequency, setSelectedFrequency] = React.useState(frequencies[0]);
+  const [selectedFrequency, setSelectedFrequency] = React.useState(
+    frequencies[0],
+  );
 
   const onFrequencyChange = (selectedKey: React.Key) => {
     const frequencyIndex = frequencies.findIndex((f) => f.key === selectedKey);
@@ -33,7 +35,9 @@ export default function PricingTable() {
     <div className="flex max-w-4xl flex-col items-center py-24">
       <div className="flex max-w-xl flex-col text-center">
         <h2 className="font-medium text-primary">Pricing</h2>
-        <h1 className="text-4xl font-medium tracking-tight">Get unlimited access.</h1>
+        <h1 className="text-4xl font-medium tracking-tight">
+          Get unlimited access.
+        </h1>
         <Spacer y={4} />
         <h2 className="text-large text-default-500">
           Discover the ideal plan, beginning at under $2 per week.
@@ -42,7 +46,7 @@ export default function PricingTable() {
       <Spacer y={8} />
       <Tabs
         classNames={{
-          tab: "data-[hover-unselected=true]:opacity-90",
+          tab: 'data-[hover-unselected=true]:opacity-90',
         }}
         radius="full"
         size="lg"
@@ -68,17 +72,17 @@ export default function PricingTable() {
         {tiers.map((tier) => (
           <Card
             key={tier.key}
-            className={cn("relative p-3", {
-              "border-2 border-primary": tier.mostPopular,
-              "!border-medium border-divider bg-transparent": !tier.mostPopular,
-              "bg-default-900 text-default-50": tier.featured,
+            className={cn('relative p-3', {
+              'border-2 border-primary': tier.mostPopular,
+              '!border-medium border-divider bg-transparent': !tier.mostPopular,
+              'bg-default-900 text-default-50': tier.featured,
             })}
             shadow="none"
           >
             {tier.mostPopular ? (
               <Chip
                 classNames={{
-                  base: "absolute top-4 right-4",
+                  base: 'absolute top-4 right-4',
                 }}
                 color="primary"
                 variant="flat"
@@ -89,8 +93,8 @@ export default function PricingTable() {
             <CardHeader className="flex flex-col items-start gap-2 pb-6">
               <h2 className="text-large font-medium">{tier.title}</h2>
               <p
-                className={cn("text-medium text-default-500", {
-                  "text-default-400": tier.featured,
+                className={cn('text-medium text-default-500', {
+                  'text-default-400': tier.featured,
                 })}
               >
                 {tier.description}
@@ -101,18 +105,20 @@ export default function PricingTable() {
               <p className="flex items-baseline gap-1 pt-2">
                 <span
                   className={cn(
-                    "inline bg-gradient-to-br from-foreground to-foreground-600 bg-clip-text text-4xl font-semibold leading-7 tracking-tight text-transparent",
+                    'inline bg-gradient-to-br from-foreground to-foreground-600 bg-clip-text text-4xl font-semibold leading-7 tracking-tight text-transparent',
                     {
-                      "text-background": tier.featured,
+                      'text-background': tier.featured,
                     },
                   )}
                 >
-                  {typeof tier.price === "string" ? tier.price : tier.price[selectedFrequency.key]}
+                  {typeof tier.price === 'string'
+                    ? tier.price
+                    : tier.price[selectedFrequency.key]}
                 </span>
-                {typeof tier.price !== "string" ? (
+                {typeof tier.price !== 'string' ? (
                   <span
-                    className={cn("text-sm font-medium text-default-400", {
-                      "text-default-300": tier.featured,
+                    className={cn('text-sm font-medium text-default-400', {
+                      'text-default-300': tier.featured,
                     })}
                   >
                     {tier.priceSuffix
@@ -126,8 +132,8 @@ export default function PricingTable() {
                   <li key={feature} className="flex items-center gap-2">
                     <Icon className="text-primary" icon="ci:check" width={24} />
                     <p
-                      className={cn("text-default-500", {
-                        "text-default-400": tier.featured,
+                      className={cn('text-default-500', {
+                        'text-default-400': tier.featured,
                       })}
                     >
                       {feature}
@@ -141,7 +147,7 @@ export default function PricingTable() {
                 fullWidth
                 as={Link}
                 className={cn({
-                  "bg-default-50": tier.featured,
+                  'bg-default-50': tier.featured,
                 })}
                 color={tier.buttonColor}
                 href={tier.href}

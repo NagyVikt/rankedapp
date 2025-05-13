@@ -48,7 +48,8 @@ const nextConfig: NextConfig = {
   */
 
   // Keep your webpack configuration
-  webpack(config, { dev, isServer }) { // Added isServer for context if needed later
+  webpack(config, { dev, isServer }) {
+    // Added isServer for context if needed later
     if (dev) {
       config.ignoreWarnings = config.ignoreWarnings || [];
       config.ignoreWarnings.push({
@@ -61,7 +62,6 @@ const nextConfig: NextConfig = {
 
   // Add any other Next.js configurations you need here
   // e.g., env variables, redirects, rewrites, etc.
-
 };
 
 export default nextConfig;

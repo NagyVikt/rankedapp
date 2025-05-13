@@ -44,7 +44,7 @@
     "react/prop-types": "off",
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "react-hooks/exhaustive-deps": "off",  // still works because we’ve got the plugin
+    "react-hooks/exhaustive-deps": "off", // still works because we’ve got the plugin
     "jsx-a11y/click-events-have-key-events": "warn",
     "jsx-a11y/interactive-supports-focus": "warn",
     "prettier/prettier": "warn",
@@ -55,13 +55,24 @@
     "unused-imports/no-unused-imports": "warn",
     "@typescript-eslint/no-unused-vars": [
       "warn",
-      { "args": "after-used", "ignoreRestSiblings": false, "argsIgnorePattern": "^_.*?$" }
+      {
+        "args": "after-used",
+        "ignoreRestSiblings": false,
+        "argsIgnorePattern": "^_.*?$"
+      }
     ],
     "import/order": [
       "warn",
       {
         "groups": [
-          "type","builtin","object","external","internal","parent","sibling","index"
+          "type",
+          "builtin",
+          "object",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
         ],
         "pathGroups": [
           { "pattern": "~/**", "group": "external", "position": "after" }
@@ -83,8 +94,12 @@
       "error",
       // then your array of objects:
       { "blankLine": "always", "prev": "*", "next": "return" },
-      { "blankLine": "always", "prev": ["const","let","var"], "next": "*" },
-      { "blankLine": "any",    "prev": ["const","let","var"], "next": ["const","let","var"] }
+      { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let", "var"],
+        "next": ["const", "let", "var"]
+      }
     ]
   }
 }

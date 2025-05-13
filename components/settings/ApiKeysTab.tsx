@@ -1,5 +1,5 @@
 // app/dashboard/settings/ApiKeysTab.tsx
-"use client";
+'use client';
 
 import React from 'react';
 import { ApiKeyManager, ApiKeyConfig } from './ApiKeyManager'; // Adjust path if needed
@@ -14,7 +14,7 @@ const apiKeyConfigs: ApiKeyConfig[] = [
     localStorageKey: 'openaiApiKey',
     keyPrefix: 'sk-',
     docsUrl: 'https://platform.openai.com/api-keys',
-    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
   },
   {
     id: 'gemini',
@@ -24,7 +24,7 @@ const apiKeyConfigs: ApiKeyConfig[] = [
     keyPrefix: null, // Gemini keys don't have a standard public prefix
     docsUrl: 'https://aistudio.google.com/app/apikey',
     placeholder: 'Enter your Gemini API Key',
-    infoText: "Ensure the Gemini API is enabled in your Google Cloud project."
+    infoText: 'Ensure the Gemini API is enabled in your Google Cloud project.',
   },
   {
     id: 'claude',
@@ -33,7 +33,7 @@ const apiKeyConfigs: ApiKeyConfig[] = [
     localStorageKey: 'claudeApiKey',
     keyPrefix: 'sk-ant-api03-', // Example, verify current prefix
     docsUrl: 'https://console.anthropic.com/settings/keys',
-    placeholder: 'sk-ant-api03-xxxxxxxxxxxxxxxxxx'
+    placeholder: 'sk-ant-api03-xxxxxxxxxxxxxxxxxx',
   },
   {
     id: 'perplexity',
@@ -42,7 +42,7 @@ const apiKeyConfigs: ApiKeyConfig[] = [
     localStorageKey: 'perplexityApiKey',
     keyPrefix: 'pplx-',
     docsUrl: 'https://docs.perplexity.ai/docs/getting-started',
-    placeholder: 'pplx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    placeholder: 'pplx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
   },
   {
     id: 'deepseek',
@@ -51,16 +51,15 @@ const apiKeyConfigs: ApiKeyConfig[] = [
     localStorageKey: 'deepseekApiKey',
     keyPrefix: 'sk-',
     docsUrl: 'https://platform.deepseek.com/api_keys',
-    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+    placeholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
   },
   // Add more providers here as needed
 ];
 
 const ApiKeyManagerX = ApiKeyManager as any;
 
-
 interface ApiKeysTabProps {
-    className?: string;
+  className?: string;
 }
 
 export default function ApiKeysTab({ className }: ApiKeysTabProps) {

@@ -1,13 +1,13 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { imageHelpers } from "@/lib/image-helpers";
+import { Card, CardContent } from '@/components/ui/card';
+import { imageHelpers } from '@/lib/image-helpers';
 import {
   FireworksIcon,
   OpenAIIcon,
   ReplicateIcon,
   VertexIcon,
-} from "@/lib/logos";
-import { ProviderKey } from "@/lib/provider-config";
-import { cn } from "@/lib/utils";
+} from '@/lib/logos';
+import { ProviderKey } from '@/lib/provider-config';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -15,19 +15,19 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { ProviderTiming } from "@/lib/image-types"; // Assuming ImageResult type exists
+} from './ui/select';
+import { ProviderTiming } from '@/lib/image-types'; // Assuming ImageResult type exists
 
-import { ImageDisplay } from "./ImageDisplay";
-import Link from "next/link";
+import { ImageDisplay } from './ImageDisplay';
+import Link from 'next/link';
 
 // Define the structure for individual results within the replicateResults array
 // This should match the structure provided by the hook
 interface ReplicateResultItem {
-    modelId: string;
-    image: string | null;
-    timing?: ProviderTiming;
-    failed?: boolean;
+  modelId: string;
+  image: string | null;
+  timing?: ProviderTiming;
+  failed?: boolean;
 }
 
 // Updated Props Interface
@@ -61,10 +61,10 @@ const PROVIDER_ICONS = {
 } as const;
 
 const PROVIDER_LINKS = {
-  openai: "openai",
-  replicate: "replicate",
-  vertex: "google-vertex",
-  fireworks: "fireworks",
+  openai: 'openai',
+  replicate: 'replicate',
+  vertex: 'google-vertex',
+  fireworks: 'fireworks',
 } as const;
 
 export function ModelSelect({
@@ -86,22 +86,24 @@ export function ModelSelect({
   const Icon = PROVIDER_ICONS[providerKey];
 
   // Determine if we should show multi-result info
-  const isReplicateMulti = providerKey === 'replicate' && replicateResults && replicateResults.length > 0;
+  const isReplicateMulti =
+    providerKey === 'replicate' &&
+    replicateResults &&
+    replicateResults.length > 0;
   // Find the first successful result for Replicate to display an image
   const firstReplicateResult = isReplicateMulti
-    ? replicateResults?.find(r => r.image && !r.failed)
+    ? replicateResults?.find((r) => r.image && !r.failed)
     : undefined;
   const successfulReplicateCount = isReplicateMulti
-    ? replicateResults?.filter(r => r.image && !r.failed).length ?? 0
+    ? (replicateResults?.filter((r) => r.image && !r.failed).length ?? 0)
     : 0;
   const failedReplicateCount = isReplicateMulti
-    ? replicateResults?.filter(r => r.failed || !r.image).length ?? 0
+    ? (replicateResults?.filter((r) => r.failed || !r.image).length ?? 0)
     : 0;
-
 
   return (
     <Card
-      className={cn(`w-full transition-opacity`, enabled ? "" : "opacity-50")}
+      className={cn(`w-full transition-opacity`, enabled ? '' : 'opacity-50')}
     >
       {/* Add onClick handler for toggling if needed */}
       <CardContent className="pt-6 h-full flex flex-col">
@@ -113,7 +115,7 @@ export function ModelSelect({
               <Link
                 className="hover:opacity-80"
                 href={
-                  "https://sdk.vercel.ai/providers/ai-sdk-providers/" +
+                  'https://sdk.vercel.ai/providers/ai-sdk-providers/' +
                   PROVIDER_LINKS[providerKey]
                 }
                 target="_blank"
@@ -129,7 +131,7 @@ export function ModelSelect({
               <Link
                 className="hover:opacity-80"
                 href={
-                  "https://sdk.vercel.ai/providers/ai-sdk-providers/" +
+                  'https://sdk.vercel.ai/providers/ai-sdk-providers/' +
                   PROVIDER_LINKS[providerKey]
                 }
                 target="_blank"
@@ -146,15 +148,25 @@ export function ModelSelect({
                   disabled={!enabled} // Disable select if provider is disabled
                 >
                   <SelectTrigger className="truncate">
-                    <SelectValue placeholder={value ? imageHelpers.formatModelId(value) : "Select a model"} />
+                    <SelectValue
+                      placeholder={
+                        value
+                          ? imageHelpers.formatModelId(value)
+                          : 'Select a model'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       {/* Ensure models are strings */}
                       {(models as string[]).map((modelId) => (
-                        <SelectItem key={modelId} value={modelId} className="text-xs sm:text-sm">
-                           {/* Display formatted model ID */}
-                           {imageHelpers.formatModelId(modelId)}
+                        <SelectItem
+                          key={modelId}
+                          value={modelId}
+                          className="text-xs sm:text-sm"
+                        >
+                          {/* Display formatted model ID */}
+                          {imageHelpers.formatModelId(modelId)}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -168,7 +180,9 @@ export function ModelSelect({
         </div>
 
         {/* Image Display Area - Updated Logic */}
-        <div className="flex-grow"> {/* Allow image display to take remaining space */}
+        <div className="flex-grow">
+          {' '}
+          {/* Allow image display to take remaining space */}
           {isReplicateMulti ? (
             // --- Display for Multiple Replicate Results ---
             <>
@@ -184,9 +198,12 @@ export function ModelSelect({
               />
               {/* Display count of results */}
               <div className="text-xs text-muted-foreground mt-1 text-center px-1">
-                 {successfulReplicateCount > 0 && `${successfulReplicateCount} successful result${successfulReplicateCount > 1 ? 's' : ''}. `}
-                 {failedReplicateCount > 0 && `${failedReplicateCount} failed.`}
-                 {!successfulReplicateCount && !failedReplicateCount && `Processing ${replicateResults?.length ?? 0} models...`}
+                {successfulReplicateCount > 0 &&
+                  `${successfulReplicateCount} successful result${successfulReplicateCount > 1 ? 's' : ''}. `}
+                {failedReplicateCount > 0 && `${failedReplicateCount} failed.`}
+                {!successfulReplicateCount &&
+                  !failedReplicateCount &&
+                  `Processing ${replicateResults?.length ?? 0} models...`}
               </div>
               {/* --- Placeholder for Gallery ---
                   If you want a gallery, you would replace or augment the ImageDisplay above
@@ -209,4 +226,3 @@ export function ModelSelect({
     </Card>
   );
 }
-

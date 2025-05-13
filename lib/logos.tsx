@@ -1,4 +1,3 @@
-
 export const FireworksIcon = ({ size = 16 }) => {
   return (
     <svg
@@ -23,8 +22,8 @@ export const FireworksIcon = ({ size = 16 }) => {
         />
       </g>
     </svg>
-  )
-}
+  );
+};
 
 export const OpenAIIcon = ({ size = 16 }) => {
   return (
@@ -42,8 +41,8 @@ export const OpenAIIcon = ({ size = 16 }) => {
         fill="currentColor"
       ></path>
     </svg>
-  )
-}
+  );
+};
 
 export const ReplicateIcon = ({ size = 16 }) => {
   return (
@@ -60,8 +59,8 @@ export const ReplicateIcon = ({ size = 16 }) => {
         <polygon points="1000,0 1000,113.2 126.4,113.2 126.4,1000 0,1000 0,0" />
       </g>
     </svg>
-  )
-}
+  );
+};
 
 export const VertexIcon = ({ size = 16 }) => {
   return (
@@ -109,5 +108,5 @@ export const VertexIcon = ({ size = 16 }) => {
         <circle cx="192" cy="337" r="16" fill="white" />
       </g>
     </svg>
-  )
-}
+  );
+};

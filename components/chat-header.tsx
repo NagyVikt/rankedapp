@@ -155,5 +155,8 @@ function PureChatHeader({
 }
 
 export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return prevProps.selectedModelId === nextProps.selectedModelId && prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId;
+  return (
+    prevProps.selectedModelId === nextProps.selectedModelId &&
+    prevProps.selectedReasoningModelId === nextProps.selectedReasoningModelId
+  );
 });

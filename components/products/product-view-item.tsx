@@ -1,15 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, forwardRef, useMemo } from "react";
-import {
-  Button,
-  Chip,
-  Image,
-  ScrollShadow,
-} from "@heroui/react";
-import { Icon } from "@iconify/react";
-import { cn } from "@heroui/react";
-import RatingRadioGroup from "./rating-radio-group";
+import React, { useState, useEffect, forwardRef, useMemo } from 'react';
+import { Button, Chip, Image, ScrollShadow } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import { cn } from '@heroui/react';
+import RatingRadioGroup from './rating-radio-group';
 
 export type ProductViewItemColor = { name: string; hex: string };
 export interface ProductViewItemProps {
@@ -34,15 +29,15 @@ export interface ProductViewItemProps {
 export type ExternalLink = string | { name: string; url: string };
 
 const badgeColors = [
-  "primary",
-  "secondary",
-  "success",
-  "warning",
-  "danger",
+  'primary',
+  'secondary',
+  'success',
+  'warning',
+  'danger',
 ] as const;
 
-const sanitizeDescription = (text = "") =>
-  text.replace(/^```[\s\S]*?```/g, "").trim();
+const sanitizeDescription = (text = '') =>
+  text.replace(/^```[\s\S]*?```/g, '').trim();
 
 const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
   (
@@ -62,9 +57,9 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
       className,
       shopSlug,
     },
-    ref
+    ref,
   ) => {
-    const placeholderImage = "/placeholder-image.png";
+    const placeholderImage = '/placeholder-image.png';
     const validImages = images.length > 0 ? images : [placeholderImage];
     const [selectedImage, setSelectedImage] = useState(validImages[0]);
 
@@ -72,7 +67,7 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
     const cleanDesc = sanitizeDescription(description);
     const [targetHtml, setTargetHtml] = useState(cleanDesc);
     const [displayedHtml, setDisplayedHtml] = useState(cleanDesc);
-    const [aiMeta, setAiMeta] = useState("");
+    const [aiMeta, setAiMeta] = useState('');
     const [rankKeywords, setRankKeywords] = useState<string[]>([]);
     const [displayedKeywords, setDisplayedKeywords] = useState<string[]>([]);
     const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
@@ -88,7 +83,7 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
         setDisplayedHtml(targetHtml);
         return;
       }
-      setDisplayedHtml("");
+      setDisplayedHtml('');
       let idx = 0;
       const interval = setInterval(() => {
         idx++;
@@ -103,7 +98,10 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
       if (!rankKeywords.length) return;
       setDisplayedKeywords([]);
       rankKeywords.forEach((kw, i) =>
-        setTimeout(() => setDisplayedKeywords((prev) => [...prev, kw]), 100 * (i + 1))
+        setTimeout(
+          () => setDisplayedKeywords((prev) => [...prev, kw]),
+          100 * (i + 1),
+        ),
       );
     }, [rankKeywords]);
 
@@ -113,17 +111,17 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
       setIsImproving(true);
       setRankKeywords([]);
       setExternalLinks([]);
-      setAiMeta("");
-      setTargetHtml("");
+      setAiMeta('');
+      setTargetHtml('');
 
       try {
         const res = await fetch(
           `/api/webshops/${shopSlug}/products/${id}/seo`,
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ description, currentPrice: price }),
-          }
+          },
         );
         const data = await res.json();
         setTargetHtml(data.html);
@@ -149,9 +147,10 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
     const renderedExternalLinks = useMemo(
       () =>
         externalLinks.map((linkOrObj, idx) => {
-          const href = typeof linkOrObj === "string" ? linkOrObj : linkOrObj.url;
+          const href =
+            typeof linkOrObj === 'string' ? linkOrObj : linkOrObj.url;
           const label =
-            typeof linkOrObj === "string"
+            typeof linkOrObj === 'string'
               ? linkOrObj
               : linkOrObj.name || linkOrObj.url;
           return (
@@ -167,17 +166,19 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
             </li>
           );
         }),
-      [externalLinks]
+      [externalLinks],
     );
 
     return (
-      <div ref={ref} className={cn("relative flex h-full flex-col", className)}>
+      <div ref={ref} className={cn('relative flex h-full flex-col', className)}>
         <div className="flex-grow overflow-y-auto">
           <div className="grid grid-cols-1 gap-4 p-1 lg:grid-cols-2 lg:items-start lg:gap-x-4">
             {/* Gallery */}
             <div className="relative flex-none lg:sticky lg:top-4">
               {isPopular && (
-                <Chip size="lg" startContent={<Icon icon="solar:star-bold" />}>Popular</Chip>
+                <Chip size="lg" startContent={<Icon icon="solar:star-bold" />}>
+                  Popular
+                </Chip>
               )}
               <Image
                 removeWrapper
@@ -185,23 +186,26 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
                 src={selectedImage}
                 className="aspect-square w-full rounded-lg object-cover"
               />
-              <ScrollShadow orientation="horizontal" className="mt-4 flex gap-3">
+              <ScrollShadow
+                orientation="horizontal"
+                className="mt-4 flex gap-3"
+              >
                 {validImages.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(img)}
                     className={cn(
-                      "h-20 w-20 rounded-md overflow-hidden transition-shadow md:h-24 md:w-24",
+                      'h-20 w-20 rounded-md overflow-hidden transition-shadow md:h-24 md:w-24',
                       img === selectedImage
-                        ? "ring-2 ring-primary"
-                        : "hover:shadow-lg"
+                        ? 'ring-2 ring-primary'
+                        : 'hover:shadow-lg',
                     )}
                   >
                     <Image
                       removeWrapper
                       alt={`${name} thumb`}
                       src={img}
-                      classNames={{ img: "h-full w-full object-cover" }}
+                      classNames={{ img: 'h-full w-full object-cover' }}
                     />
                   </button>
                 ))}
@@ -281,7 +285,7 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
                   className="underline text-primary"
                 >
                   {priceComparison.cheapest.source}
-                </a>{" "}
+                </a>{' '}
                 – {priceComparison.cheapest.price.toFixed(0)} EUR
               </p>
               <p className="italic">{priceComparison.suggestion}</p>
@@ -304,15 +308,20 @@ const ProductViewInfo = forwardRef<HTMLDivElement, ProductViewItemProps>(
 
         {/* Footer */}
         <div className="sticky bottom-0 flex items-center justify-between border-t bg-background p-4">
-          <Button fullWidth variant="bordered" onPress={handleImprove} disabled={isImproving}>
-            {isImproving ? "Thinking…" : "Improve & Generate SEO AI Content"}
+          <Button
+            fullWidth
+            variant="bordered"
+            onPress={handleImprove}
+            disabled={isImproving}
+          >
+            {isImproving ? 'Thinking…' : 'Improve & Generate SEO AI Content'}
           </Button>
-          {typeof seoScore === "number" && <Chip>SCORE: {seoScore}%</Chip>}
+          {typeof seoScore === 'number' && <Chip>SCORE: {seoScore}%</Chip>}
         </div>
       </div>
     );
-  }
+  },
 );
 
-ProductViewInfo.displayName = "ProductViewInfo";
+ProductViewInfo.displayName = 'ProductViewInfo';
 export default ProductViewInfo;

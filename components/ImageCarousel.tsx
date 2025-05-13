@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Carousel,
   CarouselApi,
@@ -8,11 +8,11 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { ImageDisplay } from "./ImageDisplay";
-import { cn } from "@/lib/utils";
-import { ProviderKey } from "@/lib/provider-config";
-import { GeneratedImage, ProviderTiming } from "@/lib/image-types";
+} from '@/components/ui/carousel';
+import { ImageDisplay } from './ImageDisplay';
+import { cn } from '@/lib/utils';
+import { ProviderKey } from '@/lib/provider-config';
+import { GeneratedImage, ProviderTiming } from '@/lib/image-types';
 
 interface ImageCarouselProps {
   providers: ProviderKey[];
@@ -37,14 +37,14 @@ export function ImageCarousel({
   useEffect(() => {
     if (!api) return;
 
-    api.on("select", () => {
+    api.on('select', () => {
       setCurrentSlide(api.selectedScrollSnap());
     });
   }, [api]);
 
   return (
     <div className="relative w-full">
-      <Carousel setApi={setApi} opts={{ align: "start", loop: true }}>
+      <Carousel setApi={setApi} opts={{ align: 'start', loop: true }}>
         <CarouselContent>
           {providers.map((provider, i) => {
             const imageData = images?.find(
@@ -84,10 +84,10 @@ export function ImageCarousel({
             <button
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all",
+                'h-1.5 rounded-full transition-all',
                 index === currentSlide
-                  ? "w-4 bg-primary"
-                  : "w-1.5 bg-primary/50",
+                  ? 'w-4 bg-primary'
+                  : 'w-1.5 bg-primary/50',
               )}
               onClick={() => api?.scrollTo(index)}
             >

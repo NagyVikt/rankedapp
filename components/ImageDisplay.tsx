@@ -1,13 +1,18 @@
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { Button } from "@/components/ui/button";
-import { Download, ImageIcon, AlertCircle, Share } from "lucide-react";
-import { Stopwatch } from "./Stopwatch";
-import { cn } from "@/lib/utils";
-import { imageHelpers } from "@/lib/image-helpers";
-import { ProviderTiming } from "@/lib/image-types";
-import { Label } from "@/components/ui/label";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { Button } from '@/components/ui/button';
+import { Download, ImageIcon, AlertCircle, Share } from 'lucide-react';
+import { Stopwatch } from './Stopwatch';
+import { cn } from '@/lib/utils';
+import { imageHelpers } from '@/lib/image-helpers';
+import { ProviderTiming } from '@/lib/image-types';
+import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip';
 
 interface ImageDisplayProps {
   provider: string;
@@ -31,11 +36,11 @@ export function ImageDisplay({
 
   useEffect(() => {
     if (isZoomed) {
-      window.history.pushState({ zoomed: true }, "");
+      window.history.pushState({ zoomed: true }, '');
     }
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isZoomed) {
+      if (e.key === 'Escape' && isZoomed) {
         setIsZoomed(false);
       }
     };
@@ -47,13 +52,13 @@ export function ImageDisplay({
     };
 
     if (isZoomed) {
-      document.addEventListener("keydown", handleEscape);
-      window.addEventListener("popstate", handlePopState);
+      document.addEventListener('keydown', handleEscape);
+      window.addEventListener('popstate', handlePopState);
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
-      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [isZoomed]);
 
@@ -71,7 +76,7 @@ export function ImageDisplay({
   ) => {
     e.stopPropagation();
     imageHelpers.shareOrDownload(imageData, provider).catch((error) => {
-      console.error("Failed to share/download image:", error);
+      console.error('Failed to share/download image:', error);
     });
   };
 
@@ -79,9 +84,9 @@ export function ImageDisplay({
     <>
       <div
         className={cn(
-          "relative w-full aspect-square group bg-zinc-50 rounded-lg",
-          image && !failed && "cursor-pointer",
-          (!image || failed) && "border-1 border-zinc-100",
+          'relative w-full aspect-square group bg-zinc-50 rounded-lg',
+          image && !failed && 'cursor-pointer',
+          (!image || failed) && 'border-1 border-zinc-100',
         )}
         onClick={handleImageClick}
       >

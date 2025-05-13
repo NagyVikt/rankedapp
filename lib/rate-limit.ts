@@ -7,11 +7,14 @@ export const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
   // Disable HTTPS check in development
   automaticDeserialization: true,
-  agent: process.env.NODE_ENV === 'development' ? {
-    https: {
-      rejectUnauthorized: false
-    }
-  } : undefined,
+  agent:
+    process.env.NODE_ENV === 'development'
+      ? {
+          https: {
+            rejectUnauthorized: false,
+          },
+        }
+      : undefined,
 });
 
 // Create a new rate limiter that allows 5 requests per 60 seconds

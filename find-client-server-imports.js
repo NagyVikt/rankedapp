@@ -81,14 +81,14 @@ async function walkDir(dir) {
 
 (async () => {
   console.log(
-    `🔍 Searching for files using client hooks AND importing problematic modules in '${APP_DIR}'...`
+    `🔍 Searching for files using client hooks AND importing problematic modules in '${APP_DIR}'...`,
   );
   console.log(
-    `   (Checking imports from '@/lib/db/queries' and '@/app/(auth)/actions.ts')`
+    `   (Checking imports from '@/lib/db/queries' and '@/app/(auth)/actions.ts')`,
   );
   // --- VERIFY ACTION PATH ---
   console.log(
-    `   *** Please ensure the path in ACTIONS_MODULE_IMPORT_PATTERN inside the script matches your actions file import path! ***`
+    `   *** Please ensure the path in ACTIONS_MODULE_IMPORT_PATTERN inside the script matches your actions file import path! ***`,
   );
   // --- ---
 
@@ -99,26 +99,26 @@ async function walkDir(dir) {
 
     if (issuesFound === 0) {
       console.log(
-        '\n✅ Script finished. No files found using client hooks AND directly importing the specified modules.'
+        '\n✅ Script finished. No files found using client hooks AND directly importing the specified modules.',
       );
       console.log(
-        '   (The issue might be indirect imports or rely on parent client boundaries not checked by this script).'
+        '   (The issue might be indirect imports or rely on parent client boundaries not checked by this script).',
       );
     } else {
       console.log(
-        `\n⚠️ Found ${issuesFound} potential area(s) for review. Check the files listed above.`
+        `\n⚠️ Found ${issuesFound} potential area(s) for review. Check the files listed above.`,
       );
       console.log(
-        '   Focus on components that need client interactivity but try to access server code directly.'
+        '   Focus on components that need client interactivity but try to access server code directly.',
       );
     }
   } catch (error) {
     if (error.code === 'ENOENT') {
       console.error(
-        `\n❌ Error: The '${APP_DIR}' directory does not exist at the expected location.`
+        `\n❌ Error: The '${APP_DIR}' directory does not exist at the expected location.`,
       );
       console.error(
-        `   Please run this script from the root of your Next.js project.`
+        `   Please run this script from the root of your Next.js project.`,
       );
     } else {
       console.error('\n❌ An unexpected error occurred:', error);

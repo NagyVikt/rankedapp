@@ -18,7 +18,14 @@ export interface SidebarItem {
   href?: string;
   type?: SidebarItemType;
   startContent?: React.ReactNode;
-  endContent?: React.ReactNode | ((props: { onOpenModal?: () => void, isItemActive?: boolean, isItemOpen?: boolean, onToggle?: () => void }) => React.ReactNode);
+  endContent?:
+    | React.ReactNode
+    | ((props: {
+        onOpenModal?: () => void;
+        isItemActive?: boolean;
+        isItemOpen?: boolean;
+        onToggle?: () => void;
+      }) => React.ReactNode);
   items?: SidebarItem[]; // Sub-items for Nest or Dropdown types
   className?: string;
   onClick?: () => void;
@@ -47,7 +54,8 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/webshops',
         icon: 'solar:shop-bold-duotone',
         title: 'Webshops',
-        className: 'bg-[#f55200] hover:bg-[#E64A00] hover:shadow-xl text-white font-semibold shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 focus:ring-offset-background dark:focus:ring-offset-default-50 transition-all duration-150 ease-in-out transform hover:scale-[1.01]',
+        className:
+          'bg-[#f55200] hover:bg-[#E64A00] hover:shadow-xl text-white font-semibold shadow-lg focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 focus:ring-offset-background dark:focus:ring-offset-default-50 transition-all duration-150 ease-in-out transform hover:scale-[1.01]',
         endContent: ({ onOpenModal }) => (
           <button
             onClick={(e) => {
@@ -58,7 +66,12 @@ export const navigationSections: SidebarSection[] = [
             className="p-1 hover:bg-black/20 rounded-md transition-colors"
             aria-label="Add new webshop"
           >
-            <Icon icon="mdi:plus-circle-outline" width={22} height={22} className="text-white/90 hover:text-white" />
+            <Icon
+              icon="mdi:plus-circle-outline"
+              width={22}
+              height={22}
+              className="text-white/90 hover:text-white"
+            />
           </button>
         ),
       },
@@ -67,14 +80,24 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/tasks',
         icon: 'solar:checklist-minimalistic-bold-duotone',
         title: 'Tasks',
-        endContent: <Icon icon="solar:add-circle-line-duotone" className="text-default-400" width={24} />,
+        endContent: (
+          <Icon
+            icon="solar:add-circle-line-duotone"
+            className="text-default-400"
+            width={24}
+          />
+        ),
       },
       {
         key: 'gallery',
         href: '/dashboard/ads',
         icon: 'solar:gallery-wide-bold-duotone',
         title: 'Gallery',
-        endContent: <Chip size="sm" variant="flat" color="warning" className="text-xs">HOT</Chip>,
+        endContent: (
+          <Chip size="sm" variant="flat" color="warning" className="text-xs">
+            HOT
+          </Chip>
+        ),
       },
       {
         key: 'satori',
@@ -95,7 +118,11 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/emails',
         icon: 'solar:palette-bold-duotone',
         title: 'Email Designer',
-        endContent: <Chip size="sm" variant="flat" color="success" className="text-xs">New</Chip>,
+        endContent: (
+          <Chip size="sm" variant="flat" color="success" className="text-xs">
+            New
+          </Chip>
+        ),
       },
       {
         key: 'campaign-manager',
@@ -108,14 +135,39 @@ export const navigationSections: SidebarSection[] = [
         isInitiallyOpen: false,
         endContent: ({ isItemOpen }) => (
           <div className="flex items-center gap-2">
-            <Chip size="sm" variant="bordered" className="text-xs text-default-600 dark:text-default-400">Active: 5</Chip>
-            <Icon icon={isItemOpen ? "mdi:chevron-up" : "mdi:chevron-down"} width={18} className="text-default-400" />
+            <Chip
+              size="sm"
+              variant="bordered"
+              className="text-xs text-default-600 dark:text-default-400"
+            >
+              Active: 5
+            </Chip>
+            <Icon
+              icon={isItemOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+              width={18}
+              className="text-default-400"
+            />
           </div>
         ),
         items: [
-          { key: 'create-campaign', href: '/dashboard/emails/campaign-manager/create', title: 'Create Campaign', icon: 'solar:add-circle-line-duotone' },
-          { key: 'view-campaigns', href: '/dashboard/emails/campaign-manager/view', title: 'View Campaigns', icon: 'solar:eye-scan-linear' },
-          { key: 'edit-campaign', href: '/dashboard/emails/campaign-manager/edit', title: 'Edit Campaign', icon: 'solar:pen-new-square-linear' },
+          {
+            key: 'create-campaign',
+            href: '/dashboard/emails/campaign-manager/create',
+            title: 'Create Campaign',
+            icon: 'solar:add-circle-line-duotone',
+          },
+          {
+            key: 'view-campaigns',
+            href: '/dashboard/emails/campaign-manager/view',
+            title: 'View Campaigns',
+            icon: 'solar:eye-scan-linear',
+          },
+          {
+            key: 'edit-campaign',
+            href: '/dashboard/emails/campaign-manager/edit',
+            title: 'Edit Campaign',
+            icon: 'solar:pen-new-square-linear',
+          },
         ],
       },
       {
@@ -123,7 +175,15 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/emails/sent-emails',
         icon: 'solar:inbox-out-bold-duotone',
         title: 'Sent Emails',
-        endContent: <Chip size="sm" variant="bordered" className="text-xs text-default-700 dark:text-default-300">27.8K</Chip>,
+        endContent: (
+          <Chip
+            size="sm"
+            variant="bordered"
+            className="text-xs text-default-700 dark:text-default-300"
+          >
+            27.8K
+          </Chip>
+        ),
       },
       {
         key: 'email-stats-toggle',
@@ -138,10 +198,19 @@ export const navigationSections: SidebarSection[] = [
               if (onToggle) onToggle();
             }}
             className="flex items-center justify-start w-full text-xs text-default-500 hover:text-primary px-3 py-1.5 rounded-md hover:bg-default-100 dark:hover:bg-default-50 gap-2"
-            aria-label={isItemOpen ? "Hide email statistics" : "Show email statistics"}
+            aria-label={
+              isItemOpen ? 'Hide email statistics' : 'Show email statistics'
+            }
           >
-            <Icon icon={isItemOpen ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"} width={16} />
-            <span>{isItemOpen ? "Hide Stats" : "Show Stats"}</span>
+            <Icon
+              icon={
+                isItemOpen
+                  ? 'solar:eye-closed-bold-duotone'
+                  : 'solar:eye-bold-duotone'
+              }
+              width={16}
+            />
+            <span>{isItemOpen ? 'Hide Stats' : 'Show Stats'}</span>
           </button>
         ),
       },
@@ -188,7 +257,11 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/tracker',
         icon: 'solar:user-heart-bold-duotone',
         title: 'AI Agents',
-        endContent: <Chip size="sm" variant="flat" color="success" className="text-xs">New</Chip>,
+        endContent: (
+          <Chip size="sm" variant="flat" color="success" className="text-xs">
+            New
+          </Chip>
+        ),
       },
       {
         key: 'settings',
@@ -213,8 +286,9 @@ export const sectionItems: SidebarSection[] = [
     key: 'overview_group',
     title: 'Overview',
     items: [
-      ...(navigationSections.find(s => s.key === 'main')?.items.slice(0, 3) || [])
-    ]
+      ...(navigationSections.find((s) => s.key === 'main')?.items.slice(0, 3) ||
+        []),
+    ],
   },
   {
     key: 'organization',
@@ -226,31 +300,66 @@ export const sectionItems: SidebarSection[] = [
         icon: 'solar:pie-chart-2-outline',
         type: SidebarItemType.Nest, // This uses Nest
         items: [
-          { key: 'shareholders', href: '/dashboard/cap-table/shareholders', title: 'Shareholders', icon: 'solar:users-group-rounded-linear' },
-          { key: 'note_holders', href: '/dashboard/cap-table/note-holders', title: 'Note Holders', icon: 'solar:notes-outline' },
-          { key: 'transactions', href: '/dashboard/cap-table/transactions', title: 'Transactions Log', icon: 'solar:clipboard-list-linear' },
+          {
+            key: 'shareholders',
+            href: '/dashboard/cap-table/shareholders',
+            title: 'Shareholders',
+            icon: 'solar:users-group-rounded-linear',
+          },
+          {
+            key: 'note_holders',
+            href: '/dashboard/cap-table/note-holders',
+            title: 'Note Holders',
+            icon: 'solar:notes-outline',
+          },
+          {
+            key: 'transactions',
+            href: '/dashboard/cap-table/transactions',
+            title: 'Transactions Log',
+            icon: 'solar:clipboard-list-linear',
+          },
         ],
       },
-      ...(navigationSections.find(s => s.key === 'general')?.items.filter(i => ['analytics', 'settings'].includes(i.key)) || [])
+      ...(navigationSections
+        .find((s) => s.key === 'general')
+        ?.items.filter((i) => ['analytics', 'settings'].includes(i.key)) || []),
     ],
   },
   {
     key: 'your-teams',
     title: 'Your Teams',
     items: [
-      { key: 'heroui', href: '/dashboard/team/heroui', title: 'HeroUI', startContent: <TeamAvatar name="Hero UI" /> },
-      { key: 'tailwind-variants', href: '/dashboard/team/tailwind-variants', title: 'Tailwind Variants', startContent: <TeamAvatar name="Tailwind Variants" /> },
-      { key: 'heroui-pro', href: '/dashboard/team/heroui-pro', title: 'HeroUI Pro', startContent: <TeamAvatar name="HeroUI Pro" /> },
+      {
+        key: 'heroui',
+        href: '/dashboard/team/heroui',
+        title: 'HeroUI',
+        startContent: <TeamAvatar name="Hero UI" />,
+      },
+      {
+        key: 'tailwind-variants',
+        href: '/dashboard/team/tailwind-variants',
+        title: 'Tailwind Variants',
+        startContent: <TeamAvatar name="Tailwind Variants" />,
+      },
+      {
+        key: 'heroui-pro',
+        href: '/dashboard/team/heroui-pro',
+        title: 'HeroUI Pro',
+        startContent: <TeamAvatar name="HeroUI Pro" />,
+      },
     ],
   },
 ];
 
 // **FIX: Create and export a flat list of all navigation items**
 // This list will be used by SidebarComponent.tsx
-export const items: SidebarItem[] = navigationSections.reduce((acc, section) => {
-  // We are not including section titles as separate items here,
-  // as SidebarComponent currently renders a flat list of interactive SidebarItem.
-  // If section titles were needed, SidebarComponent would need to be adapted
-  // to handle SidebarSection[] directly or a different structure.
-  return acc.concat(section.items);
-}, [] as SidebarItem[]);
+export const items: SidebarItem[] = navigationSections.reduce(
+  (acc, section) => {
+    // We are not including section titles as separate items here,
+    // as SidebarComponent currently renders a flat list of interactive SidebarItem.
+    // If section titles were needed, SidebarComponent would need to be adapted
+    // to handle SidebarSection[] directly or a different structure.
+    return acc.concat(section.items);
+  },
+  [] as SidebarItem[],
+);

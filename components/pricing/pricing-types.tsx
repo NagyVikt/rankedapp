@@ -1,14 +1,14 @@
-import type {ButtonProps} from "@heroui/react";
+import type { ButtonProps } from '@heroui/react';
 
 export enum FrequencyEnum {
-  Yearly = "yearly",
-  Quarterly = "quarterly",
+  Yearly = 'yearly',
+  Quarterly = 'quarterly',
 }
 
 export enum TiersEnum {
-  Free = "free",
-  Pro = "pro",
-  Team = "team",
+  Free = 'free',
+  Pro = 'pro',
+  Team = 'team',
 }
 
 export type Frequency = {
@@ -33,6 +33,6 @@ export type Tier = {
   featured?: boolean;
   features?: string[];
   buttonText: string;
-  buttonColor?: ButtonProps["color"];
-  buttonVariant: ButtonProps["variant"];
+  buttonColor?: ButtonProps['color'];
+  buttonVariant: ButtonProps['variant'];
 };

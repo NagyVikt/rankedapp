@@ -20,8 +20,21 @@ export type PlanData = {
   mostPopular?: boolean; // Flag for highlighting a specific plan
   buttonText?: string; // Custom text for the button
   // HeroUI Button props for styling
-  buttonColor?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
-  buttonVariant?: 'solid' | 'bordered' | 'light' | 'flat' | 'faded' | 'shadow' | 'ghost';
+  buttonColor?:
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'danger';
+  buttonVariant?:
+    | 'solid'
+    | 'bordered'
+    | 'light'
+    | 'flat'
+    | 'faded'
+    | 'shadow'
+    | 'ghost';
 };
 
 // The main server component for the pricing page
@@ -36,25 +49,34 @@ export default async function PricingPage() {
 
   // --- Find Products by Name ---
   // Find the Stripe Product objects based on the names you've set in the Stripe Dashboard
-  const basePlanProduct = products.find((product: SingleProductType) => product.name === 'Starter');
-  const plusPlanProduct = products.find((product: SingleProductType) => product.name === 'Plus');
-  const ultimateWebshopProduct = products.find((product: SingleProductType) => product.name === 'ULTIMATE WEBSHOP');
+  const basePlanProduct = products.find(
+    (product: SingleProductType) => product.name === 'Starter',
+  );
+  const plusPlanProduct = products.find(
+    (product: SingleProductType) => product.name === 'Plus',
+  );
+  const ultimateWebshopProduct = products.find(
+    (product: SingleProductType) => product.name === 'ULTIMATE WEBSHOP',
+  );
   // const teamPlanProduct = products.find((product) => product.name === 'Team'); // Uncomment if using a "Team" plan
 
   // --- Find Corresponding Prices ---
   // Find the specific Stripe Price object for each product (assuming monthly interval here)
-   // --- Find Corresponding Prices ---
-    // FIX: Add the ': SinglePriceType' annotation again
-    const basePrice = prices.find(
-      (price: SinglePriceType) => price.productId === basePlanProduct?.id && price.interval === 'month'
+  // --- Find Corresponding Prices ---
+  // FIX: Add the ': SinglePriceType' annotation again
+  const basePrice = prices.find(
+    (price: SinglePriceType) =>
+      price.productId === basePlanProduct?.id && price.interval === 'month',
   );
   const plusPrice = prices.find(
-      (price: SinglePriceType) => price.productId === plusPlanProduct?.id && price.interval === 'month'
+    (price: SinglePriceType) =>
+      price.productId === plusPlanProduct?.id && price.interval === 'month',
   );
   const ultimateWebshopPrice = prices.find(
-      (price: SinglePriceType) => price.productId === ultimateWebshopProduct?.id &&
-                 price.interval === 'month' &&
-                 price.currency === 'eur'
+    (price: SinglePriceType) =>
+      price.productId === ultimateWebshopProduct?.id &&
+      price.interval === 'month' &&
+      price.currency === 'eur',
   );
   // const teamPrice = prices.find(
   //   (price) => price.productId === teamPlanProduct?.id && price.interval === 'month'
@@ -65,11 +87,13 @@ export default async function PricingPage() {
 
   const basePlanData: PlanData = {
     name: basePlanProduct?.name || 'Starter', // Use Stripe name or fallback
-    description: basePlanProduct?.description || 'For starters and basic needs.', // Use Stripe description or fallback
+    description:
+      basePlanProduct?.description || 'For starters and basic needs.', // Use Stripe description or fallback
     price: basePrice?.unitAmount ?? 800, // Use Stripe price (cents) or default (e.g., $8.00)
     interval: basePrice?.interval || 'month', // Use Stripe interval or fallback
     trialDays: basePrice?.trialPeriodDays ?? 0, // Use Stripe trial days or default
-    features: [ // Define features for this plan
+    features: [
+      // Define features for this plan
       'Up to 3 Webshops',
       'Max 1000 products',
       'Email Marketing',
@@ -86,7 +110,6 @@ export default async function PricingPage() {
       // 'Shopify Integration - COMING SOON',
       'Deepsearch for WooCommerce products',
       // 'Deepsearch for Shopify products - COMING SOON',
-      
     ],
     priceId: basePrice?.id, // The crucial Stripe Price ID for checkout
     mostPopular: false, // Not the most popular
@@ -97,7 +120,8 @@ export default async function PricingPage() {
 
   const plusPlanData: PlanData = {
     name: plusPlanProduct?.name || 'Plus',
-    description: plusPlanProduct?.description || 'For growing teams needing more power.',
+    description:
+      plusPlanProduct?.description || 'For growing teams needing more power.',
     price: plusPrice?.unitAmount ?? 1200, // Default $12.00
     interval: plusPrice?.interval || 'month',
     trialDays: plusPrice?.trialPeriodDays ?? 7, // Example 7-day trial
@@ -122,18 +146,21 @@ export default async function PricingPage() {
   // Data for the new "ULTIMATE WEBSHOP" plan
   const ultimateWebshopPlanData: PlanData = {
     name: ultimateWebshopProduct?.name || 'Ultimate Webshop', // Use exact name from Stripe
-    description: ultimateWebshopProduct?.description || 'The complete solution for your webshop.', // Use Stripe description or add one
+    description:
+      ultimateWebshopProduct?.description ||
+      'The complete solution for your webshop.', // Use Stripe description or add one
     price: ultimateWebshopPrice?.unitAmount ?? 3500, // Use fetched EUR price (3500 cents) or default
     interval: ultimateWebshopPrice?.interval || 'month', // Should be 'month' based on fetch
     trialDays: ultimateWebshopPrice?.trialPeriodDays ?? 0, // Use Stripe trial days if set, else 0
-    features: [ // Define features for the Ultimate plan
-        'All Plus features, plus:',
-        'Unlimited Webhops & Products',
-        '15000 AI requests',
-        'REACT WEBSHOP ',
-        'Custom Domain Included',
-        'Detailed Analytics Dashboard',
-        'Dedicated Account Manager',
+    features: [
+      // Define features for the Ultimate plan
+      'All Plus features, plus:',
+      'Unlimited Webhops & Products',
+      '15000 AI requests',
+      'REACT WEBSHOP ',
+      'Custom Domain Included',
+      'Detailed Analytics Dashboard',
+      'Dedicated Account Manager',
     ],
     priceId: ultimateWebshopPrice?.id, // The Price ID for €35.00/month
     mostPopular: false, // Set to true if this should be the popular one instead
@@ -167,18 +194,16 @@ export default async function PricingPage() {
   // --- Compile List of Plans to Display ---
   // Create the final array of plans, including the new one
   const plansToShow = [
-      basePlanData,
-      plusPlanData,
-      ultimateWebshopPlanData, // Include the new plan
-      // teamPlanData, // Uncomment if using Team plan
-    ]
+    basePlanData,
+    plusPlanData,
+    ultimateWebshopPlanData, // Include the new plan
+    // teamPlanData, // Uncomment if using Team plan
+  ]
     // IMPORTANT: Filter out any plans where we couldn't find a valid Price ID
-    .filter(plan => !!plan.priceId)
+    .filter((plan) => !!plan.priceId)
     // Optional: Sort the plans based on price (ascending)
     .sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
 
   // Render the client component, passing the prepared list of plans
-  return (
-    <PricingClientComponent plans={plansToShow} />
-  );
+  return <PricingClientComponent plans={plansToShow} />;
 }

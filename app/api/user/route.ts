@@ -1,10 +1,10 @@
 // app/api/user/route.ts
-import { NextResponse }         from 'next/server';
-import { cookies }              from 'next/headers';
-import { createServerClient }   from '@supabase/ssr';
-import { db }                   from '@/lib/db';                // <-- your Drizzle client
-import * as schema              from '@/lib/db/schema';        // <-- your table definitions
-import { eq }                   from 'drizzle-orm';            // <-- filter helper
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { db } from '@/lib/db'; // <-- your Drizzle client
+import * as schema from '@/lib/db/schema'; // <-- your table definitions
+import { eq } from 'drizzle-orm'; // <-- filter helper
 
 export async function GET() {
   // 1️⃣ Initialize Supabase server client with cookie helpers
@@ -17,14 +17,17 @@ export async function GET() {
         getAll: () => cookieStore.getAll(),
         setAll: (tos) =>
           tos.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            cookieStore.set(name, value, options),
           ),
       },
-    }
+    },
   );
 
   // 2️⃣ Fetch the authenticated user from Supabase
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
   if (userError || !user) {
     return NextResponse.json({ user: null });
   }
@@ -49,14 +52,11 @@ export async function GET() {
 
   // 4️⃣ Merge in the best display name & role
   const name =
-    profile?.name
-    ?? (user.user_metadata as any)?.full_name
-    ?? (user.user_metadata as any)?.name
-    ?? '';
-  const role =
-    profile?.role
-    ?? (user.app_metadata as any)?.role
-    ?? 'member';
+    profile?.name ??
+    (user.user_metadata as any)?.full_name ??
+    (user.user_metadata as any)?.name ??
+    '';
+  const role = profile?.role ?? (user.app_metadata as any)?.role ?? 'member';
 
   // 5️⃣ Return a unified, safe user object
   return NextResponse.json({
@@ -65,6 +65,6 @@ export async function GET() {
       email: user.email,
       name,
       role,
-    }
+    },
   });
 }

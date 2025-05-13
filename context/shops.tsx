@@ -1,6 +1,12 @@
 // context/shops.tsx
 'use client';
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { loadShops, saveShops, Shop } from '@/lib/shops';
 
 interface ShopsContextValue {

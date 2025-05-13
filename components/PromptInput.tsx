@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { ArrowUpRight, ArrowUp, RefreshCw } from "lucide-react";
-import { getRandomSuggestions, Suggestion } from "@/lib/suggestions";
-import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { useState } from 'react';
+import { ArrowUpRight, ArrowUp, RefreshCw } from 'lucide-react';
+import { getRandomSuggestions, Suggestion } from '@/lib/suggestions';
+import { Spinner } from '@/components/ui/spinner';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
-type QualityMode = "performance" | "quality";
+type QualityMode = 'performance' | 'quality';
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
@@ -22,7 +22,7 @@ export function PromptInput({
   isLoading,
   onSubmit,
 }: PromptInputProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initSuggestions);
 
   const updateSuggestions = () => {
@@ -44,7 +44,7 @@ export function PromptInput({
   // };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (!isLoading && input.trim()) {
         onSubmit(input);
@@ -77,12 +77,12 @@ export function PromptInput({
                   key={index}
                   onClick={() => handleSuggestionSelect(suggestion.prompt)}
                   className={cn(
-                    "flex items-center justify-between px-2 rounded-lg py-1 bg-background text-sm hover:opacity-70 group transition-opacity duration-200",
+                    'flex items-center justify-between px-2 rounded-lg py-1 bg-background text-sm hover:opacity-70 group transition-opacity duration-200',
                     index > 2
-                      ? "hidden md:flex"
+                      ? 'hidden md:flex'
                       : index > 1
-                        ? "hidden sm:flex"
-                        : "",
+                        ? 'hidden sm:flex'
+                        : '',
                   )}
                 >
                   <span>

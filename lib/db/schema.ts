@@ -60,7 +60,9 @@ export const teamMembers = pgTable('team_members', {
 // --- Activity Logs ---
 export const activityLogs = pgTable('activity_logs', {
   id: serial('id').primaryKey(),
-  teamId: integer('team_id').references(() => teams.id, { onDelete: 'cascade' }),
+  teamId: integer('team_id').references(() => teams.id, {
+    onDelete: 'cascade',
+  }),
   userId: uuid('user_id').references(() => user.id, { onDelete: 'set null' }),
   action: text('action').notNull(),
   timestamp: timestamp('timestamp').notNull().defaultNow(),
@@ -86,7 +88,9 @@ export const invitations = pgTable('invitations', {
 
 export const usersRelations = relations(user, ({ many }) => ({
   teamMembers: many(teamMembers),
-  invitationsSent: many(invitations, { relationName: 'InvitationsSentByUsers' }),
+  invitationsSent: many(invitations, {
+    relationName: 'InvitationsSentByUsers',
+  }),
   activityLogs: many(activityLogs),
   webshops: many(webshops),
   designs: many(designs),
@@ -139,79 +143,109 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
 // --- Webshops Table ---
 export const webshops = pgTable('webshops', {
   id: serial('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 100 }).notNull(),
   url: text('url'),
   slug: varchar('slug', { length: 100 }).notNull().unique(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
   platform: varchar('platform', { length: 50 }),
 });
 
 export const webshopsRelations = relations(webshops, ({ one, many }) => ({
-    user: one(user, {
-        fields: [webshops.userId],
-        references: [user.id],
-    }),
-    customers: many(customers),
-    campaigns: many(campaigns),
+  user: one(user, {
+    fields: [webshops.userId],
+    references: [user.id],
+  }),
+  customers: many(customers),
+  campaigns: many(campaigns),
 }));
 
 // --- Designs Table ---
 export const designs = pgTable('designs', {
   id: serial('id').primaryKey(),
-  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   design: jsonb('design').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const designsRelations = relations(designs, ({ one }) => ({
-    user: one(user, {
-        fields: [designs.userId],
-        references: [user.id],
-    }),
+  user: one(user, {
+    fields: [designs.userId],
+    references: [user.id],
+  }),
 }));
 
 // --- Customers Table ---
 export const customers = pgTable('customers', {
   id: serial('id').primaryKey(),
-  webshopId: integer('webshop_id').notNull().references(() => webshops.id, { onDelete: 'cascade' }),
+  webshopId: integer('webshop_id')
+    .notNull()
+    .references(() => webshops.id, { onDelete: 'cascade' }),
   shopIdentifier: varchar('shop_identifier', { length: 100 }),
   email: varchar('email', { length: 254 }).notNull(),
   firstName: text('first_name'),
   lastName: text('last_name'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const customersRelations = relations(customers, ({ one }) => ({
-    webshop: one(webshops, {
-        fields: [customers.webshopId],
-        references: [webshops.id],
-    }),
+  webshop: one(webshops, {
+    fields: [customers.webshopId],
+    references: [webshops.id],
+  }),
 }));
 
 // --- Campaigns Table ---
 export const campaigns = pgTable('campaigns', {
   id: serial('id').primaryKey(),
-  webshopId: integer('webshop_id').notNull().references(() => webshops.id, { onDelete: 'cascade' }),
+  webshopId: integer('webshop_id')
+    .notNull()
+    .references(() => webshops.id, { onDelete: 'cascade' }),
   shopIdentifier: text('shop_identifier'),
   name: varchar('name', { length: 255 }).notNull(),
-  sendNow: jsonb('send_now').notNull().default(sql`'[]'::jsonb`),
-  weekly: jsonb('weekly').notNull().default(sql`'[]'::jsonb`),
-  assignments: jsonb('assignments').notNull().default(sql`'{}'::jsonb`),
+  sendNow: jsonb('send_now')
+    .notNull()
+    .default(sql`'[]'::jsonb`),
+  weekly: jsonb('weekly')
+    .notNull()
+    .default(sql`'[]'::jsonb`),
+  assignments: jsonb('assignments')
+    .notNull()
+    .default(sql`'{}'::jsonb`),
   isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const campaignsRelations = relations(campaigns, ({ one }) => ({
-    webshop: one(webshops, {
-        fields: [campaigns.webshopId],
-        references: [webshops.id],
-    }),
+  webshop: one(webshops, {
+    fields: [campaigns.webshopId],
+    references: [webshops.id],
+  }),
 }));
 
 // --- Chat, Message, Vote, Document, Suggestion Tables ---
@@ -229,12 +263,12 @@ export const chat = pgTable('Chat', {
 });
 
 export const chatRelations = relations(chat, ({ one, many }) => ({
-    user: one(user, {
-        fields: [chat.userId],
-        references: [user.id],
-    }),
-    messages: many(message),
-    votes: many(vote), // A chat can have many votes (on its messages)
+  user: one(user, {
+    fields: [chat.userId],
+    references: [user.id],
+  }),
+  messages: many(message),
+  votes: many(vote), // A chat can have many votes (on its messages)
 }));
 
 export const message = pgTable('Message', {
@@ -248,11 +282,11 @@ export const message = pgTable('Message', {
 });
 
 export const messageRelations = relations(message, ({ one, many }) => ({
-    chat: one(chat, {
-        fields: [message.chatId],
-        references: [chat.id],
-    }),
-    votes: many(vote), // A message can have many votes
+  chat: one(chat, {
+    fields: [message.chatId],
+    references: [chat.id],
+  }),
+  votes: many(vote), // A message can have many votes
 }));
 
 // --- CORRECTED Vote Table Definition ---
@@ -275,24 +309,27 @@ export const vote = pgTable(
   (table) => {
     // Constraints are defined in this callback
     return {
-      pk: primaryKey({ columns: [table.chatId, table.messageId, table.userId] }),
+      pk: primaryKey({
+        columns: [table.chatId, table.messageId, table.userId],
+      }),
     };
   },
 );
 
 export const voteRelations = relations(vote, ({ one }) => ({
-    chat: one(chat, {
-        fields: [vote.chatId],
-        references: [chat.id],
-    }),
-    message: one(message, {
-        fields: [vote.messageId],
-        references: [message.id],
-    }),
-    user: one(user, { // User who made the vote
-        fields: [vote.userId], // Now references the correctly defined column
-        references: [user.id],
-    }),
+  chat: one(chat, {
+    fields: [vote.chatId],
+    references: [chat.id],
+  }),
+  message: one(message, {
+    fields: [vote.messageId],
+    references: [message.id],
+  }),
+  user: one(user, {
+    // User who made the vote
+    fields: [vote.userId], // Now references the correctly defined column
+    references: [user.id],
+  }),
 }));
 
 export const document = pgTable(
@@ -317,11 +354,11 @@ export const document = pgTable(
 );
 
 export const documentRelations = relations(document, ({ one, many }) => ({
-    user: one(user, {
-        fields: [document.userId],
-        references: [user.id],
-    }),
-    suggestions: many(suggestion),
+  user: one(user, {
+    fields: [document.userId],
+    references: [user.id],
+  }),
+  suggestions: many(suggestion),
 }));
 
 export const suggestion = pgTable(
@@ -348,14 +385,14 @@ export const suggestion = pgTable(
 );
 
 export const suggestionRelations = relations(suggestion, ({ one }) => ({
-    document: one(document, {
-        fields: [suggestion.documentId, suggestion.documentCreatedAt],
-        references: [document.id, document.createdAt],
-    }),
-    user: one(user, {
-        fields: [suggestion.userId],
-        references: [user.id],
-    }),
+  document: one(document, {
+    fields: [suggestion.documentId, suggestion.documentCreatedAt],
+    references: [document.id, document.createdAt],
+  }),
+  user: one(user, {
+    fields: [suggestion.userId],
+    references: [user.id],
+  }),
 }));
 
 // --- Export Types ---

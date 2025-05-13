@@ -23,8 +23,8 @@ export default function DefaultLayout({
   const mainMargin = disableMarginShift
     ? 'md:ml-0'
     : isSidebarOpen
-    ? 'md:ml-80'
-    : 'md:ml-0';
+      ? 'md:ml-80'
+      : 'md:ml-0';
 
   return (
     <div className="relative flex min-h-screen bg-background text-foreground">
@@ -55,7 +55,9 @@ export default function DefaultLayout({
       </aside>
 
       {/* Main content area */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${mainMargin}`}>
+      <div
+        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${mainMargin}`}
+      >
         <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 bg-background/80 backdrop-blur border-b border-divider">
           {!isSidebarOpen && (
             <button
@@ -73,7 +75,9 @@ export default function DefaultLayout({
         <main className="flex-grow w-full">{children}</main>
 
         <footer className="w-full flex items-center justify-center py-4 border-t border-divider text-xs text-default-500">
-          <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Your Company. All rights reserved.
+          </p>
         </footer>
       </div>
     </div>

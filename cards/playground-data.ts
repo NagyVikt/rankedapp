@@ -1,6 +1,6 @@
 export type Tabs = {
-  [x: string]: string
-}
+  [x: string]: string;
+};
 
 const playgroundTabs: Tabs = {
   helloworld: `
@@ -496,6 +496,6 @@ const playgroundTabs: Tabs = {
   )
 }  
 `,
-}
+};
 
-export default playgroundTabs
+export default playgroundTabs;

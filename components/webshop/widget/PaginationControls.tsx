@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 
 export function PaginationControls({
   page,
@@ -15,16 +15,16 @@ export function PaginationControls({
 }) {
   const pages = useMemo(() => {
     let start = Math.max(1, page - windowSize);
-    let end   = Math.min(totalPages, page + windowSize);
+    let end = Math.min(totalPages, page + windowSize);
 
     // if you’re near the edges, expand the window
     if (page <= windowSize + 1) {
       start = 1;
-      end   = Math.min(totalPages, 1 + 2 * windowSize);
+      end = Math.min(totalPages, 1 + 2 * windowSize);
     }
     if (page + windowSize >= totalPages) {
       start = Math.max(1, totalPages - 2 * windowSize);
-      end   = totalPages;
+      end = totalPages;
     }
 
     const arr: number[] = [];
@@ -60,8 +60,8 @@ export function PaginationControls({
           onClick={() => onChange(p)}
           className={
             p === page
-              ? "px-3 py-1 border rounded bg-blue-600 text-white"
-              : "px-3 py-1 border rounded text-blue-600 hover:bg-gray-100"
+              ? 'px-3 py-1 border rounded bg-blue-600 text-white'
+              : 'px-3 py-1 border rounded text-blue-600 hover:bg-gray-100'
           }
         >
           {p}
@@ -70,7 +70,9 @@ export function PaginationControls({
 
       {pages[pages.length - 1] < totalPages && (
         <>
-          {pages[pages.length - 1] < totalPages - 1 && <span className="px-2">…</span>}
+          {pages[pages.length - 1] < totalPages - 1 && (
+            <span className="px-2">…</span>
+          )}
           <button
             onClick={() => onChange(totalPages)}
             className="px-3 py-1 border rounded hover:bg-gray-100"

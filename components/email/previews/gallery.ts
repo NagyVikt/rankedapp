@@ -700,4 +700,3 @@ table, td { color: #000000; } @media (max-width: 480px) { #u_content_heading_2 .
 </html>
 
 `;
-

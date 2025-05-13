@@ -8,12 +8,7 @@ import React, {
   ReactNode,
   createElement,
 } from 'react';
-import {
-  Listbox,
-  ListboxItem,
-  Accordion,
-  AccordionItem,
-} from '@heroui/react';
+import { Listbox, ListboxItem, Accordion, AccordionItem } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@heroui/react';
@@ -30,22 +25,16 @@ export type SidebarProps = {
 
 const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
   (
-    {
-      isCompact = false,
-      hideEndContent = false,
-      iconClassName,
-      classNames,
-    },
-    ref
+    { isCompact = false, hideEndContent = false, iconClassName, classNames },
+    ref,
   ) => {
     const router = useRouter();
     const pathname = usePathname();
 
     // Determine default selected key
-    const defaultKey = (
-      items.find((it) => it.href && pathname.startsWith(it.href))?.key ??
-      items[0].key
-    ) as SharedKey;
+    const defaultKey = (items.find(
+      (it) => it.href && pathname.startsWith(it.href),
+    )?.key ?? items[0].key) as SharedKey;
 
     const [selected, setSelected] = useState<SharedKey>(defaultKey);
 
@@ -54,10 +43,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
         let chosen: SharedKey;
         if (keys === 'all') {
           chosen = defaultKey;
-        } else if (
-          typeof keys === 'string' ||
-          typeof keys === 'number'
-        ) {
+        } else if (typeof keys === 'string' || typeof keys === 'number') {
           chosen = keys as SharedKey;
         } else {
           chosen = (Array.from(keys)[0] ?? defaultKey) as SharedKey;
@@ -69,7 +55,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
           router.push(item.href);
         }
       },
-      [router, defaultKey]
+      [router, defaultKey],
     );
 
     const renderItem = useCallback(
@@ -102,7 +88,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
                       width={24}
                       className={cn(
                         'text-default-500 group-data-[selected=true]:text-foreground',
-                        iconClassName
+                        iconClassName,
                       )}
                     />
                   )
@@ -112,17 +98,13 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
           >
             {isCompact && item.icon ? (
               <div className="flex w-full items-center justify-center">
-                <Icon
-                  icon={item.icon}
-                  width={24}
-                  className={iconClassName}
-                />
+                <Icon icon={item.icon} width={24} className={iconClassName} />
               </div>
             ) : null}
           </ListboxItem>
         );
       },
-      [isCompact, hideEndContent, iconClassName]
+      [isCompact, hideEndContent, iconClassName],
     );
 
     const renderNest = useCallback(
@@ -133,11 +115,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
             title={
               <div className="flex items-center gap-2 p-2">
                 {item.icon && (
-                  <Icon
-                    icon={item.icon}
-                    width={24}
-                    className={iconClassName}
-                  />
+                  <Icon icon={item.icon} width={24} className={iconClassName} />
                 )}
                 <span>{item.title}</span>
               </div>
@@ -155,7 +133,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
           </AccordionItem>
         </Accordion>
       ),
-      [selected, iconClassName, renderItem]
+      [selected, iconClassName, renderItem],
     );
 
     return (
@@ -179,7 +157,7 @@ const SidebarComponent = forwardRef<HTMLElement, SidebarProps>(
         }
       </Listbox>
     );
-  }
+  },
 );
 
 SidebarComponent.displayName = 'SidebarComponent';

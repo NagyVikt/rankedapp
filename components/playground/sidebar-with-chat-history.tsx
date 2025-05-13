@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import type {ComponentProps} from "react";
+import type { ComponentProps } from 'react';
 
-import React from "react";
+import React from 'react';
 import {
   Avatar,
   Button,
@@ -18,11 +18,11 @@ import {
   DropdownItem,
   DropdownSection,
   cn,
-} from "@heroui/react";
-import {Icon} from "@iconify/react";
+} from '@heroui/react';
+import { Icon } from '@iconify/react';
 
-import {AcmeIcon} from "./acme";
-import SidebarDrawer from "./sidebar-drawer";
+import { AcmeIcon } from './acme';
+import SidebarDrawer from './sidebar-drawer';
 
 /**
  * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
@@ -38,7 +38,7 @@ import SidebarDrawer from "./sidebar-drawer";
  * ```
  */
 
-function AvatarDropdownIcon(props: ComponentProps<"svg">) {
+function AvatarDropdownIcon(props: ComponentProps<'svg'>) {
   return (
     <svg
       {...props}
@@ -81,7 +81,11 @@ function RecentPromptDropdown() {
           width={24}
         />
       </DropdownTrigger>
-      <DropdownMenu aria-label="Dropdown menu with icons" className="py-2" variant="faded">
+      <DropdownMenu
+        aria-label="Dropdown menu with icons"
+        className="py-2"
+        variant="faded"
+      >
         <DropdownItem
           key="share"
           className="text-default-500 data-[hover=true]:text-default-500"
@@ -100,7 +104,12 @@ function RecentPromptDropdown() {
           key="rename"
           className="text-default-500 data-[hover=true]:text-default-500"
           startContent={
-            <Icon className="text-default-300" height={20} icon="solar:pen-linear" width={20} />
+            <Icon
+              className="text-default-300"
+              height={20}
+              icon="solar:pen-linear"
+              width={20}
+            />
           }
         >
           Rename
@@ -152,7 +161,7 @@ export default function Component({
   subTitle?: string;
   classNames?: Record<string, string>;
 }) {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const content = (
     <div className="relative flex h-full w-72 flex-1 flex-col p-6">
@@ -160,7 +169,9 @@ export default function Component({
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground">
           <AcmeIcon className="text-background" />
         </div>
-        <span className="text-base font-bold uppercase leading-6 text-foreground">Acme AI</span>
+        <span className="text-base font-bold uppercase leading-6 text-foreground">
+          Acme AI
+        </span>
       </div>
 
       <Spacer y={8} />
@@ -179,7 +190,9 @@ export default function Component({
                   src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/3a906b3de8eaa53e14582edf5c918b5d.jpg"
                 />
                 <div className="flex flex-col text-left">
-                  <p className="text-small font-semibold leading-5 text-foreground">Taylor Smith</p>
+                  <p className="text-small font-semibold leading-5 text-foreground">
+                    Taylor Smith
+                  </p>
                   <p className="text-tiny text-default-400">taylor@mail.com</p>
                 </div>
               </div>
@@ -197,32 +210,50 @@ export default function Component({
                   src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/3a906b3de8eaa53e14582edf5c918b5d.jpg"
                 />
                 <div className="flex flex-col text-left">
-                  <p className="text-small font-normal leading-5 text-foreground">Taylor Smith</p>
+                  <p className="text-small font-normal leading-5 text-foreground">
+                    Taylor Smith
+                  </p>
                   <p className="text-tiny text-default-400">taylor@mail.com</p>
                 </div>
               </div>
             </DropdownItem>
-            <DropdownSection showDivider aria-label="profile-section-1" className="px-0">
+            <DropdownSection
+              showDivider
+              aria-label="profile-section-1"
+              className="px-0"
+            >
               <DropdownItem key="my-plan" className="py-[4px] text-default-500">
                 My Plan
               </DropdownItem>
               <DropdownItem key="my-gpts" className="py-[4px] text-default-500">
                 My GPTs
               </DropdownItem>
-              <DropdownItem key="customize-acmeai" className="py-[4px] text-default-500">
+              <DropdownItem
+                key="customize-acmeai"
+                className="py-[4px] text-default-500"
+              >
                 Customize AcmeAI
               </DropdownItem>
             </DropdownSection>
             <DropdownSection showDivider aria-label="profile-section-2">
-              <DropdownItem key="settings" className="py-[4px] text-default-500">
+              <DropdownItem
+                key="settings"
+                className="py-[4px] text-default-500"
+              >
                 Settings
               </DropdownItem>
-              <DropdownItem key="download-desktop-app" className="py-[4px] text-default-500">
+              <DropdownItem
+                key="download-desktop-app"
+                className="py-[4px] text-default-500"
+              >
                 Download Desktop App
               </DropdownItem>
             </DropdownSection>
             <DropdownSection aria-label="profile-section-3" className="mb-0">
-              <DropdownItem key="help-and-feedback" className="py-[4px] text-default-500">
+              <DropdownItem
+                key="help-and-feedback"
+                className="py-[4px] text-default-500"
+              >
                 Help & Feedback
               </DropdownItem>
               <DropdownItem key="logout" className="pt-[4px] text-default-500">
@@ -238,7 +269,11 @@ export default function Component({
           fullWidth
           className="mb-6 mt-2 h-[44px] justify-start gap-3 bg-default-foreground px-3 py-[10px] text-default-50"
           startContent={
-            <Icon className="text-default-50" icon="solar:chat-round-dots-linear" width={24} />
+            <Icon
+              className="text-default-50"
+              icon="solar:chat-round-dots-linear"
+              width={24}
+            />
           }
         >
           New Chat
@@ -247,8 +282,8 @@ export default function Component({
         <Listbox aria-label="Recent chats" variant="flat">
           <ListboxSection
             classNames={{
-              base: "py-0",
-              heading: "py-0 pl-[10px] text-small text-default-400",
+              base: 'py-0',
+              heading: 'py-0 pl-[10px] text-small text-default-400',
             }}
             title="Recent"
           >
@@ -312,7 +347,11 @@ export default function Component({
               key="show-more"
               className="h-[44px] px-[12px] py-[10px] text-default-400"
               endContent={
-                <Icon className="text-default-300" icon="solar:alt-arrow-down-linear" width={20} />
+                <Icon
+                  className="text-default-300"
+                  icon="solar:alt-arrow-down-linear"
+                  width={20}
+                />
               }
             >
               Show more
@@ -328,7 +367,11 @@ export default function Component({
           fullWidth
           className="justify-start text-default-600"
           startContent={
-            <Icon className="text-default-600" icon="solar:info-circle-line-duotone" width={24} />
+            <Icon
+              className="text-default-600"
+              icon="solar:info-circle-line-duotone"
+              width={24}
+            />
           }
           variant="light"
         >
@@ -337,7 +380,11 @@ export default function Component({
         <Button
           className="justify-start text-default-600"
           startContent={
-            <Icon className="text-default-600" icon="solar:history-line-duotone" width={24} />
+            <Icon
+              className="text-default-600"
+              icon="solar:history-line-duotone"
+              width={24}
+            />
           }
           variant="light"
         >
@@ -373,11 +420,17 @@ export default function Component({
       <div className="flex w-full flex-col px-4 sm:max-w-[calc(100%_-_288px)]">
         <header
           className={cn(
-            "flex h-16 min-h-16 items-center justify-between gap-2 rounded-none rounded-t-medium border-small border-divider px-4 py-3",
-            classNames?.["header"],
+            'flex h-16 min-h-16 items-center justify-between gap-2 rounded-none rounded-t-medium border-small border-divider px-4 py-3',
+            classNames?.['header'],
           )}
         >
-          <Button isIconOnly className="flex sm:hidden" size="sm" variant="light" onPress={onOpen}>
+          <Button
+            isIconOnly
+            className="flex sm:hidden"
+            size="sm"
+            variant="light"
+            onPress={onOpen}
+          >
             <Icon
               className="text-default-500"
               height={24}

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import React, { useCallback, useEffect, useState } from "react";
-import { Avatar, Image } from "@heroui/react";
-import { cn } from "@heroui/react";
+import React, { useCallback, useEffect, useState } from 'react';
+import { Avatar, Image } from '@heroui/react';
+import { cn } from '@heroui/react';
 
 interface MessagingChatMessageProps {
   avatar?: string;
   name?: string;
   time?: string;
   message: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   isRTL?: boolean;
   imageUrl?: string;
   className?: string;
@@ -18,7 +18,10 @@ interface MessagingChatMessageProps {
   };
 }
 
-const MessagingChatMessage = React.forwardRef<HTMLDivElement, MessagingChatMessageProps>(
+const MessagingChatMessage = React.forwardRef<
+  HTMLDivElement,
+  MessagingChatMessageProps
+>(
   (
     {
       avatar,
@@ -31,15 +34,15 @@ const MessagingChatMessage = React.forwardRef<HTMLDivElement, MessagingChatMessa
       classNames,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Animate assistant's message (typing), display user message immediately
     const [displayedContent, setDisplayedContent] = useState(
-      role === "assistant" ? "" : message
+      role === 'assistant' ? '' : message,
     );
 
     useEffect(() => {
-      if (role !== "assistant") {
+      if (role !== 'assistant') {
         setDisplayedContent(message);
         return;
       }
@@ -60,16 +63,16 @@ const MessagingChatMessage = React.forwardRef<HTMLDivElement, MessagingChatMessa
     const MessageContent = () => (
       <div
         className={cn(
-          "relative w-full rounded-medium px-4 py-3",
-          role === "assistant"
-            ? "bg-content2 text-default-600"
-            : "bg-default-50 text-default-600",
-          classNames?.base
+          'relative w-full rounded-medium px-4 py-3',
+          role === 'assistant'
+            ? 'bg-content2 text-default-600'
+            : 'bg-default-50 text-default-600',
+          classNames?.base,
         )}
       >
         <div className="flex">
           <div className="w-full text-small font-semibold text-default-foreground">
-            {role === "assistant" ? (name || "Gemini") : (name || "You")}
+            {role === 'assistant' ? name || 'Gemini' : name || 'You'}
           </div>
           <div className="flex-end text-small text-default-400">{time}</div>
         </div>
@@ -93,12 +96,12 @@ const MessagingChatMessage = React.forwardRef<HTMLDivElement, MessagingChatMessa
         {...props}
         ref={ref}
         className={cn(
-          "mb-3 flex gap-3",
+          'mb-3 flex gap-3',
           // Assistant on left => flex-row; user on right => flex-row-reverse
-          role === "assistant" ? "flex-row" : "flex-row-reverse",
+          role === 'assistant' ? 'flex-row' : 'flex-row-reverse',
           // Conditionally add left margin for assistant, right margin for user
-          role === "assistant" ? "ml-6" : "mr-6",
-          className
+          role === 'assistant' ? 'ml-6' : 'mr-6',
+          className,
         )}
       >
         <div className="flex-none">
@@ -107,8 +110,8 @@ const MessagingChatMessage = React.forwardRef<HTMLDivElement, MessagingChatMessa
         <MessageContent />
       </div>
     );
-  }
+  },
 );
 
-MessagingChatMessage.displayName = "MessagingChatMessage";
+MessagingChatMessage.displayName = 'MessagingChatMessage';
 export default MessagingChatMessage;

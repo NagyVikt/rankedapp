@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Carousel,
@@ -7,11 +7,11 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from '@/components/ui/carousel';
 // Import the updated ModelSelect and its props type
-import { ModelSelect, ModelSelectProps } from "./ModelSelect";
-import { cn } from "@/lib/utils";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { ModelSelect, ModelSelectProps } from './ModelSelect';
+import { cn } from '@/lib/utils';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 // Remove unused imports if any
 // import { ProviderKey } from "@/lib/provider-config";
 // import { ProviderTiming } from "@/lib/image-types";
@@ -32,43 +32,40 @@ export function ModelCardCarousel({ models }: ModelCardCarouselProps) {
     initialized.current = false;
   }, [models]);
 
-
   useLayoutEffect(() => {
     // Only initialize/reset scroll if api exists and not already done for this set of models
     if (!api || initialized.current) return;
 
     // Short delay can sometimes help ensure API is fully ready after model change
     const timer = setTimeout(() => {
-        if (api.scrollSnapList().length > 0) {
-             api.scrollTo(0, true); // Use immediate scroll
-             setCurrentSlide(0);
-             initialized.current = true; // Mark as initialized for this model set
-        }
+      if (api.scrollSnapList().length > 0) {
+        api.scrollTo(0, true); // Use immediate scroll
+        setCurrentSlide(0);
+        initialized.current = true; // Mark as initialized for this model set
+      }
     }, 50); // 50ms delay
 
     return () => clearTimeout(timer);
-
   }, [api, models]); // Re-run if api or models change
-
 
   useEffect(() => {
     if (!api) return;
 
     const onSelect = () => {
-        // Check if api is still mounted/available
-        if (api.selectedScrollSnap) {
-           setCurrentSlide(api.selectedScrollSnap());
-        }
+      // Check if api is still mounted/available
+      if (api.selectedScrollSnap) {
+        setCurrentSlide(api.selectedScrollSnap());
+      }
     };
 
-    api.on("select", onSelect);
+    api.on('select', onSelect);
     // Re-initialize listener when models change
     api.reInit(); // Reinitialize carousel properties
 
     return () => {
       // Check if api is still available before trying to turn off listener
-      if(api.off) {
-        api.off("select", onSelect);
+      if (api.off) {
+        api.off('select', onSelect);
       }
     };
   }, [api, models]); // Re-run if api or models change
@@ -78,9 +75,9 @@ export function ModelCardCarousel({ models }: ModelCardCarouselProps) {
       <Carousel
         setApi={setApi}
         opts={{
-          align: "start",
+          align: 'start',
           dragFree: false, // Keep dragFree false for better snap control
-          containScroll: "trimSnaps",
+          containScroll: 'trimSnaps',
           loop: models.length > 1, // Only loop if more than one item
         }}
         // Add key based on models length or content hash if needed for hard reset
@@ -89,15 +86,17 @@ export function ModelCardCarousel({ models }: ModelCardCarouselProps) {
         <CarouselContent>
           {/* Map over the models array, passing each object directly to ModelSelect */}
           {models.map((modelProps, i) => (
-            <CarouselItem key={modelProps.providerKey}> {/* Use providerKey as key */}
+            <CarouselItem key={modelProps.providerKey}>
+              {' '}
+              {/* Use providerKey as key */}
               {/* Spread the modelProps directly */}
               <ModelSelect {...modelProps} />
               {/* Slide indicator */}
               {models.length > 1 && (
-                 <div className="text-center text-sm text-muted-foreground mt-4">
-                    {/* Use currentSlide derived from API state */}
-                    {currentSlide + 1} of {models.length}
-                 </div>
+                <div className="text-center text-sm text-muted-foreground mt-4">
+                  {/* Use currentSlide derived from API state */}
+                  {currentSlide + 1} of {models.length}
+                </div>
               )}
             </CarouselItem>
           ))}
@@ -121,11 +120,11 @@ export function ModelCardCarousel({ models }: ModelCardCarouselProps) {
                 key={index}
                 aria-label={`Go to model ${index + 1}`}
                 className={cn(
-                  "h-1.5 rounded-full transition-all duration-150 ease-in-out",
+                  'h-1.5 rounded-full transition-all duration-150 ease-in-out',
                   // Use currentSlide derived from API state for active dot
                   index === currentSlide
-                    ? "w-4 bg-primary"
-                    : "w-1.5 bg-primary/50 hover:bg-primary/75", // Add hover effect
+                    ? 'w-4 bg-primary'
+                    : 'w-1.5 bg-primary/50 hover:bg-primary/75', // Add hover effect
                 )}
                 onClick={() => api?.scrollTo(index)} // Use API to scroll
               />

@@ -33,7 +33,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   // --- RECOMMENDED CHANGE: Use getUser() instead of getSession() ---
   // Fetch the authenticated user data directly from the Supabase Auth server
   // This provides a more reliable and secure check than reading from cookies (getSession)
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   console.log('Current user from getUser():', user); // Log the user object for debugging
   // --- End of Change ---
 
@@ -62,7 +64,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   // Find the corresponding model objects
   // Using non-null assertion (!) assumes default models always exist in the arrays
   const selectedModel = models.find((m) => m.id === modelId)!;
-  const selectedReasoningModel = reasoningModels.find((m) => m.id === reasoningModelId)!;
+  const selectedReasoningModel = reasoningModels.find(
+    (m) => m.id === reasoningModelId,
+  )!;
 
   // --- UPDATED isReadonly LOGIC ---
   // Determine if the chat should be read-only for the current user

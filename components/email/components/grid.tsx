@@ -1,6 +1,6 @@
 // components/gallery.tsx
-import React from 'react'
-import { galleryPreviewHtml } from '../previews/gallery'
+import React from 'react';
+import { galleryPreviewHtml } from '../previews/gallery';
 
 /**
  * This React component simply renders your snippet HTML
@@ -15,5 +15,5 @@ export default function GridBlock() {
       // raw HTML + inline styles straight into a React tree.
       dangerouslySetInnerHTML={{ __html: galleryPreviewHtml }}
     />
-  )
+  );
 }

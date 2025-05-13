@@ -53,7 +53,6 @@ export const buttonsIconSvg = `
 </svg>
 `;
 
-
 // ROBI
 export const buttonsSnippetHtml = `
  
@@ -2884,4 +2883,4 @@ export const buttonsSnippetjson = `
 }
 EmailEditor.tsx:56:16
 
-`
+`;

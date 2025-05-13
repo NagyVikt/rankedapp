@@ -493,4 +493,3 @@ table, td { color: #000000; } #u_content_text_5 a { color: #f1c40f; } @media (ma
 </html>
 
 `;
-

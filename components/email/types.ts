@@ -1,6 +1,5 @@
-
 import { CSSProperties } from 'react';
-import React, { HTMLAttributes } from 'react'
+import React, { HTMLAttributes } from 'react';
 import Embed from 'embed/index';
 import { Editor as EditorClass } from 'embed/Editor';
 import { AppearanceConfig, DisplayMode, ToolsConfig } from 'state/types/types';
@@ -36,25 +35,25 @@ export interface EmailEditorProps {
 }
 
 declare global {
-
   interface Window {
     __unlayer_lastEditorId: number;
   }
 }
 
-export type BlockProps =
-  Omit<React.HTMLAttributes<HTMLDivElement>, 'contentEditable'>
-  & { children?: React.ReactNode }
+export type BlockProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'contentEditable'
+> & { children?: React.ReactNode };
 
-export type BlockComponent = (props: BlockProps) => JSX.Element
+export type BlockComponent = (props: BlockProps) => JSX.Element;
 
 export interface ComponentItem {
-  href:        string
-  blockId:     string
-  title:       string
-  count?:      number
-  previewHtml: string
-  iconSvg:     string
-  snippetHtml: string
-  component:   BlockComponent  // <- no longer ComponentType
+  href: string;
+  blockId: string;
+  title: string;
+  count?: number;
+  previewHtml: string;
+  iconSvg: string;
+  snippetHtml: string;
+  component: BlockComponent; // <- no longer ComponentType
 }

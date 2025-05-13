@@ -20,13 +20,14 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const inviteId = searchParams.get('inviteId');
 
   // Use the correct action based on mode
-  const actionToUse = mode === 'signin' ? signInWithSupabase : signUpWithSupabase;
+  const actionToUse =
+    mode === 'signin' ? signInWithSupabase : signUpWithSupabase;
 
   // Initialize state
   const initialState: ActionState = { error: null, success: null, email: '' };
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     actionToUse,
-    initialState
+    initialState,
   );
 
   // Use useEffect to show toasts based on state changes
@@ -38,22 +39,26 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
       // For signup, show success message, user checks email.
       // For signin, redirect happens in the action, so no toast needed here.
       if (mode === 'signup') {
-         toast.success(state.success);
+        toast.success(state.success);
       }
     }
   }, [state, mode]); // Depend on state and mode
 
   return (
     <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-       <Toaster position="top-right" /> {/* Add Toaster */}
+      <Toaster position="top-right" /> {/* Add Toaster */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* ... header ... */}
-         <div className="flex justify-center"> <CircleIcon className="h-12 w-12 text-orange-500" /> </div>
-         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-           {mode === 'signin' ? 'Sign in to your account' : 'Create your account'}
-         </h2>
+        <div className="flex justify-center">
+          {' '}
+          <CircleIcon className="h-12 w-12 text-orange-500" />{' '}
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          {mode === 'signin'
+            ? 'Sign in to your account'
+            : 'Create your account'}
+        </h2>
       </div>
-
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <form className="space-y-6" action={formAction}>
           {/* Hidden fields */}
@@ -63,20 +68,32 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
 
           {/* Email Input */}
           <div>
-            <Label htmlFor="email" /* ... */ > Email </Label>
+            <Label htmlFor="email" /* ... */> Email </Label>
             <div className="mt-1">
-              <Input id="email" name="email" type="email" required maxLength={64} /* ... */
-               // Use defaultValue from state ONLY if there was an error to prefill
-               defaultValue={state?.error ? state.email : ''}
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                maxLength={64} /* ... */
+                // Use defaultValue from state ONLY if there was an error to prefill
+                defaultValue={state?.error ? state.email : ''}
               />
             </div>
           </div>
 
           {/* Password Input */}
           <div>
-            <Label htmlFor="password" /* ... */ > Password </Label>
+            <Label htmlFor="password" /* ... */> Password </Label>
             <div className="mt-1">
-              <Input id="password" name="password" type="password" required minLength={8} maxLength={100} /* ... */ />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                maxLength={100} /* ... */
+              />
             </div>
           </div>
 
@@ -86,24 +103,46 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           {/* Submit Button */}
           <div>
             <Button type="submit" /* ... */ disabled={pending}>
-              {pending ? ( <><Loader2 className="animate-spin mr-2 h-4 w-4" />Loading...</> )
-               : mode === 'signin' ? 'Sign in' : 'Sign up'}
+              {pending ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Loading...
+                </>
+              ) : mode === 'signin' ? (
+                'Sign in'
+              ) : (
+                'Sign up'
+              )}
             </Button>
           </div>
         </form>
 
-         {/* Toggle Link */}
-         <div className="mt-6">
-           {/* ... divider ... */}
-           <div className="relative"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-300" /></div><div className="relative flex justify-center text-sm"><span className="px-2 bg-gray-50 text-gray-500">{mode === 'signin' ? 'New to our platform?' : 'Already have an account?'}</span></div></div>
-           <div className="mt-6">
-             <Link href={`${mode === 'signin' ? '/sign-up' : '/login'}?${searchParams.toString()}`} /* Keep existing params */
-               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-             >
-               {mode === 'signin' ? 'Create an account' : 'Sign in to existing account'}
-             </Link>
-           </div>
-         </div>
+        {/* Toggle Link */}
+        <div className="mt-6">
+          {/* ... divider ... */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gray-50 text-gray-500">
+                {mode === 'signin'
+                  ? 'New to our platform?'
+                  : 'Already have an account?'}
+              </span>
+            </div>
+          </div>
+          <div className="mt-6">
+            <Link
+              href={`${mode === 'signin' ? '/sign-up' : '/login'}?${searchParams.toString()}`} /* Keep existing params */
+              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+            >
+              {mode === 'signin'
+                ? 'Create an account'
+                : 'Sign in to existing account'}
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

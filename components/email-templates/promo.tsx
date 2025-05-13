@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Html,
   Head,
@@ -9,7 +9,7 @@ import {
   Text,
   Button,
   Img,
-} from "@react-email/components";
+} from '@react-email/components';
 
 export function PromoEmail() {
   return (
@@ -24,7 +24,7 @@ export function PromoEmail() {
               alt="Promo"
               width="100%"
             />
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
               50% off all items!
             </Text>
             <Button href="https://shop.example.com">Shop Now</Button>

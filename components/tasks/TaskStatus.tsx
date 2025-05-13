@@ -1,23 +1,23 @@
-import React from "react";
-import { Chip, type ChipProps } from "@heroui/react";
-import type { TaskStatusOptions } from "./data-tasks"; // Import status options
+import React from 'react';
+import { Chip, type ChipProps } from '@heroui/react';
+import type { TaskStatusOptions } from './data-tasks'; // Import status options
 
 // Define status colors using HeroUI Chip color props or Tailwind classes
-const statusColorMap: Record<TaskStatusOptions, ChipProps["color"]> = {
-  running: "secondary", // Or use "primary" or custom class
-  paused: "warning",
-  completed: "success",
-  canceled: "default", // Grayish
-  error: "danger",
+const statusColorMap: Record<TaskStatusOptions, ChipProps['color']> = {
+  running: 'secondary', // Or use "primary" or custom class
+  paused: 'warning',
+  completed: 'success',
+  canceled: 'default', // Grayish
+  error: 'danger',
 };
 
 const statusTextMap: Record<TaskStatusOptions, string> = {
-    running: "Running",
-    paused: "Paused",
-    completed: "Completed",
-    canceled: "Canceled",
-    error: "Error",
-}
+  running: 'Running',
+  paused: 'Paused',
+  completed: 'Completed',
+  canceled: 'Canceled',
+  error: 'Error',
+};
 
 interface TaskStatusProps {
   status: TaskStatusOptions;

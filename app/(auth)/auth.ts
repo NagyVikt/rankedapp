@@ -25,7 +25,6 @@ interface DbUserForAuth {
   // Add any other fields your application might expect on dbUser
 }
 
-
 interface ExtendedSession extends Session {
   user: User & {
     id?: string | null;
@@ -45,19 +44,21 @@ async function createAnonymousUserExplicitly() {
     // should be accurately defined in @/lib/db/queries.
     const fetchedUser = await getUser(anonymousEmail);
     if (!fetchedUser) {
-        throw new Error('Failed to fetch newly created anonymous user.');
+      throw new Error('Failed to fetch newly created anonymous user.');
     }
     // Assuming fetchedUser has an 'id' property from the actual getUser implementation.
     // The error message indicates 'id' is present.
-    console.log(`Explicitly created anonymous user: ${(fetchedUser as DbUserForAuth).id}`);
+    console.log(
+      `Explicitly created anonymous user: ${(fetchedUser as DbUserForAuth).id}`,
+    );
     return fetchedUser as DbUserForAuth; // Return with the more specific type if needed downstream
-
   } catch (error) {
     console.error('Failed to explicitly create anonymous user:', error);
-    throw new Error(`Anonymous user creation failed: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `Anonymous user creation failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
-
 
 export const {
   handlers: { GET, POST },
@@ -78,27 +79,33 @@ export const {
             // Use type assertion to inform TypeScript about the expected shape of dbUser, including 'password'.
             // CRITICAL: The actual 'getUser' implementation in '@/lib/db/queries'
             // MUST fetch the password hash from the database.
-            const dbUser = await getUser(email) as DbUserForAuth | null;
+            const dbUser = (await getUser(email)) as DbUserForAuth | null;
 
             if (!dbUser) {
-                console.log(`Authorization failed: User ${email} not found.`);
-                return null;
+              console.log(`Authorization failed: User ${email} not found.`);
+              return null;
             }
 
             // This check is now valid from TypeScript's perspective.
             // It remains crucial for runtime safety: if 'getUser' doesn't return a password, this will catch it.
             if (!dbUser.password) {
-                console.log(`Authorization failed: User ${email} has no password set (or password not fetched by getUser).`);
-                return null;
+              console.log(
+                `Authorization failed: User ${email} has no password set (or password not fetched by getUser).`,
+              );
+              return null;
             }
 
             const passwordsMatch = await compare(password, dbUser.password);
             if (!passwordsMatch) {
-                console.log(`Authorization failed: Password mismatch for ${email}.`);
-                return null;
+              console.log(
+                `Authorization failed: Password mismatch for ${email}.`,
+              );
+              return null;
             }
 
-            console.log(`Authorization successful for ${email}, user ID: ${dbUser.id}`);
+            console.log(
+              `Authorization successful for ${email}, user ID: ${dbUser.id}`,
+            );
             return {
               id: dbUser.id,
               email: dbUser.email,
@@ -106,9 +113,10 @@ export const {
             };
           }
 
-          console.log("Authorize called without email/password - denying credential auth.");
+          console.log(
+            'Authorize called without email/password - denying credential auth.',
+          );
           return null;
-
         } catch (error) {
           console.error('Error during authorization:', error);
           return null;
@@ -131,16 +139,26 @@ export const {
   callbacks: {
     async jwt({ token, user }) {
       if (user?.id) {
-        console.log(`JWT Callback: User object present (sign-in). Assigning ID: ${user.id}`);
+        console.log(
+          `JWT Callback: User object present (sign-in). Assigning ID: ${user.id}`,
+        );
         token.id = user.id;
         token.email = user.email;
         // token.name = user.name; // If you added name to the object returned by authorize
       } else {
-        console.log(`JWT Callback: No user object (subsequent request or failed login). Token ID (if any): ${token.id}`);
+        console.log(
+          `JWT Callback: No user object (subsequent request or failed login). Token ID (if any): ${token.id}`,
+        );
       }
       return token;
     },
-    async session({ session, token }: { session: ExtendedSession; token: any }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: ExtendedSession;
+      token: any;
+    }) {
       if (token?.id && session.user) {
         session.user.id = token.id as string;
         if (token.email) {
@@ -149,9 +167,13 @@ export const {
         // if (token.name) {
         //   session.user.name = token.name as string;
         // }
-        console.log(`Session Callback: Assigning user ID ${token.id} to session.`);
+        console.log(
+          `Session Callback: Assigning user ID ${token.id} to session.`,
+        );
       } else {
-        console.log("Session Callback: No token ID found or session.user is undefined, user is unauthenticated.");
+        console.log(
+          'Session Callback: No token ID found or session.user is undefined, user is unauthenticated.',
+        );
       }
       return session;
     },

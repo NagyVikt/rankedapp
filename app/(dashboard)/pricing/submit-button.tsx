@@ -1,11 +1,11 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { Button, ButtonProps } from "@heroui/react"; // Use HeroUI Button
+import { Button, ButtonProps } from '@heroui/react'; // Use HeroUI Button
 
 // Combine ButtonProps with children
 interface SubmitButtonProps extends Omit<ButtonProps, 'type' | 'isLoading'> {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export function SubmitButton({ children, ...props }: SubmitButtonProps) {

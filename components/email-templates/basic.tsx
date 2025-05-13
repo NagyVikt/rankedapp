@@ -1,5 +1,5 @@
 // components/email-templates/basic.tsx
-import React from "react";
+import React from 'react';
 import {
   Html,
   Head,
@@ -9,9 +9,9 @@ import {
   Section,
   Text,
   Button,
-} from "@react-email/components";
+} from '@react-email/components';
 
-export function BasicNewsletter({ title = "Hello!" }) {
+export function BasicNewsletter({ title = 'Hello!' }) {
   return (
     <Html>
       <Head />
@@ -19,7 +19,7 @@ export function BasicNewsletter({ title = "Hello!" }) {
       <Body>
         <Container>
           <Section>
-            <Text style={{ fontSize: 24, fontWeight: "bold" }}>{title}</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>{title}</Text>
             <Text>Welcome to our newsletter. Click below to learn more.</Text>
             <Button href="https://example.com">Learn More</Button>
           </Section>
@@ -28,4 +28,3 @@ export function BasicNewsletter({ title = "Hello!" }) {
     </Html>
   );
 }
-

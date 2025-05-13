@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -10,7 +10,7 @@ import {
   ModalBody,
   ModalFooter,
   Spinner,
-} from "@heroui/react";
+} from '@heroui/react';
 import { Icon } from '@iconify/react';
 
 // Alias components to any to satisfy ReactNode requirements
@@ -44,21 +44,21 @@ export default function RequirePinModal({
   pinActionState,
 }: RequirePinModalProps): JSX.Element {
   const [pinStep, setPinStep] = useState<1 | 2>(1);
-  const [firstPin, setFirstPin] = useState<string>("");
+  const [firstPin, setFirstPin] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [otpValue, setOtpValue] = useState<string>("");
+  const [otpValue, setOtpValue] = useState<string>('');
 
   useEffect(() => {
     if (isOpen) {
       setPinStep(1);
-      setFirstPin("");
+      setFirstPin('');
       setError(null);
-      setOtpValue("");
+      setOtpValue('');
     } else {
       setPinStep(1);
-      setFirstPin("");
+      setFirstPin('');
       setError(null);
-      setOtpValue("");
+      setOtpValue('');
     }
   }, [isOpen]);
 
@@ -74,24 +74,24 @@ export default function RequirePinModal({
     const currentPin = otpValue;
 
     if (currentPin.length !== 4) {
-      setError("Please enter a 4-digit PIN.");
+      setError('Please enter a 4-digit PIN.');
       return;
     }
 
     if (pinStep === 1) {
       setFirstPin(currentPin);
       setPinStep(2);
-      setOtpValue("");
+      setOtpValue('');
     } else {
       if (currentPin === firstPin) {
         const formData = new FormData();
         formData.append('pin', firstPin);
         setPinAction(formData);
       } else {
-        setError("PINs do not match. Please try again.");
+        setError('PINs do not match. Please try again.');
         setPinStep(1);
-        setFirstPin("");
-        setOtpValue("");
+        setFirstPin('');
+        setOtpValue('');
       }
     }
   };
@@ -99,13 +99,15 @@ export default function RequirePinModal({
   return (
     <ModalX isOpen={isOpen} onClose={onClose} size="md">
       <ModalContentX>
-        <ModalHeaderX>{pinStep === 1 ? "Set Your Login PIN" : "Confirm Your PIN"}</ModalHeaderX>
+        <ModalHeaderX>
+          {pinStep === 1 ? 'Set Your Login PIN' : 'Confirm Your PIN'}
+        </ModalHeaderX>
         <form onSubmit={handleSubmit} id="pin-set-form">
           <ModalBodyX>
             <p className="text-small text-default-500 mb-4">
               {pinStep === 1
-                ? "Please enter a 4-digit PIN for login."
-                : "Please re-enter the 4-digit PIN to confirm."}
+                ? 'Please enter a 4-digit PIN for login.'
+                : 'Please re-enter the 4-digit PIN to confirm.'}
             </p>
             <div className="flex justify-center">
               <InputOtpX
@@ -114,15 +116,21 @@ export default function RequirePinModal({
                 length={4}
                 value={otpValue}
                 onValueChange={setOtpValue}
-                classNames={{ input: "w-12 h-12 text-xl" }}
+                classNames={{ input: 'w-12 h-12 text-xl' }}
               />
             </div>
             {(error || pinActionState.error) && (
-              <p className="text-danger text-small mt-3 text-center">{error || pinActionState.error}</p>
+              <p className="text-danger text-small mt-3 text-center">
+                {error || pinActionState.error}
+              </p>
             )}
           </ModalBodyX>
           <ModalFooterX>
-            <ButtonX variant="bordered" onPress={onClose} isDisabled={isSettingPin}>
+            <ButtonX
+              variant="bordered"
+              onPress={onClose}
+              isDisabled={isSettingPin}
+            >
               Cancel
             </ButtonX>
             <ButtonX
@@ -132,7 +140,11 @@ export default function RequirePinModal({
               isLoading={isSettingPin}
               isDisabled={otpValue.length !== 4 || isSettingPin}
             >
-              {isSettingPin ? "Saving..." : pinStep === 1 ? "Next" : "Confirm & Save PIN"}
+              {isSettingPin
+                ? 'Saving...'
+                : pinStep === 1
+                  ? 'Next'
+                  : 'Confirm & Save PIN'}
             </ButtonX>
           </ModalFooterX>
         </form>

@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ shop: string; id: string }> }
+  { params }: { params: Promise<{ shop: string; id: string }> },
 ) {
   // 0) await route params and request body
   const { shop, id } = await params;
   const { description: rawDesc, currentPrice } = await req.json();
 
   // clean markdown fences
-  const description = rawDesc.replace(/^```[\s\S]*?```/g, "").trim();
+  const description = rawDesc.replace(/^```[\s\S]*?```/g, '').trim();
 
   // 1) fetch top-5 organic results
   let externalLinks: string[] = [];
@@ -21,8 +21,8 @@ export async function POST(
     try {
       const serpRes = await fetch(
         `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(
-          description.split("\n")[0].slice(0, 100)
-        )}&api_key=${SERPAPI_KEY}&num=5`
+          description.split('\n')[0].slice(0, 100),
+        )}&api_key=${SERPAPI_KEY}&num=5`,
       );
       const serpJson = await serpRes.json();
       externalLinks = (serpJson.organic_results || [])
@@ -30,7 +30,7 @@ export async function POST(
         .map((r: any) => r.link)
         .filter(Boolean);
     } catch (err) {
-      console.error("SerpAPI (organic) error:", err);
+      console.error('SerpAPI (organic) error:', err);
     }
   }
 
@@ -44,23 +44,26 @@ export async function POST(
     try {
       const shopRes = await fetch(
         `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(
-          description.split("\n")[0].slice(0, 100)
-        )}&tbm=shop&google_domain=google.hu&api_key=${SERPAPI_KEY}&num=10`
+          description.split('\n')[0].slice(0, 100),
+        )}&tbm=shop&google_domain=google.hu&api_key=${SERPAPI_KEY}&num=10`,
       );
       const shopJson = await shopRes.json();
-      const items: { source: string; price: number; link: string }[] =
-        (shopJson.shopping_results || []).map((item: any) => ({
-          source: item.merchant || item.source,
-          price: parseFloat(
-            String(item.price).replace(/[^\d\.,]/g, "").replace(",", ".")
-          ),
-          link: item.link,
-        }));
+      const items: { source: string; price: number; link: string }[] = (
+        shopJson.shopping_results || []
+      ).map((item: any) => ({
+        source: item.merchant || item.source,
+        price: parseFloat(
+          String(item.price)
+            .replace(/[^\d\.,]/g, '')
+            .replace(',', '.'),
+        ),
+        link: item.link,
+      }));
       if (items.length > 0) {
         items.sort((a, b) => a.price - b.price);
         const cheapest = items[0];
         const diffPercent = Math.round(
-          ((currentPrice - cheapest.price) / cheapest.price) * 100
+          ((currentPrice - cheapest.price) / cheapest.price) * 100,
         );
         const suggestion =
           diffPercent > 0
@@ -69,7 +72,7 @@ export async function POST(
         priceComparison = { cheapest, suggestion };
       }
     } catch (err) {
-      console.error("SerpAPI (shopping) error:", err);
+      console.error('SerpAPI (shopping) error:', err);
     }
   }
 
@@ -82,7 +85,7 @@ Requirements:
 … (same as yours) …
 
 External Links:
-${externalLinks.map((u) => `- ${u}`).join("\n")}
+${externalLinks.map((u) => `- ${u}`).join('\n')}
 
 Raw description:
 """
@@ -92,10 +95,13 @@ ${description}
 
   // 4) call OpenAI
   const completion = await openai.chat.completions.create({
-    model: "o4-mini-2025-04-16",
+    model: 'o4-mini-2025-04-16',
     messages: [
-      { role: "system", content: "You are an SEO/HTML expert writing clean JSON only." },
-      { role: "user", content: prompt }
+      {
+        role: 'system',
+        content: 'You are an SEO/HTML expert writing clean JSON only.',
+      },
+      { role: 'user', content: prompt },
     ],
   });
 
@@ -104,17 +110,20 @@ ${description}
   if (!firstContent) {
     return NextResponse.json(
       {
-        error: "No content from SEO model",
-        html: "",
-        metaDescription: "",
+        error: 'No content from SEO model',
+        html: '',
+        metaDescription: '',
         rankMathKeywords: [],
         externalLinks,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
   const raw = firstContent.trim();
-  const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/g, "").trim();
+  const cleaned = raw
+    .replace(/^```json\s*/i, '')
+    .replace(/```$/g, '')
+    .trim();
 
   // 6) parse JSON (or fallback)
   let result: any;
@@ -123,7 +132,7 @@ ${description}
   } catch {
     result = {
       html: cleaned,
-      metaDescription: "",
+      metaDescription: '',
       rankMathKeywords: [],
       externalLinks,
     };

@@ -1,10 +1,10 @@
 // components/products/ProductPopup.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect, cloneElement } from "react";
-import { Button, Skeleton } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import ProductViewInfo, { ProductViewItemProps } from "./product-view-item";
+import React, { useState, useEffect, cloneElement } from 'react';
+import { Button, Skeleton } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import ProductViewInfo, { ProductViewItemProps } from './product-view-item';
 
 interface Props {
   shopSlug: string;
@@ -61,7 +61,7 @@ export default function ProductPopup({ shopSlug, productId, trigger }: Props) {
     });
   } else {
     Trigger = (
-      <span onClick={() => setOpen(true)} style={{ cursor: "pointer" }}>
+      <span onClick={() => setOpen(true)} style={{ cursor: 'pointer' }}>
         {trigger}
       </span>
     );
@@ -76,8 +76,8 @@ export default function ProductPopup({ shopSlug, productId, trigger }: Props) {
           onClick={() => setOpen(false)}
         >
           {/* ← full-screen white panel */}
-         <div
-     className="absolute top-[10%] bottom-[10%] left-[10%] right-[10%] bg-white rounded-lg shadow-lg p-6"
+          <div
+            className="absolute top-[10%] bottom-[10%] left-[10%] right-[10%] bg-white rounded-lg shadow-lg p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <Button
@@ -90,7 +90,8 @@ export default function ProductPopup({ shopSlug, productId, trigger }: Props) {
             </Button>
 
             <h3 className="mb-4 text-xl font-semibold">
-            {loading ? "Loading…" : error ? "Error" : " "} {/* Changed: Don't show data.name here */}
+              {loading ? 'Loading…' : error ? 'Error' : ' '}{' '}
+              {/* Changed: Don't show data.name here */}
             </h3>
 
             {loading ? (

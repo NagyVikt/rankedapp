@@ -1,7 +1,7 @@
-import React, {forwardRef, memo} from "react";
-import {cn} from "@heroui/react";
+import React, { forwardRef, memo } from 'react';
+import { cn } from '@heroui/react';
 
-import {statusColorMap, type StatusOptions} from "./data";
+import { statusColorMap, type StatusOptions } from './data';
 
 export interface StatusProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -10,14 +10,14 @@ export interface StatusProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Status = memo(
   forwardRef<HTMLDivElement, StatusProps>((props, forwardedRef) => {
-    const {className, status} = props;
+    const { className, status } = props;
     const statusColor = statusColorMap[status];
 
     return (
       <div
         ref={forwardedRef}
         className={cn(
-          "flex w-fit items-center gap-[2px] rounded-lg bg-default-100 px-2 py-1",
+          'flex w-fit items-center gap-[2px] rounded-lg bg-default-100 px-2 py-1',
           className,
         )}
       >
@@ -28,4 +28,4 @@ export const Status = memo(
   }),
 );
 
-Status.displayName = "Status";
+Status.displayName = 'Status';

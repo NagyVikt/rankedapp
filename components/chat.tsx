@@ -23,7 +23,6 @@ export function Chat({
   selectedReasoningModelId,
   selectedVisibilityType,
   isReadonly,
-
 }: {
   id: string;
   initialMessages: Array<Message>;
@@ -33,7 +32,9 @@ export function Chat({
   isReadonly: boolean;
 }) {
   const { mutate } = useSWRConfig();
-  const [searchMode, setSearchMode] = useState<'search' | 'deep-research'>('search');
+  const [searchMode, setSearchMode] = useState<'search' | 'deep-research'>(
+    'search',
+  );
 
   const {
     messages,
@@ -47,7 +48,12 @@ export function Chat({
     reload,
   } = useChat({
     id,
-    body: { id, modelId: selectedModelId, reasoningModelId: selectedReasoningModelId, experimental_deepResearch: searchMode === 'deep-research' },
+    body: {
+      id,
+      modelId: selectedModelId,
+      reasoningModelId: selectedReasoningModelId,
+      experimental_deepResearch: searchMode === 'deep-research',
+    },
     initialMessages,
     experimental_throttle: 100,
     onFinish: () => {
