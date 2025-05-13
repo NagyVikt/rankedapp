@@ -1,27 +1,22 @@
-import React from "react";
-import { IconProps } from "@heroui/react"; // Assuming IconProps is available for type consistency
+// components/tasks/RefreshIcon.tsx
+import React, { SVGProps } from 'react';
 
-/**
- * RefreshIcon component renders a refresh/retry SVG icon.
- * It accepts standard SVG props and IconProps for customization.
- */
-export const RefreshIcon: React.FC<IconProps> = ({
-  size = 24, // Default size
+export const RefreshIcon: React.FC<SVGProps<SVGSVGElement>> = ({
   width,
   height,
-  ...props // Spread other props like className, style, onClick, etc.
+  ...props
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={width || size}
-    height={height || size}
+    width={width}
+    height={height}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor" // Use currentColor to inherit color
+    stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props} // Apply passed props
+    {...props}
   >
     <path d="M21.5 2v6h-6" />
     <path d="M2.5 22v-6h6" />

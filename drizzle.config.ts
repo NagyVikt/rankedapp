@@ -1,9 +1,9 @@
+// drizzle.config.ts
 import { config } from 'dotenv';
+// @ts-ignore: 'defineConfig' isn't exposed in this version's types
 import { defineConfig } from 'drizzle-kit';
 
-config({
-  path: '.env.local',
-});
+config({ path: '.env.local' });
 
 export default defineConfig({
   schema: './lib/db/schema.ts',

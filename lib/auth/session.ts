@@ -42,13 +42,20 @@ export async function getSession() {
   if (!session) return null;
   return await verifyToken(session);
 }
-
 export async function setSession(user: NewUser) {
   const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  // force user.id (string) ⇒ number
+  const numericId = Number(user.id);
+  if (Number.isNaN(numericId)) {
+    throw new Error(`Invalid user.id: ${user.id}`);
+  }
+
   const session: SessionData = {
-    user: { id: user.id! },
+    user: { id: numericId },
     expires: expiresInOneDay.toISOString(),
   };
+
   const encryptedSession = await signToken(session);
   (await cookies()).set('session', encryptedSession, {
     expires: expiresInOneDay,

@@ -7,8 +7,8 @@ import { Icon } from '@iconify/react';
 // Defines types for sidebar entries
 export enum SidebarItemType {
   Nest = 'nest',
-  Dropdown = 'dropdown',
-  EmailStatsToggle = 'emailStatsToggle', // New type for the toggle
+  Dropdown = 'dropdown', // Keep this if you intend to differentiate rendering
+  EmailStatsToggle = 'emailStatsToggle',
 }
 
 export interface SidebarItem {
@@ -18,23 +18,23 @@ export interface SidebarItem {
   href?: string;
   type?: SidebarItemType;
   startContent?: React.ReactNode;
-  endContent?: React.ReactNode | ((props: { onOpenModal?: () => void, isItemActive?: boolean, isItemOpen?: boolean, onToggle?: () => void }) => React.ReactNode); // Added onToggle for EmailStatsToggle
-  items?: SidebarItem[];
+  endContent?: React.ReactNode | ((props: { onOpenModal?: () => void, isItemActive?: boolean, isItemOpen?: boolean, onToggle?: () => void }) => React.ReactNode);
+  items?: SidebarItem[]; // Sub-items for Nest or Dropdown types
   className?: string;
   onClick?: () => void;
   isStatistic?: boolean;
   statisticValue?: string | number;
-  isInitiallyOpen?: boolean; // For dropdowns or initially visible stats
+  isInitiallyOpen?: boolean;
 }
 
 // Defines the structure for a section in the sidebar
 export interface SidebarSection {
-  key:string;
-  title?: string;
+  key: string;
+  title?: string; // Section title (optional, as SidebarComponent doesn't currently render it directly)
   items: SidebarItem[];
   className?: string;
   isHidden?: boolean;
-  isCollapsed?: boolean; // For collapsible sections
+  isCollapsed?: boolean;
 }
 
 // New structured navigation items
@@ -101,7 +101,10 @@ export const navigationSections: SidebarSection[] = [
         key: 'campaign-manager',
         icon: 'solar:target-bold-duotone',
         title: 'Campaign Manager',
-        type: SidebarItemType.Dropdown,
+        // If SidebarComponent's renderNest should handle Dropdown, ensure type matches or logic is updated.
+        // For now, assuming 'Nest' is the primary type for expandable items in SidebarComponent.
+        // You might change this to SidebarItemType.Nest if 'Dropdown' isn't specially handled by renderNest.
+        type: SidebarItemType.Dropdown, // Or SidebarItemType.Nest if renderNest handles it
         isInitiallyOpen: false,
         endContent: ({ isItemOpen }) => (
           <div className="flex items-center gap-2">
@@ -122,13 +125,11 @@ export const navigationSections: SidebarSection[] = [
         title: 'Sent Emails',
         endContent: <Chip size="sm" variant="bordered" className="text-xs text-default-700 dark:text-default-300">27.8K</Chip>,
       },
-      // Toggle for email statistics
       {
         key: 'email-stats-toggle',
-        title: 'Show Email Stats', // Title won't be directly visible, used for key and logic
+        title: 'Show Email Stats',
         type: SidebarItemType.EmailStatsToggle,
-        isInitiallyOpen: false, // Stats are visible by default
-        // The endContent will render the toggle button in SidebarComponent
+        isInitiallyOpen: false,
         endContent: ({ isItemOpen, onToggle }) => (
           <button
             onClick={(e) => {
@@ -144,30 +145,29 @@ export const navigationSections: SidebarSection[] = [
           </button>
         ),
       },
-      // Statistic items for email details - their visibility will be controlled by the toggle
       {
         key: 'all-emails-stat',
-        title: 'ALL EMAILS', // Simplified title
-        icon: 'solar:letter-bold-duotone', // Icon for all emails
+        title: 'ALL EMAILS',
+        icon: 'solar:letter-bold-duotone',
         isStatistic: true,
         statisticValue: '27,800',
-        className: 'text-xs text-default-600 dark:text-default-400 px-3 pt-1.5', // Adjusted padding
+        className: 'text-xs text-default-600 dark:text-default-400 px-3 pt-1.5',
       },
       {
         key: 'new-emails-stat',
-        title: 'This Month', // Simplified title
-        icon: 'solar:mailbox-bold-duotone', // Icon for new emails
+        title: 'This Month',
+        icon: 'solar:mailbox-bold-duotone',
         isStatistic: true,
         statisticValue: '2,700',
         className: 'text-xs text-default-600 dark:text-default-400 px-3',
       },
       {
         key: 'views-stat',
-        title: 'Views', // Simplified title
-        icon: 'solar:graph-up-bold-duotone', // Icon for views
+        title: 'Views',
+        icon: 'solar:graph-up-bold-duotone',
         isStatistic: true,
         statisticValue: '300',
-        className: 'text-xs text-default-600 dark:text-default-400 px-3 pb-1.5', // Adjusted padding
+        className: 'text-xs text-default-600 dark:text-default-400 px-3 pb-1.5',
       },
     ],
   },
@@ -195,20 +195,19 @@ export const navigationSections: SidebarSection[] = [
         href: '/dashboard/settings',
         icon: 'solar:settings-bold-duotone',
         title: 'Settings',
-        // endContent: <Chip size="sm" variant="flat" color="secondary" className="text-xs">WIP</Chip>,
       },
     ],
   },
 ];
 
-// TeamAvatar component definition
+// TeamAvatar component definition (remains the same)
 const TeamAvatar = ({ name }: { name: string }) => (
   <div className="w-6 h-6 bg-default-200 dark:bg-default-100 rounded-full flex items-center justify-center text-xs text-default-600 dark:text-default-400">
     {name.substring(0, 2).toUpperCase()}
   </div>
 );
 
-// Example of nested section items (remains for other potential uses)
+// Example of nested section items (remains for other potential uses, or if you refactor SidebarComponent)
 export const sectionItems: SidebarSection[] = [
   {
     key: 'overview_group',
@@ -225,7 +224,7 @@ export const sectionItems: SidebarSection[] = [
         key: 'cap_table',
         title: 'Cap Table',
         icon: 'solar:pie-chart-2-outline',
-        type: SidebarItemType.Nest,
+        type: SidebarItemType.Nest, // This uses Nest
         items: [
           { key: 'shareholders', href: '/dashboard/cap-table/shareholders', title: 'Shareholders', icon: 'solar:users-group-rounded-linear' },
           { key: 'note_holders', href: '/dashboard/cap-table/note-holders', title: 'Note Holders', icon: 'solar:notes-outline' },
@@ -245,3 +244,13 @@ export const sectionItems: SidebarSection[] = [
     ],
   },
 ];
+
+// **FIX: Create and export a flat list of all navigation items**
+// This list will be used by SidebarComponent.tsx
+export const items: SidebarItem[] = navigationSections.reduce((acc, section) => {
+  // We are not including section titles as separate items here,
+  // as SidebarComponent currently renders a flat list of interactive SidebarItem.
+  // If section titles were needed, SidebarComponent would need to be adapted
+  // to handle SidebarSection[] directly or a different structure.
+  return acc.concat(section.items);
+}, [] as SidebarItem[]);

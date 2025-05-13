@@ -69,7 +69,7 @@ const db: PostgresJsDatabase<typeof schema> = drizzle(client, { schema, logger: 
 export interface TeamMemberInfo {
   id: number; // Assuming team_members.id is number (SERIAL)
   role: string;
-  // IMPORTANT: schema.teamMembers.userId in your './schema.ts' MUST be defined as a string-based type
+  // IMPORTANT: schema.teamMembers.userId in your './schema.ts' MUST be defined as a string-based getUser
   // (e.g., text() or uuid() that references user.id) for the 'eq' comparisons below to work.
   // The TypeScript error "Argument of type 'string' is not assignable to parameter of type 'number | SQLWrapper'"
   // indicates that Drizzle currently infers schema.teamMembers.userId as a number.
@@ -144,17 +144,7 @@ export async function getUser(email: string): Promise<User | null> {
 /**
  * Gets user by email address from your public.User table.
  */
-export async function getUserByEmail(email: string): Promise<User | null> {
-  try {
-    const userResult = await db.query.user.findFirst({
-        where: and(eq(schema.user.email, email), isNull(schema.user.deletedAt))
-    });
-    return userResult || null;
-  } catch (error) {
-      console.error(`Failed to get user by email ${email}:`, error);
-      throw error;
-  }
-}
+
 
 /**
  * Gets user by ID from your public.User table.
@@ -926,6 +916,72 @@ export async function getActivityLogsByTeamId(teamId: number, limit: number = 20
         console.error(`Failed to get activity logs for team ${teamId}:`, error);
         throw error;
     }
+}
+
+async function getUserIdFromSession(): Promise<string | null> {
+  // EXAMPLE: using NextAuth.js
+  // import { getServerSession } from "next-auth/next"
+  // import { authOptions } from "@/app/api/auth/[...nextauth]/route" // Your auth options
+  // const session = await getServerSession(authOptions);
+  // return session?.user?.id || null;
+
+  // EXAMPLE: using Supabase server client
+  // import { createServerClient } from '@supabase/ssr'
+  // import { cookies } from 'next/headers'
+  // const cookieStore = cookies()
+  // const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { cookies: { getAll: () => cookieStore.getAll() }});
+  // const { data: { user } } = await supabase.auth.getUser();
+  // return user?.id || null;
+
+  console.warn(
+    "getUserIdFromSession is a placeholder. Implement your actual auth logic."
+  );
+  // Replace with your actual logic to get the authenticated user's ID
+  // For demonstration, returning a hardcoded ID or null:
+  // return "some-user-id";
+  return null;
+}
+
+
+export async function getCurrentUser(): Promise<User | null> {
+ const userId = await getUserIdFromSession();
+
+ if (!userId) {
+   return null; // Not authenticated or session error
+ }
+
+ try {
+   const results = await db
+     .select()
+     .from(schema.user)
+     .where(eq(schema.user.id, userId)) // Assuming your user schema has an 'id' field
+     .limit(1);
+
+   return results.length > 0 ? results[0] : null;
+ } catch (error) {
+   console.error("Error fetching current user:", error);
+   return null;
+ }
+}
+
+/**
+* Fetches a single user by their email address.
+* @param email - The user's email address.
+* @returns The User object or null if not found.
+*/
+export async function getUserByEmail(email: string): Promise<User | null> {
+ if (!email) return null;
+ try {
+   const results = await db
+     .select()
+     .from(schema.user)
+     .where(eq(schema.user.email, email.toLowerCase())) // Normalize email
+     .limit(1);
+   return results.length > 0 ? results[0] : null;
+ } catch (error) {
+   console.error(`Error fetching user by email ${email}:`, error);
+   return null;
+ }
 }
 
 // --- TeamForUser (Corrected based on previous discussions) ---
