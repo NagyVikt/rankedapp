@@ -20,7 +20,7 @@ export async function GET() {
 // --- CORRECTED POST Function using Supabase SSR createServerClient (Modern Signature) ---
 export async function POST(req: Request) {
   // 1. Get cookie store
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   // --- Environment Variable Check (IMPORTANT!) ---
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL

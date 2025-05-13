@@ -12,19 +12,18 @@ import {
     CardHeader,
     CardBody,
     CardFooter,
-    Select,
-    SelectItem,
-    Button,
     Chip,
     Skeleton,
-    Switch,
-    Input,
     Checkbox,
     Modal,
     ModalContent,
     ModalHeader,
     ModalBody,
     ModalFooter,
+    Button,
+    Switch,
+    Select,
+    SelectItem,
     useDisclosure,
     Tabs,
     Tab,
@@ -32,11 +31,124 @@ import {
     DropdownTrigger,
     DropdownMenu,
     DropdownItem,
+    Input, // Added Input to the import
 } from '@heroui/react'; // Assuming @heroui/react is a valid library
-import { Icon } from '@iconify/react';
 
-// --- Enhanced Type Definitions ---
-type DesignItem = { id: number; name: string; }
+import { Icon } from '@iconify/react';
+import { Item }   from '@react-stately/collections';
+
+// Define a type for your design items if you haven't already
+interface DesignItem {
+    id: string | number;
+    name: string;
+  }
+  
+  // Define a type for your group if you haven't already
+  interface EditingGroup { // This is the type for the 'editingGroup' state in the original canvas context
+    isDefault: boolean;
+    id: string;
+    // Add other properties of editingGroup as needed
+  }
+  
+  interface YourComponentProps { // Props for the 'YourComponent' from the original canvas context
+    isGroupModalOpen: boolean;
+    onGroupModalOpenChange: (isOpen: boolean) => void;
+    editingGroup: EditingGroup | null; 
+    handleSaveGroup: () => void;
+    designs: DesignItem[]; 
+  }
+  
+  interface GroupModalProps {
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    designs: DesignItem[];
+    newGroupSupportsIndividual: boolean;
+    newGroupDesignId: number | null;
+    setNewGroupSupportsIndividual: (val: boolean) => void;
+    setNewGroupDesignId: (id: number | null) => void;
+    editingGroup?: { id: string; isDefault?: boolean };
+    onSave: () => void;
+  }
+
+  export const GroupModal: React.FC<GroupModalProps> = ({
+    isOpen,
+    onOpenChange,
+    designs,
+    newGroupSupportsIndividual,
+    newGroupDesignId,
+    setNewGroupSupportsIndividual,
+    setNewGroupDesignId,
+    editingGroup,
+    onSave,
+  }) => {
+    return (
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl" backdrop="blur">
+        <ModalContent className="bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 border border-gray-300 dark:border-neutral-700 rounded-lg">
+          {(onClose) => (
+            <>
+              <ModalHeader className="border-b border-gray-200 dark:border-neutral-700 text-lg font-semibold">
+                {editingGroup ? 'Edit Email Group' : 'Create New Email Group'}
+              </ModalHeader>
+              <ModalBody className="py-4 space-y-4">
+                <Switch
+                  isSelected={newGroupSupportsIndividual}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setNewGroupSupportsIndividual(e.target.checked)
+                  }
+                  size="md"
+                  color="primary"
+                  isDisabled={editingGroup?.isDefault && editingGroup.id === 'group-send-now'}
+                >
+                  Supports Individual Designs per Email
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    {newGroupSupportsIndividual
+                      ? 'Allows assigning different designs to each email in this group.'
+                      : 'Assigns one design to the entire group.'}
+                  </p>
+                </Switch>
+  
+                {!newGroupSupportsIndividual && (
+                  <Select
+                    label="Group Design"
+                    placeholder="Select a design for the whole group"
+                    selectedKey={newGroupDesignId !== null ? String(newGroupDesignId) : null}
+                    onSelectionChange={(key) => {
+                      setNewGroupDesignId(key != null && key !== '' ? Number(key) : null);
+                    }}
+                    className="rounded-md mt-2 w-full max-w-xs"
+                  >
+                    <Item key="">No Group Design</Item>
+                    {designs.map((d) => (
+                      <Item key={String(d.id)}>{d.name}</Item>
+                    ))}
+                  </Select>
+                )}
+              </ModalBody>
+              <ModalFooter className="border-t border-gray-200 dark:border-neutral-700">
+                <Button color="danger" variant="light" onPress={onClose} className="rounded-md">
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    onSave();
+                    onClose();
+                  }}
+                  className="rounded-md"
+                >
+                  {editingGroup ? 'Save Changes' : 'Create Group'}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    );
+  };
+  
+    
+    
+
 type Assignment = Record<string, DesignItem | null> // For individual email assignments in specific groups
 interface Shop { name: string; url: string; }
 type Notification = { message: string; type: 'success' | 'error'; } | null;
@@ -125,7 +237,7 @@ const SUGGESTION_METADATA: Record<SuggestionType, EmailSuggestion> = {
     loyalty:    { text: 'Loyalty Offer',  type: 'loyalty',   badgeColor: 'secondary', description: 'Recognize a returning or high-value customer.', icon: '⭐' },
     abandoned: { text: 'Abandoned Cart', type: 'abandoned', badgeColor: 'warning', description: 'Customer added items to cart but did not complete purchase.', icon: '🛒' },
     welcome:   { text: 'Welcome Email',  type: 'welcome',   badgeColor: 'primary',     description: 'New customer or recent signup.', icon: '👋' },
-    none:       { text: '',               type: 'none',      badgeColor: 'default',     description: '', icon: '' },
+    none:      { text: '',               type: 'none',      badgeColor: 'default',     description: '', icon: '' },
 };
 
 // --- Helper Components ---
@@ -207,7 +319,7 @@ function CampaignEditor() {
   const [editingAutomation, setEditingAutomation] = useState<Automation | null>(null);
 
   const {isOpen: isGroupModalOpen, onOpen: onGroupModalOpen, onClose: onGroupModalClose, onOpenChange: onGroupModalOpenChange} = useDisclosure();
-  const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
+  const [editingGroupModal, setEditingGroupModal] = useState<UserGroup | null>(null); // Renamed to avoid conflict with 'EditingGroup' type if it were a state var name
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDescription, setNewGroupDescription] = useState('');
   const [newGroupColor, setNewGroupColor] = useState(DEFAULT_GROUP_COLORS[0]);
@@ -215,6 +327,10 @@ function CampaignEditor() {
   const [newGroupDesignId, setNewGroupDesignId] = useState<number | null>(null);
 
 
+  // Handler for the Switch component in the Group Modal
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewGroupSupportsIndividual(event.target.checked);
+  };
   const [currentView, setCurrentView] = useState<'kanban' | 'calendar'>('kanban');
 
   // --- Utility Functions ---
@@ -288,9 +404,9 @@ function CampaignEditor() {
      setGroupPagination({});
      
      const loadedUserGroups = initialUserGroups.map(g => ({
-        ...g, 
-        emails: [], // Reset emails for new shop selection
-        groupDesignId: g.groupDesignId !== undefined ? g.groupDesignId : null // Ensure it's defined
+         ...g, 
+         emails: [], // Reset emails for new shop selection
+         groupDesignId: g.groupDesignId !== undefined ? g.groupDesignId : null // Ensure it's defined
      }));
      
      const initialSelections: Record<DroppableColumnId, Set<string>> = { pool: new Set() };
@@ -313,7 +429,7 @@ function CampaignEditor() {
          const sendNowGroup = shopSpecificGroups.find(g => g.id === 'group-send-now');
          if (sendNowGroup && mockCustomers.length > customerIdx) {
              const numToSendNow = Math.min(mockCustomers.length - customerIdx, Math.floor(Math.random() * 3) + 1);
-             sendNowGroup.emails = mockCustomers.slice(customerIdx, customerIdx + numToSendNow);
+             sendNowGroup.emails = mockCustomers.slice(customerIdx, customerIdx + numToSendNow) as string[];
              customerIdx += numToSendNow;
              if (designs.length > 0 && sendNowGroup.emails.length > 0 && sendNowGroup.supportsIndividualDesignAssignment) {
                  setAssignments({ [sendNowGroup.emails[0]]: designs[0]});
@@ -326,7 +442,7 @@ function CampaignEditor() {
              abandonedGroup.emails = mockCustomers.slice(customerIdx, customerIdx + numToAbandoned);
              // Example: Assign a group design if one is configured (e.g., design ID 5 for abandoned cart)
              if (!abandonedGroup.supportsIndividualDesignAssignment && designs.find(d => d.id === 5)) {
-                abandonedGroup.groupDesignId = 5; // Pre-assign a design for demo
+                 abandonedGroup.groupDesignId = 5; // Pre-assign a design for demo
              }
          }
          setUserGroups(shopSpecificGroups);
@@ -507,9 +623,16 @@ function CampaignEditor() {
         }
     } else {
         // Assign to the entire group
-        setUserGroups(prevUserGroups =>
-            prevUserGroups.map(g =>
-                g.id === targetGroupId ? { ...g, groupDesignId: draggedDesign.id } : g
+      // Assign to the entire group
+        setUserGroups(prev =>
+            prev.map(g =>
+            g.id === targetGroupId
+                ? { 
+                    ...g, 
+                    // force to a number here
+                    groupDesignId: Number(draggedDesign.id) 
+                }
+                : g
             )
         );
         showNotification(`Assigned '${draggedDesign.name}' to group '${targetGroup.name}'.`, 'success');
@@ -644,12 +767,12 @@ function CampaignEditor() {
     setSelectedItems(prev => ({...prev, [groupId]: new Set()}));
   };
 
-  // --- Group Modal Handlers ---
-  const handleOpenGroupModal = (group?: UserGroup) => {
-    setEditingGroup(group || null);
+  // --- Group Modal Handlers (for CampaignEditor's modal) ---
+  const handleOpenGroupModalInEditor = (group?: UserGroup) => { // Renamed to avoid conflict
+    setEditingGroupModal(group || null);
     setNewGroupName(group?.name || '');
     setNewGroupDescription(group?.description || '');
-    setNewGroupSupportsIndividual(group ? group.supportsIndividualDesignAssignment : false); // Default new groups to single group design
+    setNewGroupSupportsIndividual(group ? group.supportsIndividualDesignAssignment : false);
     setNewGroupDesignId(group?.groupDesignId || null);
 
     const customGroups = userGroups.filter(ug => !ug.isDefault);
@@ -660,22 +783,22 @@ function CampaignEditor() {
         defaultColor = availableColors[0];
     }
     setNewGroupColor(group?.colorScheme || defaultColor);
-    onGroupModalOpen();
+    onGroupModalOpen(); // This opens the modal controlled by useDisclosure
   };
 
-  const handleSaveGroup = () => {
+  const handleSaveGroupInEditor = () => { // Renamed to avoid conflict
     if (!newGroupName.trim()) {
         showNotification("Group name cannot be empty.", "error");
         return;
     }
-    if (editingGroup) {
-        setUserGroups(prev => prev.map(g => g.id === editingGroup.id ? {
+    if (editingGroupModal) {
+        setUserGroups(prev => prev.map(g => g.id === editingGroupModal.id ? {
             ...g, 
             name: newGroupName.trim(), 
             description: newGroupDescription.trim(), 
             colorScheme: newGroupColor,
             supportsIndividualDesignAssignment: newGroupSupportsIndividual,
-            groupDesignId: newGroupSupportsIndividual ? null : newGroupDesignId, // Clear groupDesignId if individual is chosen
+            groupDesignId: newGroupSupportsIndividual ? null : newGroupDesignId,
         } : g));
         showNotification(`Group '${newGroupName.trim()}' updated.`, 'success');
     } else {
@@ -693,10 +816,10 @@ function CampaignEditor() {
         setSelectedItems(prev => ({...prev, [newGroup.id]: new Set()}));
         showNotification(`Group '${newGroup.name}' created.`, 'success');
     }
-    onGroupModalClose();
+    onGroupModalClose(); // This closes the modal controlled by useDisclosure
   };
 
-  const handleDeleteGroup = (groupId: string) => {
+  const handleDeleteGroupInEditor = (groupId: string) => { // Renamed to avoid conflict
     const groupToDelete = userGroups.find(g => g.id === groupId);
     if (!groupToDelete) return;
 
@@ -714,7 +837,6 @@ function CampaignEditor() {
             return newAssignments;
         });
     }
-    // Group-level design (groupDesignId) is removed with the group itself.
     
     setSelectedItems(prev => {
         const newSelections = {...prev};
@@ -752,32 +874,40 @@ function CampaignEditor() {
     <div className="mt-6">
         {/* Shop Selector and View Toggle */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-            <Select
-                label="Select Shop"
-                placeholder="-- Select a Shop --"
-                variant="bordered"
-                selectedKeys={selectedShop ? [selectedShop.url] : []}
-                onSelectionChange={(keys) => {
-                    const newUrl = Array.from(keys)[0] as string | undefined;
-                    setSelectedShop(shops.find((s) => s.url === newUrl) ?? null);
-                }}
-                isDisabled={isSectionLoading || isSaving || shops.length === 0}
-                className="max-w-xs w-full sm:w-auto"
-                classNames={{
-                    label: "text-neutral-700 dark:text-neutral-400",
-                    value: "text-black dark:text-neutral-200",
-                    trigger: "border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 hover:border-gray-400 dark:hover:border-neutral-500 rounded-md",
-                    popoverContent: "bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 shadow-lg rounded-md",
-                }}
+        <Select
+            label="Select Shop"
+            placeholder="-- Select a Shop --"
+            variant="bordered"
+            selectedKeys={selectedShop ? [selectedShop.url] : []}
+            onSelectionChange={(keys) => {
+                const keyArray = Array.from(keys as Set<React.Key>);
+                const newUrl = keyArray[0] as string | undefined;
+                setSelectedShop(shops.find((s) => s.url === newUrl) ?? null);
+            }}
+            isDisabled={isSectionLoading || isSaving || shops.length === 0}
+            className="max-w-xs w-full sm:w-auto"
+            classNames={{
+                label: "text-neutral-700 dark:text-neutral-400",
+                value: "text-black dark:text-neutral-200",
+                trigger:
+                "border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 hover:border-gray-400 dark:hover:border-neutral-500 rounded-md",
+                popoverContent:
+                "bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 shadow-lg rounded-md",
+            }}
             >
-                {shops.map((shop) => (
-                    <SelectItem key={shop.url} value={shop.url} textValue={shop.name}
-                        className="text-black dark:text-neutral-200 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700 data-[selectable=true]:focus:bg-primary-50 dark:data-[selectable=true]:focus:bg-primary-700/30"
-                    >
-                        {shop.name}
-                    </SelectItem>
-                ))}
+            {shops.map((shop) => (
+                <SelectItem
+                key={shop.url}
+                textValue={shop.name}
+                className="text-black dark:text-neutral-200 
+                    data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700 
+                    data-[selectable=true]:focus:bg-primary-50 dark:data-[selectable=true]:focus:bg-primary-700/30"
+                >
+                {shop.name}
+                </SelectItem>
+            ))}
             </Select>
+
             <div className="flex items-center gap-2 sm:gap-4">
                 <Tabs aria-label="View Mode" selectedKey={currentView} onSelectionChange={(key) => setCurrentView(key as 'kanban' | 'calendar')}
                   classNames={{tabList: "bg-gray-100 dark:bg-neutral-700/50 rounded-md", cursor: "bg-white dark:bg-neutral-600 shadow-sm", tabContent: "group-data-[selected=true]:text-primary-600 dark:group-data-[selected=true]:text-primary-400"}}
@@ -909,7 +1039,7 @@ function CampaignEditor() {
                                                     {showPoolEmails ? 'Hide' : 'Show'} ({filteredPoolEmails.length})
                                                 </Button>
                                             </div>
-                                            <Input clearable fullWidth size="sm" placeholder="Search all customers..." value={poolSearchTerm} onValueChange={setPoolSearchTerm} className="bg-white dark:bg-neutral-700 rounded-md"
+                                            <Input isClearable fullWidth size="sm" placeholder="Search all customers..." value={poolSearchTerm} onValueChange={setPoolSearchTerm} className="bg-white dark:bg-neutral-700 rounded-md"
                                                 startContent={<Icon icon="mdi:magnify" className="text-neutral-400"/>}
                                             />
                                             {showPoolEmails && paginatedPoolEmails.length > 0 && (
@@ -928,7 +1058,7 @@ function CampaignEditor() {
                                                                 placeholder="Move to Group..."
                                                                 className="flex-grow"
                                                                 selectedKeys={targetGroupIdForPoolMove ? [targetGroupIdForPoolMove] : []}
-                                                                onSelectionChange={(keys) => setTargetGroupIdForPoolMove(Array.from(keys)[0] as string)}
+                                                                onSelectionChange={(keys) => setTargetGroupIdForPoolMove(Array.from(keys as Set<React.Key>)[0] as string)}
                                                                 classNames={{trigger: "bg-white dark:bg-neutral-600/50 rounded-md text-xs", popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
                                                             >
                                                                 {userGroups.map(ug => <SelectItem key={ug.id} value={ug.id} className="text-black dark:text-neutral-200">{ug.name}</SelectItem>)}
@@ -1013,7 +1143,7 @@ function CampaignEditor() {
                                                             </h3>
                                                             <Dropdown>
                                                                 <DropdownTrigger><Button isIconOnly size="sm" variant="light" className="text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-full"><Icon icon="mdi:dots-vertical" /></Button></DropdownTrigger>
-                                                                <DropdownMenu aria-label="Group Actions" onAction={(key) => { if(key === 'edit') handleOpenGroupModal(group); else if(key === 'delete') handleDeleteGroup(group.id);}}
+                                                                <DropdownMenu aria-label="Group Actions" onAction={(key) => { if(key === 'edit') handleOpenGroupModalInEditor(group); else if(key === 'delete') handleDeleteGroupInEditor(group.id);}}
                                                                     itemClasses={{base:"gap-3 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700 rounded-md", title:"text-black dark:text-neutral-200"}}
                                                                 >
                                                                     <DropdownItem key="edit" startContent={<Icon icon="mdi:pencil-outline"/>}>Edit Group</DropdownItem>
@@ -1032,7 +1162,7 @@ function CampaignEditor() {
                                                                     label={<span className="text-xs text-neutral-700 dark:text-neutral-300">Group Design:</span>}
                                                                     placeholder="Select design"
                                                                     selectedKeys={group.groupDesignId ? [group.groupDesignId.toString()] : []}
-                                                                    onSelectionChange={(keys) => handleSetGroupDesign(group.id, Number(Array.from(keys)[0]) || null)}
+                                                                    onSelectionChange={(keys) => handleSetGroupDesign(group.id, Number(Array.from(keys as Set<React.Key>)[0]) || null)}
                                                                     className="w-full"
                                                                     classNames={{trigger:`bg-white/70 dark:bg-black/20 rounded-md text-xs`, popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
                                                                 >
@@ -1064,12 +1194,12 @@ function CampaignEditor() {
                                                             <Select size="sm" labelPlacement="outside-left" label={<span className="text-xs text-neutral-700 dark:text-neutral-300">Assign to Sel:</span>} placeholder="Select design" className="w-full mt-1"
                                                                 classNames={{trigger:`bg-white/70 dark:bg-black/20 rounded-md text-xs`, popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
                                                                 onSelectionChange={(keys) => {
-                                                                    const designId = Array.from(keys)[0];
+                                                                    const designId = Array.from(keys as Set<React.Key>)[0];
                                                                     const designToAssign = designs.find(d => d.id === Number(designId));
                                                                     if (designToAssign) handleBulkAssignDesignToSelectedEmails(group.id, designToAssign);
                                                                 }}
                                                             >
-                                                                {designs.map(d => <SelectItem key={d.id} value={d.id.toString()} className="text-black dark:text-neutral-200 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700">{d.name}</SelectItem>)}
+                                                                {designs.map(d => <SelectItem key={d.id.toString()} value={d.id.toString()} className="text-black dark:text-neutral-200 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700">{d.name}</SelectItem>)}
                                                             </Select>
                                                         )}
                                                     </CardHeader>
@@ -1092,24 +1222,24 @@ function CampaignEditor() {
                                                                                 {/* Display design info on email card */}
                                                                                 {group.supportsIndividualDesignAssignment && (
                                                                                     displayDesign ? (
-                                                                                        <Chip size="xs" color="primary" variant="flat" className="ml-1 whitespace-nowrap" title={displayDesign.name}>
+                                                                                        <Chip size="sm" color="primary" variant="flat" className="ml-1 whitespace-nowrap" title={displayDesign.name}>
                                                                                             <Icon icon="mdi:palette-outline" className="mr-0.5"/> {displayDesign.name.substring(0,10)}..
                                                                                         </Chip>
                                                                                     ) : (
-                                                                                        <Chip size="xs" color="default" variant="bordered" className="ml-1 whitespace-nowrap">
+                                                                                        <Chip size="sm" color="default" variant="bordered" className="ml-1 whitespace-nowrap">
                                                                                             <Icon icon="mdi:palette-outline" className="mr-0.5"/> No Design
                                                                                         </Chip>
                                                                                     )
                                                                                 )}
                                                                                 {!group.supportsIndividualDesignAssignment && groupOverallDesign && (
-                                                                                     <Chip size="xs" color="default" variant="flat" className="ml-1 whitespace-nowrap opacity-70" title={`Uses group design: ${groupOverallDesign.name}`}>
-                                                                                        <Icon icon="mdi:palette-outline" className="mr-0.5"/> Group: {groupOverallDesign.name.substring(0,7)}..
-                                                                                    </Chip>
+                                                                                     <Chip size="sm" color="default" variant="flat" className="ml-1 whitespace-nowrap opacity-70" title={`Uses group design: ${groupOverallDesign.name}`}>
+                                                                                         <Icon icon="mdi:palette-outline" className="mr-0.5"/> Group: {groupOverallDesign.name.substring(0,7)}..
+                                                                                     </Chip>
                                                                                 )}
                                                                                 {!group.supportsIndividualDesignAssignment && !groupOverallDesign && (
-                                                                                     <Chip size="xs" color="default" variant="bordered" className="ml-1 opacity-70 whitespace-nowrap">
-                                                                                        <Icon icon="mdi:palette-outline" className="mr-0.5"/> Group: None
-                                                                                    </Chip>
+                                                                                     <Chip size="sm" color="default" variant="bordered" className="ml-1 opacity-70 whitespace-nowrap">
+                                                                                         <Icon icon="mdi:palette-outline" className="mr-0.5"/> Group: None
+                                                                                     </Chip>
                                                                                 )}
                                                                                 <SuggestionBadge suggestion={getSuggestionForEmail(email)} />
                                                                             </div>
@@ -1132,7 +1262,7 @@ function CampaignEditor() {
                                                 </Card>
                                             );
                                         })}
-                                        <AddGroupCard onOpenGroupModal={() => handleOpenGroupModal()} />
+                                        <AddGroupCard onOpenGroupModal={() => handleOpenGroupModalInEditor()} />
                                     </div>
                                 </div>
                             </div>
@@ -1172,7 +1302,7 @@ function CampaignEditor() {
                                 <Card ref={provided.innerRef} {...provided.droppableProps} className={`p-3 min-h-[80px] border rounded-lg shadow-sm bg-gray-100 dark:bg-neutral-800/70 border-gray-200 dark:border-neutral-700 ${snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}>
                                     <CardBody className="flex flex-row gap-3 items-center overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-neutral-600 scrollbar-track-transparent pb-2">
                                         {designs.length > 0 ? designs.map((design, index) => (
-                                            <Draggable key={design.id} draggableId={`design-${design.id}`} index={index}>
+                                            <Draggable key={design.id.toString()} draggableId={`design-${design.id}`} index={index}>
                                                 {(dp, ds) => (
                                                     <Chip ref={dp.innerRef} {...dp.draggableProps} {...dp.dragHandleProps}
                                                         color="secondary" variant="solid" size="lg"
@@ -1243,13 +1373,14 @@ function CampaignEditor() {
                             <Button color="primary" onPress={() => {
                                 const nameInput = document.getElementById('automation-name-input') as HTMLInputElement | null;
                                 const descInput = document.getElementById('automation-desc-input') as HTMLInputElement | null;
+                                // This is a mock save. In a real app, you'd get more details from the modal form.
                                 const mockAutoData: Automation = {
                                     id: editingAutomation?.id || `auto-${Date.now()}`,
                                     name: nameInput?.value || (editingAutomation?.name || "New Automation"),
                                     description: descInput?.value || (editingAutomation?.description || ""),
                                     isEnabled: editingAutomation?.isEnabled ?? true,
-                                    trigger: editingAutomation?.trigger || {type: 'manualAdd'},
-                                    steps: editingAutomation?.steps || [] 
+                                    trigger: editingAutomation?.trigger || {type: 'manualAdd'}, // Placeholder
+                                    steps: editingAutomation?.steps || [] // Placeholder
                                 };
                                 handleSaveAutomation(mockAutoData);
                                 onCloseModal();
@@ -1261,73 +1392,124 @@ function CampaignEditor() {
                 )}
             </ModalContent>
         </Modal>
+        <Modal
+      isOpen={isGroupModalOpen}
+      onOpenChange={onGroupModalOpenChange}
+      size="xl"
+      backdrop="blur"
+    >
+      <ModalContent className="bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 border border-gray-300 dark:border-neutral-700 rounded-lg">
+        {(onCloseModal) => (
+          <>
+            <ModalHeader className="border-b border-gray-200 dark:border-neutral-700 text-lg font-semibold">
+              {editingGroupModal ? 'Edit Email Group' : 'Create New Email Group'}
+            </ModalHeader>
+            <ModalBody className="py-4 space-y-4">
+              {/* Form for Group Name */}
+              <Input
+                label="Group Name"
+                placeholder="e.g., VIP Customers"
+                value={newGroupName}
+                onValueChange={setNewGroupName}
+                fullWidth
+                autoFocus
+                className="rounded-md"
+              />
+              {/* Form for Group Description */}
+              <Input
+                label="Group Description"
+                placeholder="e.g., High-value customers"
+                value={newGroupDescription}
+                onValueChange={setNewGroupDescription}
+                fullWidth
+                className="rounded-md"
+              />
+              {/* Color Picker - Simplified for this example */}
+              <div className="space-y-1">
+                  <p className="text-sm text-neutral-700 dark:text-neutral-300">Group Color:</p>
+                  <div className="flex gap-2 flex-wrap">
+                      {DEFAULT_GROUP_COLORS.map(color => (
+                          <Button key={color.light} isIconOnly size="sm"
+                              className={`rounded-md w-8 h-8 ${color.light} ${color.dark.replace('dark:bg-', 'dark:border-')} ${newGroupColor.light === color.light ? 'ring-2 ring-primary-500' : 'border-transparent'}`}
+                              onPress={() => setNewGroupColor(color)}
+                           />
+                      ))}
+                  </div>
+              </div>
 
-        {/* Modal for Adding/Editing User Groups */}
-        <Modal isOpen={isGroupModalOpen} onOpenChange={onGroupModalOpenChange} size="xl" backdrop="blur">
-            <ModalContent className="bg-white dark:bg-neutral-800 text-black dark:text-neutral-100 border border-gray-300 dark:border-neutral-700 rounded-lg">
-                {(onCloseModal) => (
-                    <>
-                        <ModalHeader className="border-b border-gray-200 dark:border-neutral-700 text-lg font-semibold">
-                            {editingGroup ? "Edit Email Group" : "Create New Email Group"}
-                        </ModalHeader>
-                        <ModalBody className="py-4 space-y-4">
-                            <Input label="Group Name" placeholder="e.g., VIP Customers" value={newGroupName} onValueChange={setNewGroupName} fullWidth autoFocus className="rounded-md"/>
-                            <Input label="Description (Optional)" placeholder="Briefly describe this group" value={newGroupDescription} onValueChange={setNewGroupDescription} fullWidth className="rounded-md" />
-                            <div>
-                                <label className="text-sm text-neutral-700 dark:text-neutral-300 mb-1 block font-medium">Color Scheme</label>
-                                <div className="flex gap-2 flex-wrap">
-                                    {DEFAULT_GROUP_COLORS.map(color => (
-                                        <button key={color.light} onClick={() => setNewGroupColor(color)}
-                                            className={`w-8 h-8 rounded-full border-2 transition-all duration-150 ease-in-out
-                                                ${newGroupColor.light === color.light ? 'ring-2 ring-primary-500 dark:ring-primary-400 ring-offset-1 ring-offset-white dark:ring-offset-neutral-800 scale-110' : 'border-gray-300 dark:border-neutral-600 hover:scale-105'}
-                                                ${color.light} ${color.dark.split(':')[1]}`}
-                                            title={`Light: ${color.light}, Dark: ${color.dark.split(':')[1]}`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            
-                            <Switch
-                                isSelected={newGroupSupportsIndividual}
-                                onValueChange={setNewGroupSupportsIndividual}
-                                size="md"
-                                color="primary"
-                                isDisabled={editingGroup?.isDefault && editingGroup.id === 'group-send-now'} // 'Send Now' must support individual
-                            >
-                                Supports Individual Designs per Email
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                    {newGroupSupportsIndividual ? "Allows assigning different designs to each email in this group." : "Assigns one design to the entire group."}
-                                </p>
-                            </Switch>
+              <Switch
+                isSelected={newGroupSupportsIndividual}
+                onChange={handleSwitchChange} // Uses the specific handler for HTML input change event
+                size="md"
+                color="primary"
+                isDisabled={
+                  editingGroupModal?.isDefault &&
+                  editingGroupModal.id === 'group-send-now' // 'group-send-now' is usually individual
+                }
+              >
+                Supports Individual Designs per Email
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {newGroupSupportsIndividual
+                    ? 'Allows assigning different designs to each email in this group.'
+                    : 'Assigns one design to the entire group.'}
+                </p>
+              </Switch>
 
-                            {!newGroupSupportsIndividual && (
-                                <Select 
-                                    label="Group Design" 
-                                    placeholder="Select a design for the whole group"
-                                    selectedKeys={newGroupDesignId ? [newGroupDesignId.toString()] : []}
-                                    onSelectionChange={(keys) => setNewGroupDesignId(Number(Array.from(keys)[0]) || null)}
-                                    fullWidth 
-                                    className="rounded-md mt-2"
-                                    classNames={{popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
-                                >
-                                     <SelectItem key="null-design" value="" className="text-black dark:text-neutral-200 italic">No Group Design</SelectItem>
-                                    {designs.map(d => (
-                                        <SelectItem key={d.id.toString()} value={d.id.toString()} className="text-black dark:text-neutral-200">{d.name}</SelectItem>
-                                    ))}
-                                </Select>
-                            )}
-
-                        </ModalBody>
-                        <ModalFooter className="border-t border-gray-200 dark:border-neutral-700">
-                            <Button color="danger" variant="light" onPress={onCloseModal} className="rounded-md">Cancel</Button>
-                            <Button color="primary" onPress={() => {handleSaveGroup(); onCloseModal();}} className="rounded-md">
-                                {editingGroup ? "Save Changes" : "Create Group"}
-                            </Button>
-                        </ModalFooter>
-                    </>
-                )}
-            </ModalContent>
-        </Modal>
+              {!newGroupSupportsIndividual && (
+                <Select
+                  label="Group Design"
+                  placeholder="Select a design for the whole group"
+                  selectedKeys={
+                    newGroupDesignId !== null
+                      ? [String(newGroupDesignId)] 
+                      : []
+                  }
+                  onSelectionChange={(keys) => {
+                    const key = Array.from(keys as Set<React.Key>)[0];
+                    setNewGroupDesignId(
+                      key !== null && key !== undefined && String(key) !== ''
+                        ? Number(key)
+                        : null
+                    );
+                  }}
+                  className="rounded-md mt-2"
+                  classNames={{popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
+                >
+                  <SelectItem key="" value="" className="text-black dark:text-neutral-200">
+                    No Group Design
+                  </SelectItem>
+                  {designs.map((d) => (
+                    <SelectItem key={String(d.id)} value={String(d.id)} className="text-black dark:text-neutral-200">
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+            </ModalBody>
+            <ModalFooter className="border-t border-gray-200 dark:border-neutral-700">
+              <Button
+                color="danger"
+                variant="light"
+                onPress={onCloseModal}
+                className="rounded-md"
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                onPress={() => {
+                  handleSaveGroupInEditor(); // Use the CampaignEditor's save function
+                  // onCloseModal(); // handleSaveGroupInEditor already calls this
+                }}
+                className="rounded-md"
+              >
+                {editingGroupModal ? 'Save Changes' : 'Create Group'}
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
     </div>
   );
 }
@@ -1341,6 +1523,7 @@ export default function CampaignManagerPage() {
     }, []);
 
     if (!isClient) {
+        // Simplified Skeleton for SSR/loading state
         return (
             <main className="p-4 md:p-6 lg:p-8 font-sans bg-white text-black min-h-screen dark:bg-neutral-900 dark:text-neutral-100">
                 <div className="flex flex-col justify-center items-center min-h-[calc(100vh-100px)]">
@@ -1412,4 +1595,3 @@ export default function CampaignManagerPage() {
         </main>
     );
 }
-

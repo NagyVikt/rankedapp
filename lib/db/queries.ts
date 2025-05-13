@@ -1,4 +1,6 @@
 // Ensures this module only runs on the server
+'use server'; // Ensures this module only runs on the server
+
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
@@ -178,6 +180,7 @@ export async function getUserById(id: string): Promise<User | null> {
  * @param name Optional user name
  * @returns The newly created User
  */
+
 export async function createUser(
   email: string,
   passwordPlainText: string,
@@ -186,14 +189,12 @@ export async function createUser(
   const salt = genSaltSync(10);
   const hashedPassword = hashSync(passwordPlainText, salt);
 
+  // Now include `id` in valuesToInsert
   const valuesToInsert: NewUser = {
+    id: generateUUID(),
     email,
-    password: hashedPassword,
     name: name ?? undefined,
-    role: 'member', // Default role
-    // id: generateUUID(), // Only if ID is not from Supabase and needs to be generated here and is part of NewUser
-    // pinHash: hashedPassword, // If 'pinHash' is your password field
-    // isPinSet: true, // If 'pinHash' is used for password
+    role: 'member',
   };
 
   const [insertedUser] = await db
@@ -262,7 +263,6 @@ export async function getTeamDataForCurrentUser(): Promise<TeamDataWithMembers |
   // The following `eq` call requires schema.teamMembers.userId to be a string-based column type
   // in your schema.ts to match user.id (string).
   const membership = await db.query.teamMembers.findFirst({
-    // @ts-expect-error - This error will persist if schema.teamMembers.userId is not a string type in schema.ts
     where: eq(schema.teamMembers.userId, user.id),
     with: {
       team: {
@@ -707,34 +707,41 @@ export async function deleteMessagesByChatIdAfterTimestamp({ chatId, timestamp }
 
 // --- Vote Related Functions (Adapted for UUIDs) ---
 
-export async function voteMessage({ chatId, messageId, type }: {
-  chatId: string; messageId: string; type: 'up' | 'down';
+export async function voteMessage({
+  userId,       // ← add this
+  chatId,
+  messageId,
+  type,
+}: {
+  userId: string;
+  chatId: string;
+  messageId: string;
+  type: 'up' | 'down';
 }): Promise<Vote> {
   const isUpvoted = type === 'up';
-  try {
-    const valuesToSetOnConflict: Partial<NewVote> = { isUpvoted };
-    // If your schema.vote has an 'updatedAt' field that should be set on conflict,
-    // ensure it's defined in schema.ts and add it here:
-    // if (schema.vote.updatedAt) { // Pseudo-check
-    //   valuesToSetOnConflict.updatedAt = new Date();
-    // }
 
-    const [upsertedVote] = await db.insert(schema.vote)
-        .values({ chatId, messageId, isUpvoted }) // createdAt will be handled by default or should be added if not
-        .onConflictDoUpdate({
-            target: [schema.vote.chatId, schema.vote.messageId],
-            set: valuesToSetOnConflict
-        })
-        .returning();
+  try {
+    const [upsertedVote] = await db
+      .insert(schema.vote)
+      .values({
+        userId,     // ← now included
+        chatId,
+        messageId,
+        isUpvoted,
+      })
+      .onConflictDoUpdate({
+        target: [schema.vote.chatId, schema.vote.messageId, schema.vote.userId],
+        set: { isUpvoted },
+      })
+      .returning();
+
     return upsertedVote;
   } catch (error) {
-    console.error(`Failed to vote on message ${messageId} in database:`, error);
-    if ((error as any)?.code === '23503') {
-        console.error(`FOREIGN KEY VIOLATION: chatId ${chatId} or messageId ${messageId} does not exist.`);
-    }
+    console.error(`Failed to vote on message ${messageId} by ${userId}:`, error);
     throw error;
   }
 }
+
 
 export async function getVotesByChatId({ id }: { id: string }): Promise<Vote[]> {
   try {
@@ -944,7 +951,6 @@ export async function getTeamForUser(): Promise<TeamDataWithMembers | null> {
    // The following `eq` call requires schema.teamMembers.userId to be a string-based column type
    // in your schema.ts to match authUser.id (string).
    const membership = await db.query.teamMembers.findFirst({
-    // @ts-expect-error - This error will persist if schema.teamMembers.userId is not a string type in schema.ts
      where: eq(schema.teamMembers.userId, authUser.id),
      with: {
        team: {
