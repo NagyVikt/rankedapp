@@ -18,6 +18,7 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
+    "@adobe/react-spectrum": "^3.41.0",
     "@ai-sdk/deepseek": "^0.1.8",
     "@ai-sdk/fireworks": "^0.1.0",
     "@ai-sdk/google-vertex": "^2.1.0",
@@ -73,6 +74,8 @@
     "@react-email/components": "^0.0.36",
     "@react-email/render": "^1.0.6",
     "@react-spectrum/picker": "^3.15.8",
+    "@react-spectrum/provider": "^3.10.4",
+    "@react-spectrum/theme-default": "^3.5.17",
     "@react-stately/collections": "^3.12.3",
     "@resvg/resvg-wasm": "^2.3.1",
     "@sparticuz/chromium": "^123.0.1",
