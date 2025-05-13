@@ -88,3 +88,5 @@ coverage
 
 playground/public/yoga.wasm
 playground/tsconfig.tsbuildinfo
+services/pricecompare/browser-use
+services/pricecompare/browser-use
