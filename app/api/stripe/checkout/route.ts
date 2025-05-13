@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     const User = await db
       .select()
       .from(user)
-      .where(eq(user.id, Number(userId)))
+      .where(eq(user.id, userId))
       .limit(1);
 
     if (User.length === 0) {
