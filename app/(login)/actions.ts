@@ -10,7 +10,7 @@ import { createServerClient } from '@supabase/ssr';
 import { revalidatePath } from 'next/cache'; // For updating UI after actions
 import { redirect } from 'next/navigation';
 import { genSaltSync, hashSync, compare } from 'bcrypt-ts'; // Use compare instead of comparePasswords
-
+import { ZodTypeAny } from 'zod';
 // Import the entire schema
 import * as schema from '@/lib/db/schema';
 // Import specific types
@@ -133,53 +133,51 @@ export type ActionState = {
  */
 
 
-function authenticatedAction<TInput extends z.ZodTypeAny, TOutput extends ActionState>(
-  inputSchema: TInput | null,
-  action: (data: z.infer<TInput>, user: User, formData?: FormData) => Promise<TOutput>
+
+export function authenticatedAction<
+  TInput extends ZodTypeAny | null,
+  TOutput extends ActionState
+>(
+  inputSchema: TInput,
+  action: (
+    data: TInput extends ZodTypeAny ? z.infer<TInput> : unknown,
+    user: User,
+    formData?: FormData
+  ) => Promise<TOutput>
 ): (currentState: TOutput, formData: FormData) => Promise<TOutput> {
-  return async (currentState: TOutput, formData: FormData): Promise<TOutput> => {
-      const user = await getAuthenticatedUser();
-      if (!user) {
-          // Return previous state merged with new error
-          return { ...currentState, error: 'Authentication required.' } as TOutput;
+  return async (currentState, formData) => {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return { ...currentState, error: 'Authentication required.' } as TOutput;
+    }
+
+    let validatedData: any = {};
+    if (inputSchema) {
+      // 1) convert entire FormData into a plain object
+      const raw: Record<string, any> = Object.fromEntries(formData.entries());
+      // 2) validate with Zod
+      const result = inputSchema.safeParse(raw);
+      if (!result.success) {
+        const errors = result.error.errors
+          .map(e => `${e.path.join('.')}: ${e.message}`)
+          .join(', ');
+        return {
+          ...currentState,
+          error: `Invalid input: ${errors}`
+        } as TOutput;
       }
+      validatedData = result.data;
+    }
 
-      let validatedData: z.infer<TInput> = {}; // Initialize as empty object
-      if (inputSchema) {
-          const dataToValidate: Record<string, any> = {};
-          // Extract all keys from schema to get values from FormData
-           // Ensure inputSchema.shape exists before iterating
-           if (inputSchema.shape) {
-               for (const key of Object.keys(inputSchema.shape)) {
-                  const value = formData.get(key);
-                  // Handle potential null values if schema expects string/number
-                  if (value !== null) {
-                      dataToValidate[key] = value;
-                  }
-              }
-           } else {
-                console.warn("authenticatedAction: Input schema has no shape property.");
-           }
-
-
-          const result = inputSchema.safeParse(dataToValidate);
-          if (!result.success) {
-              const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-              // Return previous state merged with new error
-              return { ...currentState, error: `Invalid input: ${errors}` } as TOutput;
-          }
-          validatedData = result.data;
-      }
-      // If no schema, validatedData remains empty, action must handle FormData directly if needed
-
-      try {
-          // Execute the original action
-          return await action(validatedData, user, formData);
-      } catch (error: any) {
-          console.error("Error executing authenticated action:", error);
-          // Return previous state merged with new error
-          return { ...currentState, error: error.message || 'An unexpected server error occurred.' } as TOutput;
-      }
+    try {
+      return await action(validatedData, user, formData);
+    } catch (err: any) {
+      console.error("Error in authenticatedAction:", err);
+      return {
+        ...currentState,
+        error: err.message ?? 'Unexpected server error.'
+      } as TOutput;
+    }
   };
 }
 
@@ -322,7 +320,17 @@ export const completeSetupAfterSignUp = authenticatedAction(
 
     let teamId: number; // Changed back to camelCase to match schema type
     let userRole: string = 'owner';
-    let teamForSetup: Team | null = null;
+    let teamForSetup:
+    | {
+        id: number;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        /* … */
+      }
+    | null
+    | undefined = undefined;
+  
     const teamName = providedTeamName || `${user.email}'s Team`;
 
     // --- Handle Invitation (If applicable) ---
@@ -508,7 +516,17 @@ export const deleteAccount = authenticatedAction(
         });
         await logActivity(membership?.teamId ?? null, user.id, ActivityType.DELETE_ACCOUNT); // Pass teamId
         const deletedEmail = `${user.email}-deleted-${Date.now()}`;
-        await db.update(schema.user).set({ deletedAt: new Date(), email: deletedEmail, name: 'Deleted User', passwordHash: 'deleted', pinHash: null, isPinSet: false, emailVerified: null, }).where(eq(schema.user.id, user.id));
+        await db
+  .update(schema.user)               // make sure you reference the correct exported identifier
+  .set({
+    deletedAt: new Date(),
+    email: deletedEmail,
+    name: 'Deleted User',
+    emailVerified: null,
+    updatedAt: new Date(),           // keep your updatedAt timestamp in sync
+  })
+  .where(eq(schema.user.id, user.id));
+
         await supabase.auth.signOut();
     } catch (error) {
         console.error(`Error during soft delete process for user ${user.id}:`, error);
@@ -647,7 +665,7 @@ export const inviteTeamMember = authenticatedAction(
     if (inviterMembership.role !== 'owner') { return { error: 'You do not have permission to invite team members.' }; }
 
     // Use camelCase matching Drizzle schema
-    const existingMember = await db.query.users.findFirst({
+    const existingMember = await db.query.user.findFirst({
         where: and( eq(schema.user.email, email), isNull(schema.user.deletedAt) ),
         with: {
             teamMembers: {

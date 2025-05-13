@@ -9,10 +9,9 @@ import { Label } from '@/components/stripe/label';
 import { Lock, Trash2, Loader2 } from 'lucide-react';
 import { updatePassword, deleteAccount } from '@/app/(login)/actions';
 
-// 1) Discriminated unions for each form's state
+// 1) Discriminated union for the password‐update form
 type PasswordState =
   | {
-      // when there's an error
       currentPassword?: string;
       newPassword?: string;
       confirmPassword?: string;
@@ -20,7 +19,6 @@ type PasswordState =
       success?: never;
     }
   | {
-      // when it's successful
       currentPassword?: string;
       newPassword?: string;
       confirmPassword?: string;
@@ -28,37 +26,26 @@ type PasswordState =
       error?: never;
     };
 
-type DeleteState =
-  | {
-      // error case
-      password?: string;
-      error: string;
-      success?: never;
-    }
-  | {
-      // success case
-      password?: string;
-      success: string;
-      error?: never;
-    };
+// 2) Single‐variant for delete: only an error can be surfaced here
+type DeleteState = {
+  password?: string;
+  error: string;
+};
 
 export default function SecurityPage() {
-  // 2) Initialize each form with the “error” variant (but empty) so TS sees it fits
-  const [passwordState, passwordAction, isPasswordPending] = useActionState<
-    PasswordState,
-    FormData
-  >(
-    updatePassword,
-    { currentPassword: '', newPassword: '', confirmPassword: '', error: '' }
-  );
+  // 3) Hook into the password‐update action
+  const [passwordState, passwordAction, isPasswordPending] =
+    useActionState<PasswordState, FormData>(
+      updatePassword,
+      { currentPassword: '', newPassword: '', confirmPassword: '', error: '' }
+    );
 
-  const [deleteState, deleteAction, isDeletePending] = useActionState<
-    DeleteState,
-    FormData
-  >(
-    deleteAccount,
-    { password: '', error: '' }
-  );
+  // 4) Hook into the delete‐account action
+  const [deleteState, deleteAction, isDeletePending] =
+    useActionState<DeleteState, FormData>(
+      deleteAccount,
+      { password: '', error: '' }
+    );
 
   return (
     <section className="flex-1 p-4 lg:p-8">
@@ -176,9 +163,6 @@ export default function SecurityPage() {
 
             {deleteState.error && (
               <p className="text-red-500 text-sm">{deleteState.error}</p>
-            )}
-            {deleteState.success && (
-              <p className="text-green-500 text-sm">{deleteState.success}</p>
             )}
 
             <Button
