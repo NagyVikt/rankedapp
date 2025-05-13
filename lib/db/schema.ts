@@ -27,8 +27,8 @@ export const user = pgTable('User', {
   updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date' }),
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
-  pinHash: varchar('pin_hash', { length: 255 }),
-  isPinSet: boolean('is_pin_set').default(false),
+  pinHash: varchar('pinHash', { length: 255 }),
+  isPinSet: boolean('isPinSet').default(false),
 });
 
 // --- Teams ---
