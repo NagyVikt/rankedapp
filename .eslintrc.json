@@ -19,7 +19,6 @@
   ],
   "plugins": [
     "react",
-    "react-hooks",           // ← add this if you need to turn individual hooks rules on/off
     "unused-imports",
     "import",
     "@typescript-eslint",
@@ -81,12 +80,11 @@
       }
     ],
     "padding-line-between-statements": [
-  "warn",
-  [
-    { "blankLine": "always", "prev": "*", "next": "return" },
-    { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
-    { "blankLine": "any", "prev": ["const", "let", "var"], "next": ["const", "let", "var"] }
-  ]
-]
+      "error",
+      // then your array of objects:
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      { "blankLine": "always", "prev": ["const","let","var"], "next": "*" },
+      { "blankLine": "any",    "prev": ["const","let","var"], "next": ["const","let","var"] }
+    ]
   }
 }

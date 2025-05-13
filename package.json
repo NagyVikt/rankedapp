@@ -49,6 +49,7 @@
     "@iconify/react": "^5.2.1",
     "@mendable/firecrawl-js": "^1.15.7",
     "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.52.2",
     "@openrouter/ai-sdk-provider": "^0.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.7",

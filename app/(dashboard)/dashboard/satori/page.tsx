@@ -339,7 +339,7 @@ function LiveEditor({ id, code, onCodeChange }: { id: string, code: string, onCo
         language='javascript' value={code} onChange={handleEditorChange} onMount={handleEditorDidMount}
         options={{
           fontFamily: '"Fira Code", Consolas, "Courier New", monospace', fontSize: 13, wordWrap: 'on', tabSize: 2, minimap: { enabled: false }, smoothScrolling: true, cursorSmoothCaretAnimation: 'on', contextmenu: true,
-          automaticLayout: false, scrollBeyondLastLine: false, renderLineHighlight: 'gutter', readOnly: false, lineNumbers: 'on', roundedSelection: false, overviewRulerLanes: 2, occurrencesHighlight: false, renderWhitespace: "boundary", scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8, vertical: 'auto', horizontal: 'auto' },
+          automaticLayout: false, scrollBeyondLastLine: false, renderLineHighlight: 'gutter', readOnly: false, lineNumbers: 'on', roundedSelection: false, overviewRulerLanes: 2, occurrencesHighlight: 'off', renderWhitespace: "boundary", scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8, vertical: 'auto', horizontal: 'auto' },
         }}
       />
     </div>
