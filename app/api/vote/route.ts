@@ -93,10 +93,10 @@ export async function PATCH(request: Request) {
     // Perform the vote operation
     // Note: voteMessage might need the userId if you track who voted
     await voteMessage({
+      userId: currentUserId,   // ← add this
       chatId,
       messageId,
-      type: type,
-      // userId: currentUserId, // Pass userId if your DB schema/query needs it
+      type,
     });
     console.log(`--- Vote PATCH: Vote recorded successfully for user ${currentUserId}.`);
     // Use NextResponse for consistency

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react"; // Import useEffect for logging state changes
-import { ModelSelect } from "@/components/ModelSelect";
+import { useState, useEffect } from "react";
+import { ModelSelect, type ModelSelectProps } from "@/components/ModelSelect";
 import { PromptInput } from "@/components/PromptInput";
 import { ModelCardCarousel } from "@/components/ModelCardCarousel";
 import {
@@ -11,9 +11,11 @@ import {
   ProviderKey,
   ModelMode,
   initializeProviderRecord,
+  type ProviderConfig, // Ensure this is imported
+  type Model,          // Ensure Model type is imported if it's used explicitly for clarity
 } from "@/lib/provider-config";
 import { Suggestion } from "@/lib/suggestions";
-import { useImageGeneration } from "@/hooks/use-image-generation";
+import { useImageGeneration, type ProviderTiming } from "@/hooks/use-image-generation";
 import { Header } from "./Header";
 
 // Define allowed providers (excluding 'vertex')
@@ -32,7 +34,6 @@ type FilteredEnabledRecord = Record<AllowedProviderKey, boolean>;
 const filterModelConfig = (
   config: Record<ProviderKey, string>,
 ): FilteredModelRecord => {
-  // Filter based on ALLOWED_PROVIDER_KEYS to ensure consistency
   return Object.fromEntries(
     Object.entries(config).filter(([key]) => ALLOWED_PROVIDER_KEYS.includes(key as AllowedProviderKey)),
   ) as FilteredModelRecord;
@@ -42,12 +43,10 @@ const filterModelConfig = (
 const filterEnabledProviders = (
   record: Record<ProviderKey, boolean>,
 ): FilteredEnabledRecord => {
-   // --- Log 2 ---
    console.log("DEBUG: Record received by filterEnabledProviders:", record);
    const filtered = Object.fromEntries(
     Object.entries(record).filter(([key]) => ALLOWED_PROVIDER_KEYS.includes(key as AllowedProviderKey)),
   ) as FilteredEnabledRecord;
-  // --- Log 3 ---
   console.log("DEBUG: Record after filtering in filterEnabledProviders:", filtered);
   return filtered;
 };
@@ -68,31 +67,21 @@ export function ImagePlayground({
 
   const [showProviders, setShowProviders] = useState(true);
 
-  // Initialize state using functions to allow immediate logging
   const [selectedModels, setSelectedModels] = useState<FilteredModelRecord>(() => {
       const initialConf = filterModelConfig(MODEL_CONFIGS.performance);
-      // --- Log 4 ---
       console.log("DEBUG: Initializing selectedModels state:", initialConf);
       return initialConf;
   });
 
   const [enabledProviders, setEnabledProviders] = useState<FilteredEnabledRecord>(() => {
-       // Explicitly call initializeProviderRecord here to log its direct output
        const allProvidersRecord = initializeProviderRecord(true);
-       // --- Log 5 ---
        console.log("DEBUG: Output of initializeProviderRecord(true):", allProvidersRecord);
        const initialEnabled = filterEnabledProviders(allProvidersRecord);
-       // --- Log 6 ---
        console.log("DEBUG: Initializing enabledProviders state:", initialEnabled);
        return initialEnabled;
   });
 
   const [mode, setMode] = useState<ModelMode>("performance");
-
-  // Optional: Log state changes if needed for further debugging
-  // useEffect(() => {
-  //     console.log("DEBUG: enabledProviders state updated:", enabledProviders);
-  // }, [enabledProviders]);
 
   const toggleView = () => {
     setShowProviders((prev) => !prev);
@@ -132,66 +121,88 @@ export function ImagePlayground({
     const activeProviders = ALLOWED_PROVIDER_KEYS.filter(
       (p) => enabledProviders[p],
     );
-    // --- Log 7 ---
     console.log("DEBUG: Submitting prompt. Active providers:", activeProviders, "Models:", providerToModel);
     if (activeProviders.length > 0) {
-      startGeneration(newPrompt, activeProviders, providerToModel);
+      const modelsForActiveProviders = activeProviders.reduce((acc, key) => {
+        if (providerToModel[key]) {
+          acc[key] = providerToModel[key];
+        }
+        return acc;
+      }, {} as FilteredModelRecord);
+      startGeneration(newPrompt, activeProviders, modelsForActiveProviders);
     }
     setShowProviders(false);
   };
 
  // --- Rendering Logic ---
 
- // Calculate props once per render cycle
  const calculatedModelProps = ALLOWED_PROVIDER_KEYS.map((key) => {
-    // --- Log 8 ---
     console.log(`DEBUG: [Render] Processing key: ${key}`);
-    const provider = PROVIDERS[key];
+    const provider: ProviderConfig | undefined = PROVIDERS[key];
     const isEnabled = enabledProviders[key];
-    // --- Log 9 ---
     console.log(`DEBUG: [Render] Provider config for ${key}:`, provider ? 'Found' : 'NOT FOUND');
     console.log(`DEBUG: [Render] Is enabled state for ${key}: ${isEnabled}`);
 
     if (!provider) {
         console.warn(`DEBUG: [Render] Provider configuration missing in PROVIDERS for key: ${key}. Skipping.`);
-        return null; // Skip if provider config is missing
+        return null;
     }
-    // It's possible state isn't ready on first pass, check if isEnabled is defined
-    if (typeof isEnabled === 'undefined') {
-         console.warn(`DEBUG: [Render] enabledProviders state for key ${key} is undefined. Treating as disabled.`);
+
+    if (
+        !provider.displayName ||
+        !provider.models || provider.models.length === 0 || // provider.models is Model[]
+        !provider.iconPath ||
+        !provider.color
+    ) {
+        console.warn(`DEBUG: [Render] Provider configuration for key: ${key} is incomplete (missing displayName, models, iconPath, or color). Skipping.`);
+        return null;
+    }
+
+    const currentSelectedModelValue = selectedModels[key];
+    if (typeof currentSelectedModelValue === 'undefined') {
+        console.warn(`DEBUG: [Render] No model selected for provider ${key} (selectedModels['${key}'] is undefined). Skipping card for this provider as 'value' prop would be undefined.`);
+        return null;
     }
 
     const imageItem = images.find((img) => img.provider === key);
     const imageData = imageItem?.image;
-    const modelId = imageItem?.modelId ?? "N/A";
-    const timing = timings[key as ProviderKey];
+    const generatedModelIdDisplay = imageItem?.modelId ?? "N/A";
+    const timingData = timings[key as ProviderKey] ?? null;
+
+    const onToggleForThisProvider = () => {
+        handleProviderToggle(key, !isEnabled);
+    };
+
+    // Transform provider.models (Model[]) to string[] for ModelSelect component
+    // Assuming ModelSelect expects an array of model IDs.
+    // If it expects names, use model.name instead of model.id.
+    const modelIdsForSelect: string[] = provider.models.map((model: Model) => model.id);
 
     return {
         label: provider.displayName,
-        models: provider.models,
-        value: selectedModels[key], // Read from state
+        models: modelIdsForSelect, // Pass the transformed string[]
+        value: currentSelectedModelValue,
         providerKey: key,
         onChange: (model: string) => { handleModelChange(key, model); },
         iconPath: provider.iconPath,
         color: provider.color,
-        enabled: isEnabled ?? false, // Default to false if undefined state
-        onToggle: (enabled: boolean) => handleProviderToggle(key, enabled),
+        enabled: isEnabled ?? false,
+        onToggle: onToggleForThisProvider,
         image: imageData,
-        modelId,
-        timing: timing ?? null,
+        modelId: generatedModelIdDisplay,
+        timing: timingData as ProviderTiming | null,
         failed: failedProviders.includes(key),
     };
- }).filter(Boolean); // Filter out any nulls from missing providers
+ }).filter(Boolean) as ModelSelectProps[];
 
- // --- Log 10 ---
  console.log(`DEBUG: [Render] Number of valid model props calculated: ${calculatedModelProps.length}`);
  console.log("DEBUG: [Render] Final props for rendering:", calculatedModelProps);
 
 
-  // Determine grid columns based on the *actual* number of props calculated
   const numProviders = calculatedModelProps.length;
-  const gridColsClass = `md:grid-cols-${Math.min(numProviders, 3)}`; // Adjust max cols if needed
-  const xlGridColsClass = `2xl:grid-cols-${Math.min(numProviders, 4)}`; // Adjust max cols if needed
+  const gridColsClass = `md:grid-cols-${Math.max(1, Math.min(numProviders, 3))}`;
+  const xlGridColsClass = `2xl:grid-cols-${Math.max(1, Math.min(numProviders, 4))}`;
+
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
@@ -207,24 +218,23 @@ export function ImagePlayground({
           suggestions={suggestions}
         />
         <>
-            {/* Conditional Rendering based on calculated props */}
-            {numProviders > 0 && (
+            {numProviders > 0 ? (
+              <>
                 <div className="md:hidden">
                     <ModelCardCarousel models={calculatedModelProps} />
                 </div>
-            )}
-            {numProviders > 0 && (
                 <div className={`hidden md:grid ${gridColsClass} ${xlGridColsClass} gap-8`}>
                 {calculatedModelProps.map((props) => (
-                    <ModelSelect key={props.label} {...props} />
+                    <ModelSelect key={props.providerKey} {...props} />
                 ))}
                 </div>
-            )}
-            {/* This condition should now accurately reflect if props were generated */}
-            {numProviders === 0 && !isLoading && (
+              </>
+            ) : (
+              !isLoading && (!activePrompt || activePrompt.length === 0) && (
                 <div className="text-center mt-8 text-muted-foreground">
                     No image generation providers are available or enabled.
                 </div>
+              )
             )}
             {activePrompt && activePrompt.length > 0 && (
                 <div className="text-center mt-4 text-muted-foreground">

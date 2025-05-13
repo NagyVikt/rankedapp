@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
     Input,
@@ -10,34 +9,31 @@ import {
     ModalBody,
     ModalFooter,
     useDisclosure,
-    // Removed RadioGroup, Radio, ScrollShadow as we'll use Input for domain
-    Skeleton // Import Skeleton
-} from "@heroui/react"; // Assuming HeroUI components handle dark theme via context
+    Skeleton
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
-// Keep useShops for potential future use or general loading state, but selection logic changes
+// useShops hook is called, but isLoading and error properties are not used
+// as they are not part of its return type according to the TS error.
 import { useShops } from "@/context/shops";
 
 // Interface for a single Shopify connection entry
-// Assumes connection via shop domain and Admin API Access Token
 export interface ShopifyEntry {
   shopDomain: string; // e.g., your-store.myshopify.com
   accessToken: string; // Shopify Admin API Access Token
 }
 
-// --- Skeleton Components (Remain the same, text updates if needed) ---
-// Using HeroUI Skeleton component is preferred
+// --- Skeleton Component (Remains the same) ---
+// This skeleton was previously tied to a context loading state.
+// It's kept here in case you want to implement a local loading state for this tab in the future.
 const ShopifyTabSkeleton = ({ className }: { className?: string }) => (
-    // Use HeroUI Skeleton component for a more integrated look
     <div className={`space-y-4 pt-4 ${className}`}>
          <div className="flex justify-between items-center mb-4">
-             {/* Updated text context if needed, but skeleton is generic */}
              <Skeleton className="h-5 w-56 rounded-lg" />
              <Skeleton className="h-9 w-36 rounded-lg" />
          </div>
          {[...Array(2)].map((_, i) => (
               <div key={i} className="p-4 bg-content1 dark:bg-content1 border border-divider rounded-lg flex items-center justify-between min-h-[76px]">
                  <div className="flex items-center gap-4 w-full">
-                     {/* Shopify Icon Placeholder */}
                      <Skeleton className="h-7 w-7 rounded-md flex-shrink-0" />
                      <div className="space-y-2 w-full">
                          <Skeleton className="h-4 w-3/5 rounded-lg" />
@@ -52,7 +48,7 @@ const ShopifyTabSkeleton = ({ className }: { className?: string }) => (
          ))}
      </div>
 );
-// --- End Skeleton Components ---
+// --- End Skeleton Component ---
 
 // Local storage key for Shopify connections
 const SHOPIFY_CONNECTIONS_STORAGE_KEY = "shopifyConnections";
@@ -61,24 +57,22 @@ interface ShopifyTabProps {
     className?: string;
 }
 
-// Renamed component to ShopifyTab
 export default function ShopifyTab({ className }: ShopifyTabProps) {
   // --- State and Hooks ---
-  // Keep useShops for loading/error, but remove direct dependency for selection
-  const { isLoading: isLoadingContext, error: contextError } = useShops(); // Renamed to avoid conflict
+  // Call useShops() if it's used for other context values, but we won't use isLoading or error from it.
+  const shopsContext = useShops(); // You can still use other values from shopsContext if needed.
+
   // State for Shopify connections
   const [connections, setConnections] = useState<ShopifyEntry[]>([]);
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   // State for form fields
-  const [shopDomain, setShopDomain] = useState(""); // Renamed from ck
-  const [accessToken, setAccessToken] = useState(""); // Renamed from cs
-  // Removed 'sel' state as domain is entered directly
+  const [shopDomain, setShopDomain] = useState("");
+  const [accessToken, setAccessToken] = useState("");
 
   // --- useEffect to load connections ---
    useEffect(() => {
-    // Use the new storage key
     const raw = localStorage.getItem(SHOPIFY_CONNECTIONS_STORAGE_KEY);
     if (raw) {
         try {
@@ -91,65 +85,50 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
   }, []);
 
   // --- Handlers ---
-  // Saves Shopify connections to localStorage
   const saveAll = useCallback((next: ShopifyEntry[]) => {
     if (!Array.isArray(next)) return;
     try {
-        // Use the new storage key
         localStorage.setItem(SHOPIFY_CONNECTIONS_STORAGE_KEY, JSON.stringify(next));
         setConnections(next);
-        // Optional: Trigger a storage event if other components need to react
         window.dispatchEvent(new Event('storage'));
     } catch (error) {
         console.error("Failed to save shopifyConnections:", error);
-        // Replace alert with a more user-friendly notification if possible
         alert("Failed to save connections.");
     }
   }, []);
 
-  // Opens modal for adding a new connection
   const handleAddClick = () => {
     setIsEditing(false);
     setEditingIndex(null);
-    // Reset Shopify fields
     setShopDomain("");
     setAccessToken("");
     onOpen();
   };
 
-  // Opens modal for editing an existing connection
   const handleEditClick = (index: number) => {
     const conn = connections[index];
     if (!conn) return;
     setIsEditing(true);
     setEditingIndex(index);
-    // Set Shopify fields from the connection being edited
     setShopDomain(conn.shopDomain);
     setAccessToken(conn.accessToken);
     onOpen();
   };
 
-  // Saves the new or edited connection
   const handleSaveConnection = () => {
-    // Validate Shopify fields
-    const trimmedDomain = shopDomain.trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0]; // Basic normalization
+    const trimmedDomain = shopDomain.trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0];
     const trimmedToken = accessToken.trim();
-
     if (!trimmedDomain || !trimmedToken) {
         alert("Please provide both the Shop Domain (e.g., your-store.myshopify.com) and the Admin API Access Token.");
         return;
     }
-     // Simple check for a plausible domain format
      if (!trimmedDomain.includes('.myshopify.com')) {
         alert("Please enter a valid Shopify domain (e.g., your-store.myshopify.com).");
         return;
     }
-
     const newEntry: ShopifyEntry = { shopDomain: trimmedDomain, accessToken: trimmedToken };
     let updatedConnections: ShopifyEntry[];
-
     if (isEditing && editingIndex !== null) {
-        // Check if the edited domain conflicts with another existing connection
         const conflictExists = connections.some((conn, index) => index !== editingIndex && conn.shopDomain === trimmedDomain);
         if (conflictExists) {
              alert(`A connection for ${trimmedDomain} already exists.`);
@@ -157,7 +136,6 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
         }
         updatedConnections = connections.map((conn, index) => index === editingIndex ? newEntry : conn);
     } else {
-        // Check if a connection for this domain already exists
         const exists = connections.some(conn => conn.shopDomain === trimmedDomain);
         if (exists) {
             alert(`A connection for ${trimmedDomain} already exists.`);
@@ -166,71 +144,52 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
         updatedConnections = [...connections, newEntry];
     }
     saveAll(updatedConnections);
-    onClose(); // Close modal on successful save
+    onClose();
   };
 
-  // Removes a connection
   const handleRemoveClick = (indexToRemove: number) => {
     const shopDomainToRemove = connections[indexToRemove]?.shopDomain;
-    // Use window.confirm or a custom confirmation modal
     if (window.confirm(`Remove connection for ${shopDomainToRemove}?`)) {
         saveAll(connections.filter((_, index) => index !== indexToRemove));
     }
   };
 
   // --- Render Logic ---
-  // Show skeleton while context is loading (if context is still used for something)
-   if (isLoadingContext) {
-       return <ShopifyTabSkeleton className={className} />;
-   }
-
-  // Show error message if context failed (if context is still relevant)
-  if (contextError) {
-      return (
-          <div className={`pt-4 text-center ${className}`}>
-              {/* Updated Title */}
-              <p className="text-medium font-semibold mb-4 text-foreground">Manage Shopify Connections</p>
-              <p className="text-danger py-4">Error loading context: {contextError.message || 'Please try again.'}</p>
-          </div>
-      );
-  }
+  // The component now directly renders its content without checking isLoadingContext or contextError.
+  // If you need a loading state specifically for this tab (e.g., during an API call for validation),
+  // you would implement a local loading state (e.g., const [isTabLoading, setIsTabLoading] = useState(false);).
 
   return (
     <div className={`space-y-4 pt-4 ${className}`}>
        {/* Header */}
        <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-         {/* Updated Title */}
          <p className="text-medium font-semibold text-foreground">Manage Shopify Connections</p>
          <Button
             color="primary"
-            variant="flat" // Flat often looks good in dark mode
+            variant="flat"
             size="sm"
             onPress={handleAddClick}
             startContent={<Icon icon="solar:add-circle-linear" width={18} />}
-            // isDisabled={isLoadingContext} // Disable if still loading context, or remove if context isn't needed
-            className="dark:text-primary-foreground" // Ensure text contrast if needed
+            className="dark:text-primary-foreground"
+            // isDisabled prop removed as isLoadingContext is no longer used
          >
-            {/* Updated Button Text */}
             Add Connection
          </Button>
       </div>
 
       {/* Connection List */}
       {connections.length === 0 ? (
-         // Updated Empty State Text
          <p className="text-center text-default-500 py-4">No Shopify connections configured yet.</p>
       ) : (
          <div className="space-y-3">
             {connections.map((c, idx) => {
-               const shopDisplayName = c.shopDomain; // Use domain as display name
+               const shopDisplayName = c.shopDomain;
                return (
                  <div key={c.shopDomain || idx} className="p-4 bg-content1 dark:bg-content1 border border-divider rounded-lg flex flex-wrap items-center justify-between gap-3">
                    <div className="flex items-center gap-4">
-                     {/* Shopify Icon */}
                      <Icon icon="logos:shopify" width={28} className="flex-shrink-0" />
                      <div>
                        <p className="font-medium text-foreground">{shopDisplayName}</p>
-                       {/* Updated description */}
                        <p className="text-small text-foreground-500">Access Token configured</p>
                      </div>
                    </div>
@@ -269,22 +228,19 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           backdrop="blur"
-          size="xl" // Consider 'lg' or 'xl' based on content
+          size="xl"
           scrollBehavior="inside"
       >
         <ModalContent>
           {(modalOnClose) => (
             <>
-              {/* Updated Modal Header */}
               <ModalHeader className="flex flex-col gap-1">
                 {isEditing ? 'Edit Shopify Connection' : 'Add New Shopify Connection'}
               </ModalHeader>
               <ModalBody className="space-y-4">
-                 {/* Info text about finding credentials */}
                  <p className="text-sm text-foreground-500">
                      You can create a Custom App in your Shopify Admin under 'Apps and sales channels' &gt; 'Develop apps' to get an Admin API access token. Ensure it has the necessary permissions (e.g., read/write products, orders).
                  </p>
-                {/* Input for Shop Domain */}
                 <Input
                   isRequired
                   label="Shopify Domain"
@@ -296,21 +252,18 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
                   aria-label="Shopify Domain (e.g., your-store.myshopify.com)"
                   description="Enter the full .myshopify.com domain."
                 />
-                {/* Input for Admin API Access Token */}
                 <Input
                   isRequired
                   label="Admin API Access Token"
-                  placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" // Example prefix
+                  placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                   variant="bordered"
                   value={accessToken}
                   onValueChange={setAccessToken}
-                  type="password" // Hide the token
+                  type="password"
                   fullWidth
                   aria-label="Shopify Admin API Access Token"
                   description="Starts with 'shpat_'. Keep this secure."
                 />
-                {/* Removed RadioGroup for Webshop selection */}
-
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={modalOnClose}>
@@ -319,7 +272,6 @@ export default function ShopifyTab({ className }: ShopifyTabProps) {
                 <Button
                   color="primary"
                   onPress={handleSaveConnection}
-                  // Updated validation check
                   isDisabled={!shopDomain.trim() || !accessToken.trim()}
                 >
                   {isEditing ? 'Save Changes' : 'Add Connection'}

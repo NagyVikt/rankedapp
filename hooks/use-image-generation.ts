@@ -1,17 +1,26 @@
+// @/hooks/use-image-generation.ts
+
 import { useState } from "react";
-import { ImageError, ImageResult, ProviderTiming } from "@/lib/image-types";
+import { ImageError, ImageResult } from "@/lib/image-types"; // Assuming these are defined in image-types.ts
 import { initializeProviderRecord, ProviderKey } from "@/lib/provider-config";
+
+// Ensure ProviderTiming is exported
+export interface ProviderTiming {
+  startTime: number;
+  completionTime?: number;
+  elapsed?: number;
+}
 
 interface UseImageGenerationReturn {
   images: ImageResult[];
   errors: ImageError[];
-  timings: Record<ProviderKey, ProviderTiming>;
+  timings: Record<ProviderKey, ProviderTiming | null>; // Allow null for initial state before timing starts
   failedProviders: ProviderKey[];
   isLoading: boolean;
   startGeneration: (
     prompt: string,
     providers: ProviderKey[],
-    providerToModel: Record<ProviderKey, string>,
+    providerToModel: Partial<Record<ProviderKey, string>>,
   ) => Promise<void>;
   resetState: () => void;
   activePrompt: string;
@@ -20,8 +29,9 @@ interface UseImageGenerationReturn {
 export function useImageGeneration(): UseImageGenerationReturn {
   const [images, setImages] = useState<ImageResult[]>([]);
   const [errors, setErrors] = useState<ImageError[]>([]);
-  const [timings, setTimings] = useState<Record<ProviderKey, ProviderTiming>>(
-    initializeProviderRecord<ProviderTiming>(),
+  // Initialize timings with null or a specific initial structure
+  const [timings, setTimings] = useState<Record<ProviderKey, ProviderTiming | null>>(
+    initializeProviderRecord<ProviderTiming | null>(null), // Initialize with null
   );
   const [failedProviders, setFailedProviders] = useState<ProviderKey[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,125 +40,112 @@ export function useImageGeneration(): UseImageGenerationReturn {
   const resetState = () => {
     setImages([]);
     setErrors([]);
-    setTimings(initializeProviderRecord<ProviderTiming>());
+    setTimings(initializeProviderRecord<ProviderTiming | null>(null));
     setFailedProviders([]);
     setIsLoading(false);
+    setActivePrompt(""); // Also reset activePrompt
   };
 
   const startGeneration = async (
     prompt: string,
     providers: ProviderKey[],
-    providerToModel: Record<ProviderKey, string>,
+    providerToModel: Partial<Record<ProviderKey, string>>,
   ) => {
     setActivePrompt(prompt);
-    try {
-      setIsLoading(true);
-      // Initialize images array with null values
-      setImages(
-        providers.map((provider) => ({
-          provider,
-          image: null,
-          modelId: providerToModel[provider],
-        })),
-      );
+    setIsLoading(true);
+    setErrors([]);
+    setFailedProviders([]);
+    // Reset timings for the new generation batch, setting only for active providers
+    const initialTimingsForBatch = initializeProviderRecord<ProviderTiming | null>(null);
 
-      // Clear previous state
-      setErrors([]);
-      setFailedProviders([]);
 
-      // Initialize timings with start times
-      const now = Date.now();
-      setTimings(
-        Object.fromEntries(
-          providers.map((provider) => [provider, { startTime: now }]),
-        ) as Record<ProviderKey, ProviderTiming>,
-      );
+    // Prepopulate images for active providers
+    setImages(
+      providers.map((provider) => ({
+        provider,
+        image: null,
+        modelId: providerToModel[provider] ?? "N/A", // Use N/A if modelId is somehow undefined
+      })),
+    );
 
-      // Helper to fetch a single provider
-      const generateImage = async (provider: ProviderKey, modelId: string) => {
-        const startTime = now;
-        console.log(
-          `Generate image request [provider=${provider}, modelId=${modelId}]`,
-        );
-        try {
-          const request = {
-            prompt,
-            provider,
-            modelId,
-          };
+    // Start timings for active providers
+    const now = Date.now();
+    providers.forEach(provider => {
+      initialTimingsForBatch[provider] = { startTime: now };
+    });
+    setTimings(initialTimingsForBatch);
 
-          const response = await fetch("/api/generate-images", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(request),
-          });
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.error || `Server error: ${response.status}`);
-          }
 
-          const completionTime = Date.now();
-          const elapsed = completionTime - startTime;
-          setTimings((prev) => ({
+    const generateImageFor = async (provider: ProviderKey) => {
+      const modelId = providerToModel[provider];
+      if (!modelId) {
+        setFailedProviders((prev) => [...prev, provider]);
+        setErrors((prev) => [
+          ...prev,
+          { provider, message: "No model selected for this provider" },
+        ]);
+        // Update timing to reflect failure if needed, or leave as is
+        setTimings(prev => ({
             ...prev,
-            [provider]: {
-              startTime,
-              completionTime,
-              elapsed,
-            },
-          }));
+            [provider]: { ...(prev[provider] as ProviderTiming), completionTime: Date.now(), elapsed: Date.now() - (prev[provider]?.startTime || now) }
+        }));
+        return;
+      }
 
-          console.log(
-            `Successful image response [provider=${provider}, modelId=${modelId}, elapsed=${elapsed}ms]`,
-          );
+      const currentProviderTiming = timings[provider]; // This will be ProviderTiming, not null
+      const startTimeForCall = currentProviderTiming?.startTime || now; // Fallback, though should exist
 
-          // Update image in state
-          setImages((prevImages) =>
-            prevImages.map((item) =>
-              item.provider === provider
-                ? { ...item, image: data.image ?? null, modelId }
-                : item,
-            ),
-          );
-        } catch (err) {
-          console.error(
-            `Error [provider=${provider}, modelId=${modelId}]:`,
-            err,
-          );
-          setFailedProviders((prev) => [...prev, provider]);
-          setErrors((prev) => [
-            ...prev,
-            {
-              provider,
-              message:
-                err instanceof Error
-                  ? err.message
-                  : "An unexpected error occurred",
-            },
-          ]);
-
-          setImages((prevImages) =>
-            prevImages.map((item) =>
-              item.provider === provider
-                ? { ...item, image: null, modelId }
-                : item,
-            ),
-          );
+      try {
+        const response = await fetch("/api/generate-images", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, provider, modelId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || `Server error: ${response.status}`);
         }
-      };
 
-      // Generate images for all active providers
-      const fetchPromises = providers.map((provider) => {
-        const modelId = providerToModel[provider];
-        return generateImage(provider, modelId);
-      });
+        const completionTime = Date.now();
+        setTimings((prev) => ({
+          ...prev,
+          [provider]: {
+            startTime: startTimeForCall,
+            completionTime,
+            elapsed: completionTime - startTimeForCall,
+          },
+        }));
 
-      await Promise.all(fetchPromises);
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    } finally {
-      setIsLoading(false);
-    }
+        setImages((prevImgs) =>
+          prevImgs.map((img) =>
+            img.provider === provider
+              ? { ...img, image: data.image ?? null, modelId } // Ensure modelId is updated if it changed
+              : img,
+          ),
+        );
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Unexpected error";
+        console.error(`Error [${provider}]:`, err);
+        setFailedProviders((prev) => [...prev, provider]);
+        setErrors((prev) => [...prev, { provider, message }]);
+        setImages((prevImgs) =>
+          prevImgs.map((img) =>
+            img.provider === provider
+              ? { ...img, image: null, modelId } // Keep modelId consistent
+              : img,
+          ),
+        );
+        // Update timing to reflect failure
+        setTimings(prev => ({
+            ...prev,
+            [provider]: { ...(prev[provider] as ProviderTiming), completionTime: Date.now(), elapsed: Date.now() - (prev[provider]?.startTime || startTimeForCall) }
+        }));
+      }
+    };
+
+    await Promise.all(providers.map(generateImageFor));
+    setIsLoading(false);
   };
 
   return {

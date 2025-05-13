@@ -35,7 +35,7 @@ export default async function RootLayout({
       {/* Provide the sidebar context */}
       <SidebarProvider defaultOpen={!isCollapsed}>
         {/* Pass the Supabase user (or undefined) into your sidebar */}
-        <AppSidebar user={session?.user ?? null} />
+        <AppSidebar user={session?.user} />
 
         {/* Your main content */}
         <SidebarInset>{children}</SidebarInset>
