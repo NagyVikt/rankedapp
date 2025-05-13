@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { FontDetector, languageFontMap } from '@/app/(dashboard)/dashboard/satori/utils/font'
+import { FontDetector, languageFontMap } from '@/utils/font'
 
 export const config = {
   runtime: 'experimental-edge',

@@ -134,7 +134,7 @@ export type ActionState = {
 
 
 
-export function authenticatedAction<
+ function authenticatedAction<
   TInput extends ZodTypeAny | null,
   TOutput extends ActionState
 >(
