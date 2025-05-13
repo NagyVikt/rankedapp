@@ -149,7 +149,7 @@
 
     "server-only": "^0.0.1",
     "sonner": "^1.5.0",
-    "stripe": "^18.0.0",
+    "stripe": "latest",
     "styled-components": "^6.1.17",
     "svg-to-pdfkit": "^0.1.8",
     "swr": "^2.2.5",
