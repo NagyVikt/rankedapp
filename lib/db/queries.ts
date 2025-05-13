@@ -18,8 +18,7 @@ import * as schema from './schema';
 // Import specific types needed for function signatures etc.
 // Drizzle's $inferSelect and $inferInsert are preferred for table types.
 import type {
-  User,
-  Team,
+
   TeamMember,
   ActivityLog,
   Invitation,
@@ -33,7 +32,8 @@ import type {
   Document,
   Suggestion
 } from './schema'; // These are SELECT types (typeof schema.tableName.$inferSelect)
-
+export type User = typeof schema.user.$inferSelect;
+export type Team = typeof schema.teams.$inferSelect;
 // For INSERT types, use Drizzle's $inferInsert
 type NewUser = typeof schema.user.$inferInsert;
 type NewTeam = typeof schema.teams.$inferInsert;
