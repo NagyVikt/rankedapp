@@ -1,6 +1,6 @@
 
 import { CSSProperties } from 'react';
-
+import React, { HTMLAttributes } from 'react'
 import Embed from 'embed/index';
 import { Editor as EditorClass } from 'embed/Editor';
 import { AppearanceConfig, DisplayMode, ToolsConfig } from 'state/types/types';
@@ -42,14 +42,19 @@ declare global {
   }
 }
 
-// types.ts
+export type BlockProps =
+  Omit<React.HTMLAttributes<HTMLDivElement>, 'contentEditable'>
+  & { children?: React.ReactNode }
+
+export type BlockComponent = (props: BlockProps) => JSX.Element
+
 export interface ComponentItem {
-  href:       string;
-  blockId:    string;
-  title:      string;
-  count?:     number;
-  previewHtml:string;           // ← New: the full HTML for the preview
-  iconSvg:    string;  
-  snippetHtml:string;           // ← New: the actual HTML you drop into the email
-  component:  React.ReactElement;
+  href:        string
+  blockId:     string
+  title:       string
+  count?:      number
+  previewHtml: string
+  iconSvg:     string
+  snippetHtml: string
+  component:   BlockComponent  // <- no longer ComponentType
 }

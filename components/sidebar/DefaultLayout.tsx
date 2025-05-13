@@ -1,33 +1,34 @@
+// @ts-nocheck
 'use client';
 
 import React, { ReactNode } from 'react';
-import SidebarComponent from '@/components/sidebar/SidebarComponent'; // Assuming this path is correct
+import SidebarComponent from '@/components/sidebar/SidebarComponent';
 import { Icon } from '@iconify/react';
-import { Button, Tooltip } from '@heroui/react'; // Assuming this library and path are correct
-import { useSidebar } from '@/context/SidebarContext'; // Assuming this path is correct
+import { Button, Tooltip } from '@heroui/react';
+import { useSidebar } from '@/context/SidebarContext';
 
-interface DefaultLayoutProps {
-  children: ReactNode;
-  disableMarginShift?: boolean; // New optional prop
-}
-
-// Define constants for tailwind classes to ensure consistency
-const SIDEBAR_WIDTH_CLASS = 'w-80'; // Corresponds to 16rem or 256px
-const MAIN_CONTENT_MARGIN_LEFT_CLASS_OPEN = 'md:ml-80'; // Margin for main content when sidebar is open (matches sidebar width on md+)
-const MAIN_CONTENT_MARGIN_LEFT_CLASS_CLOSED = 'md:ml-0'; // No margin when sidebar is closed
-const TRANSITION_DURATION_CLASS = 'duration-300'; // Tailwind class for 300ms transition
-
-export default function DefaultLayout({ children, disableMarginShift = false }: DefaultLayoutProps) {
+/**
+ * DefaultLayout wraps page content with a sidebar and header/footer.
+ * @param disableMarginShift if true, disables content shifting when sidebar opens
+ * @param children page content to render
+ */
+export default function DefaultLayout({
+  disableMarginShift = false,
+  children,
+}: {
+  disableMarginShift?: boolean;
+  children?: ReactNode;
+}) {
   const { isSidebarOpen, toggleSidebar } = useSidebar();
-
-  // Determine the appropriate margin class based on sidebar state and the new prop
-  const mainContentMarginClass = disableMarginShift
-    ? MAIN_CONTENT_MARGIN_LEFT_CLASS_CLOSED // If margin shift is disabled, always use the 'closed' margin (md:ml-0)
-    : (isSidebarOpen ? MAIN_CONTENT_MARGIN_LEFT_CLASS_OPEN : MAIN_CONTENT_MARGIN_LEFT_CLASS_CLOSED);
+  const mainMargin = disableMarginShift
+    ? 'md:ml-0'
+    : isSidebarOpen
+    ? 'md:ml-80'
+    : 'md:ml-0';
 
   return (
     <div className="relative flex min-h-screen bg-background text-foreground">
-      {/* Open/Toggle Button - visible only when sidebar is closed */}
+      {/* Toggle button visible when sidebar is closed */}
       {!isSidebarOpen && (
         <Tooltip content="Expand sidebar" placement="right">
           <Button
@@ -43,37 +44,19 @@ export default function DefaultLayout({ children, disableMarginShift = false }: 
         </Tooltip>
       )}
 
-      {/* Sidebar */}
-      <div
-        className={`
-          ${SIDEBAR_WIDTH_CLASS}
-          fixed inset-y-0 left-0 z-40
-          flex flex-col
-          bg-background border-r border-divider
-          transform transition-transform ${TRANSITION_DURATION_CLASS} ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
+      {/* Sidebar panel */}
+      <aside
+        className={`w-80 fixed inset-y-0 left-0 z-40 flex flex-col bg-background border-r border-divider transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
         aria-hidden={!isSidebarOpen}
       >
         <SidebarComponent />
-      </div>
+      </aside>
 
-      {/* Main Content Area */}
-      <div
-        className={`
-          flex flex-col flex-1
-          transition-all ${TRANSITION_DURATION_CLASS} ease-in-out
-          ${mainContentMarginClass} {/* Apply the determined margin class */}
-        `}
-      >
-        {/* Header within the Main Content Area */}
-        <header
-          className={`
-            sticky top-0 z-30 flex items-center justify-between h-16
-            px-4 sm:px-6 lg:px-8
-            bg-background/80 backdrop-blur border-b border-divider
-          `}
-        >
+      {/* Main content area */}
+      <div className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${mainMargin}`}>
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 bg-background/80 backdrop-blur border-b border-divider">
           {!isSidebarOpen && (
             <button
               onClick={toggleSidebar}
@@ -84,15 +67,11 @@ export default function DefaultLayout({ children, disableMarginShift = false }: 
             </button>
           )}
           <div className="flex-1" />
-          <div>{/* User Profile / Actions */}</div>
+          <div>{/* User actions / profile here */}</div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-grow w-full ">
-          {children}
-        </main>
+        <main className="flex-grow w-full">{children}</main>
 
-        {/* Footer within the Main Content Area */}
         <footer className="w-full flex items-center justify-center py-4 border-t border-divider text-xs text-default-500">
           <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
         </footer>

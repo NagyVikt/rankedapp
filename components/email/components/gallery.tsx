@@ -1,18 +1,12 @@
-// components/gallery.tsx
+// ./components/gallery.tsx
 import React from 'react'
+import { BlockProps } from '../types'
 import { galleryPreviewHtml } from '../previews/gallery'
 
-/**
- * This React component simply renders your snippet HTML
- * inside a wrapper.  When Unlayer inserts it into the canvas,
- * it will show exactly the same markup you designed in
- * galleryPreviewHtml.
- */
-export default function GalleryBlock() {
+export default function GalleryBlock(props: BlockProps): JSX.Element {
   return (
     <div
-      // dangerouslySetInnerHTML is the easiest way to drop
-      // raw HTML + inline styles straight into a React tree.
+      {...props}
       dangerouslySetInnerHTML={{ __html: galleryPreviewHtml }}
     />
   )

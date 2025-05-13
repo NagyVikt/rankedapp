@@ -1,7 +1,7 @@
 // app/(auth)/register/action.ts
 import { NextResponse } from 'next/server';
 import { drizzle } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { user } from '@/lib/db/schema';
 import { signIn } from 'next-auth/react';
 
 export async function POST(req: Request) {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
   // simple upsert; in production hash your password!
   try {
-    await drizzle.insert(users).values({ name, email, password }).run();
+    await drizzle.insert(user).values({ name, email, password }).run();
   } catch (err) {
     return NextResponse.json({ message: 'User already exists' }, { status: 400 });
   }

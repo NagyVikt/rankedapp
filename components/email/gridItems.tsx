@@ -105,7 +105,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     galleryIconSvg,
     snippetHtml: gallerySnippetHtml,
     previewHtml: galleryPreviewHtml,
-    component:   <GalleryBlock />
+    component:   GalleryBlock,
   },
   {
     href:        '/components/ecommerce',
@@ -115,7 +115,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     ecommerceIconSvg,
     snippetHtml: ecommerceSnippetHtml,
     previewHtml: ecommercePreviewHtml,
-    component:   <EcommerceBlock />
+    component:   EcommerceBlock
   },
   {
     href:        '/components/articles',
@@ -125,7 +125,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     articlesIconSvg,
     snippetHtml: articlesSnippetHtml,
     previewHtml: articlesPreviewHtml,
-    component:   <ArticlesBlock />
+    component:   ArticlesBlock
   },
   {
     href:        '/components/buttons',
@@ -135,7 +135,7 @@ export const gridItems: ComponentItem[] = [
     previewHtml: buttonsPreviewHtml,
     iconSvg:     buttonsIconSvg,
     snippetHtml: buttonsSnippetHtml,
-    component:   <ButtonsBlock />
+    component:   ButtonsBlock
   },
   {
     href:        '/components/headers',
@@ -145,7 +145,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     headersIconSvg,
     snippetHtml: headersSnippetHtml,
     previewHtml: headersPreviewHtml,
-    component:   <HeadersBlock />
+    component:   HeadersBlock
   },
   {
     href:        '/components/footers',
@@ -155,7 +155,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     footersIconSvg,
     snippetHtml: footersSnippetHtml,
     previewHtml: footersPreviewHtml,
-    component:   <FootersBlock />
+    component:   FootersBlock
   },
   {
     href:        '/components/divider',
@@ -165,7 +165,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     dividerIconSvg,
     snippetHtml: dividerSnippetHtml,
     previewHtml: dividerPreviewHtml,
-    component:   <DividerBlock />
+    component:   DividerBlock
   },
   {
     href:        '/components/features',
@@ -175,7 +175,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     featuresIconSvg,
     snippetHtml: featuresSnippetHtml,
     previewHtml: featuresPreviewHtml,
-    component:   <FeaturesBlock />
+    component:   FeaturesBlock
   },
   {
     href:        '/components/grid',
@@ -185,7 +185,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     gridIconSvg,
     snippetHtml: gridSnippetHtml,
     previewHtml: gridPreviewHtml,
-    component:   <GridBlock />
+    component:   GridBlock
   },
   {
     href:        '/components/heading',
@@ -195,7 +195,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     headingIconSvg,
     snippetHtml: headingSnippetHtml,
     previewHtml: headingPreviewHtml,
-    component:   <HeadingBlock />
+    component:   HeadingBlock
   },
   {
     href:        '/components/link',
@@ -205,7 +205,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     linkIconSvg,
     snippetHtml: linkSnippetHtml,
     previewHtml: linkPreviewHtml,
-    component:   <LinkBlock />
+    component:   LinkBlock
   },
   {
     href:        '/components/image',
@@ -215,7 +215,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     imageIconSvg,
     snippetHtml: imageSnippetHtml,
     previewHtml: imagePreviewHtml,
-    component:   <ImageBlock />
+    component:   ImageBlock
   },
   {
     href:        '/components/marketing',
@@ -225,7 +225,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     marketingIconSvg,
     snippetHtml: marketingSnippetHtml,
     previewHtml: marketingPreviewHtml,
-    component:   <MarketingBlock />
+    component:   MarketingBlock
   },
   {
     href:        '/components/pricing',
@@ -235,7 +235,7 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     pricingIconSvg,
     snippetHtml: pricingSnippetHtml,
     previewHtml: pricingPreviewHtml,
-    component:   <PricingBlock />
+    component:   PricingBlock
   },
   {
     href:        '/components/text',
@@ -245,6 +245,6 @@ export const gridItems: ComponentItem[] = [
     iconSvg:     textIconSvg,
     snippetHtml: textSnippetHtml,
     previewHtml: textPreviewHtml,
-    component:   <TextBlock />
+    component:   TextBlock
   }
 ]
