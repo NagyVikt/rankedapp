@@ -34,12 +34,7 @@ export async function POST(req: Request) {
     // }
 
     // Corrected: Using 'db' to call Drizzle methods
-    await db.insert(user).values({
-      name,
-      email,
-      // password: hashedPassword, // Store the hashed password
-      password: password, // IMPORTANT: Store the HASHED password in production
-    }).execute(); // Use .execute() for postgres-js. .run() is for better-sqlite3
+
 
     // --- Auto-login ---
     // Note: signIn from 'next-auth/react' is typically for client-side components.

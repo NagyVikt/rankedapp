@@ -144,12 +144,13 @@ export default function AIJobTrackerComponent() {
     // Helper to make Enter/Space activate the card
     const makeKeyDown =
     (jobId: string, disabled: boolean) =>
-    (e: KeyboardEvent<HTMLDivElement>) => {
+    (e: React.KeyboardEvent<HTMLDivElement>) => {   // ← use React.KeyboardEvent<…>
       if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
         e.preventDefault();
         handleViewLogs(jobId);
       }
     };
+  
 
   // --- Skeleton Card Component ---
   const JobCardSkeleton = () => (

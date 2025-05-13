@@ -268,13 +268,13 @@ export default function SentEmailsPage() {
                             {searchTerm && <Button variant="flat" color="primary" onPress={() => setSearchTerm('')} className="mt-6 rounded-md">Clear Search</Button>}
                         </div>
                     ) : (
-                        <Table aria-label="Sent Emails Table" removeWrapper className="min-w-[800px]"> {/* Increased min-width for new column */}
+                        <Table aria-label="Sent Emails Table" removeWrapper className="min-w-[800px]"> 
                             <TableHeader>
                                 <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider">Name</TableColumn>
                                 <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider">Subject</TableColumn>
                                 <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider hidden md:table-cell">Category</TableColumn>
                                 <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider hidden lg:table-cell">Design</TableColumn>
-                                <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider hidden xl:table-cell">Created</TableColumn> {/* Hidden on Laptops, shown on XL */}
+                                <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider hidden xl:table-cell">Created</TableColumn> 
                                 <TableColumn className="text-left bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider">Stats</TableColumn>
                                 <TableColumn className="text-center bg-gray-100 dark:bg-neutral-700/60 text-black dark:text-neutral-200 px-4 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-wider">Actions</TableColumn>
                             </TableHeader>

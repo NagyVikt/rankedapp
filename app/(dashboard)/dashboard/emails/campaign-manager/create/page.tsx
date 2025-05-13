@@ -10,7 +10,7 @@ import {
 import {
     Card,
     CardHeader,
-    CardBody,
+
     CardFooter,
     Chip,
     Skeleton,
@@ -33,10 +33,9 @@ import {
     DropdownItem,
     Input, // Added Input to the import
 } from '@heroui/react'; // Assuming @heroui/react is a valid library
-
+import { CardBody } from '@/components/ForwardingCardBody';
 import { Icon } from '@iconify/react';
-import { Item }   from '@react-stately/collections';
-
+import { Picker, Item } from '@react-spectrum/picker';
 // Define a type for your design items if you haven't already
 interface DesignItem {
     id: string | number;
@@ -50,14 +49,7 @@ interface DesignItem {
     // Add other properties of editingGroup as needed
   }
   
-  interface YourComponentProps { // Props for the 'YourComponent' from the original canvas context
-    isGroupModalOpen: boolean;
-    onGroupModalOpenChange: (isOpen: boolean) => void;
-    editingGroup: EditingGroup | null; 
-    handleSaveGroup: () => void;
-    designs: DesignItem[]; 
-  }
-  
+
   interface GroupModalProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
@@ -70,7 +62,7 @@ interface DesignItem {
     onSave: () => void;
   }
 
-  export const GroupModal: React.FC<GroupModalProps> = ({
+ const GroupModal: React.FC<GroupModalProps> = ({
     isOpen,
     onOpenChange,
     designs,
@@ -108,20 +100,23 @@ interface DesignItem {
                 </Switch>
   
                 {!newGroupSupportsIndividual && (
-                  <Select
+      
+                    <Picker
                     label="Group Design"
-                    placeholder="Select a design for the whole group"
-                    selectedKey={newGroupDesignId !== null ? String(newGroupDesignId) : null}
+                    items={designs}                   /* ← your array of {id,name} */
+                    selectedKey={ newGroupDesignId !== null ? String(newGroupDesignId) : null }
                     onSelectionChange={(key) => {
-                      setNewGroupDesignId(key != null && key !== '' ? Number(key) : null);
+                        setNewGroupDesignId(
+                        key != null && key !== '' ? Number(key) : null
+                        );
                     }}
-                    className="rounded-md mt-2 w-full max-w-xs"
-                  >
-                    <Item key="">No Group Design</Item>
-                    {designs.map((d) => (
-                      <Item key={String(d.id)}>{d.name}</Item>
-                    ))}
-                  </Select>
+                    UNSAFE_className="rounded-md mt-2 w-full max-w-xs"
+                    >
+                    {item => (
+                        <Item key={String(item.id)}>{item.name}</Item>
+                    )}
+                    </Picker>
+              
                 )}
               </ModalBody>
               <ModalFooter className="border-t border-gray-200 dark:border-neutral-700">
@@ -164,6 +159,9 @@ type UserGroup = {
     groupDesignId?: number | null; // ID of the design assigned to the whole group (if not supporting individual)
     isDefault?: boolean;
 };
+
+
+  
 
 // --- Automation Types (Shop-Agnostic) ---
 type AutomationTriggerType = 'badgeApplied' | 'manualAdd' | 'specificDate' | 'recurring';
@@ -369,87 +367,95 @@ function CampaignEditor() {
    }, []);
 
    useEffect(() => {
-     // Mock load designs
-     setTimeout(() => {
-         try {
-             setDesigns([
-                 { id: 1, name: 'Welcome Offer Design' },
-                 { id: 2, name: 'Spring Sale Design' },
-                 { id: 3, name: 'Loyalty Discount Design' },
-                 { id: 4, name: 'New Arrivals Design' },
-                 { id: 5, name: 'Abandoned Cart Reminder Design'}
-             ]);
-         } catch (err) {
-             setError("Failed to load designs.");
-         }
-     }, 500);
-   }, []);
-
-   useEffect(() => {
-     if (!selectedShop) {
-         setAllEmailsRaw([]);
-         setUserGroups(initialUserGroups.map(g => ({...g, emails: [], groupDesignId: g.groupDesignId || null })));
-         setShopAutomations(initialAutomations);
-         setAssignments({});
-         setIsSectionLoading(false);
-         setError(null);
-         return;
-     }
-     const shopId = slugify(selectedShop.url);
-     setIsSectionLoading(true);
-     setError(null);
-     setShowPoolEmails(true);
-     setPoolCurrentPage(1);
-     setPoolSearchTerm('');
-     setGroupPagination({});
-     
-     const loadedUserGroups = initialUserGroups.map(g => ({
-         ...g, 
-         emails: [], // Reset emails for new shop selection
-         groupDesignId: g.groupDesignId !== undefined ? g.groupDesignId : null // Ensure it's defined
-     }));
-     
-     const initialSelections: Record<DroppableColumnId, Set<string>> = { pool: new Set() };
-     loadedUserGroups.forEach(g => initialSelections[g.id] = new Set());
-     
-     setUserGroups(loadedUserGroups);
-     setShopAutomations(initialAutomations);
-     setAssignments({});
-     setSelectedItems(initialSelections);
-     setTargetGroupIdForPoolMove(null);
-
-     console.log(`Fetching data for shop: ${shopId}`);
-     setTimeout(() => {
-         const mockCustomers = Array.from({length: Math.floor(Math.random() * 150) + 50}, (_,i) => `customer${i+1}-${shopId.substring(0,3)}@example.com`);
-         setAllEmailsRaw(mockCustomers);
-
-         const shopSpecificGroups = loadedUserGroups.map(g => ({...g, emails: []}));
-
-         let customerIdx = 0;
-         const sendNowGroup = shopSpecificGroups.find(g => g.id === 'group-send-now');
-         if (sendNowGroup && mockCustomers.length > customerIdx) {
-             const numToSendNow = Math.min(mockCustomers.length - customerIdx, Math.floor(Math.random() * 3) + 1);
-             sendNowGroup.emails = mockCustomers.slice(customerIdx, customerIdx + numToSendNow) as string[];
-             customerIdx += numToSendNow;
-             if (designs.length > 0 && sendNowGroup.emails.length > 0 && sendNowGroup.supportsIndividualDesignAssignment) {
-                 setAssignments({ [sendNowGroup.emails[0]]: designs[0]});
-             }
-         }
-
-         const abandonedGroup = shopSpecificGroups.find(g => g.id === 'group-abandoned-cart');
-         if (abandonedGroup && mockCustomers.length > customerIdx) {
-             const numToAbandoned = Math.min(mockCustomers.length - customerIdx, Math.floor(Math.random() * 4) + 2);
-             abandonedGroup.emails = mockCustomers.slice(customerIdx, customerIdx + numToAbandoned);
-             // Example: Assign a group design if one is configured (e.g., design ID 5 for abandoned cart)
-             if (!abandonedGroup.supportsIndividualDesignAssignment && designs.find(d => d.id === 5)) {
-                 abandonedGroup.groupDesignId = 5; // Pre-assign a design for demo
-             }
-         }
-         setUserGroups(shopSpecificGroups);
-         setIsSectionLoading(false);
-     }, 1000);
-
-   }, [selectedShop, designs, slugify]);
+    if (!selectedShop) {
+      setAllEmailsRaw([]);
+      // Reset groups: cast [] to string[] so TS knows the element type
+      setUserGroups(
+        initialUserGroups.map(g => ({
+          ...g,
+          emails: [] as string[],
+          groupDesignId: g.groupDesignId ?? null
+        }))
+      );
+      setShopAutomations(initialAutomations);
+      setAssignments({});
+      setIsSectionLoading(false);
+      setError(null);
+      return;
+    }
+  
+    const shopId = slugify(selectedShop.url);
+    setIsSectionLoading(true);
+    setError(null);
+    setShowPoolEmails(true);
+    setPoolCurrentPage(1);
+    setPoolSearchTerm('');
+    setGroupPagination({});
+  
+    // 1️⃣ Reset with explicit string[] type
+    const loadedUserGroups = initialUserGroups.map(g => ({
+      ...g,
+      emails: [] as string[],           // ← cast here fixes never[]
+      groupDesignId: g.groupDesignId ?? null
+    }));
+  
+    // Initialize drag‐and‐drop sets
+    const initialSelections: Record<DroppableColumnId, Set<string>> = { pool: new Set() };
+    loadedUserGroups.forEach(g => (initialSelections[g.id] = new Set()));
+  
+    setUserGroups(loadedUserGroups);
+    setShopAutomations(initialAutomations);
+    setAssignments({});
+    setSelectedItems(initialSelections);
+    setTargetGroupIdForPoolMove(null);
+  
+    console.log(`Fetching data for shop: ${shopId}`);
+    setTimeout(() => {
+      // Mock fetched emails
+      const mockCustomers = Array.from(
+        { length: Math.floor(Math.random() * 150) + 50 },
+        (_, i) => `customer${i + 1}-${shopId.substring(0, 3)}@example.com`
+      );
+      setAllEmailsRaw(mockCustomers);
+  
+      // 2️⃣ Clone groups and fill
+      const shopSpecificGroups = loadedUserGroups.map(g => ({
+        ...g,
+        emails: [] as string[]            // ← same cast to reset per shop
+      }));
+  
+      let customerIdx = 0;
+  
+      // “Send Now” group logic
+      const sendNowGroup = shopSpecificGroups.find(g => g.id === 'group-send-now');
+      if (sendNowGroup && mockCustomers.length > customerIdx) {
+        const num = Math.min(mockCustomers.length - customerIdx, Math.floor(Math.random() * 3) + 1);
+        sendNowGroup.emails = mockCustomers.slice(customerIdx, customerIdx + num) as string[];
+        customerIdx += num;
+        if (
+          designs.length > 0 &&
+          sendNowGroup.emails.length > 0 &&
+          sendNowGroup.supportsIndividualDesignAssignment
+        ) {
+          setAssignments({ [sendNowGroup.emails[0]]: designs[0] });
+        }
+      }
+  
+      // “Abandoned Cart” group logic
+      const abandonedGroup = shopSpecificGroups.find(g => g.id === 'group-abandoned-cart');
+      if (abandonedGroup && mockCustomers.length > customerIdx) {
+        const num = Math.min(mockCustomers.length - customerIdx, Math.floor(Math.random() * 4) + 2);
+        abandonedGroup.emails = mockCustomers.slice(customerIdx, customerIdx + num);
+        if (!abandonedGroup.supportsIndividualDesignAssignment && designs.find(d => d.id === 5)) {
+          abandonedGroup.groupDesignId = 5; // Pre-assign demo design
+        }
+      }
+  
+      setUserGroups(shopSpecificGroups);
+      setIsSectionLoading(false);
+    }, 1000);
+  }, [selectedShop, designs, slugify]);
+  
 
   // --- Memoized Derived State ---
   const assignedEmailsToGroups = useMemo(() => {
@@ -1053,16 +1059,32 @@ function CampaignEditor() {
                                                     </Checkbox>
                                                     {showBulkMoveFromPoolOptions && (
                                                         <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
-                                                            <Select
-                                                                size="sm"
-                                                                placeholder="Move to Group..."
-                                                                className="flex-grow"
-                                                                selectedKeys={targetGroupIdForPoolMove ? [targetGroupIdForPoolMove] : []}
-                                                                onSelectionChange={(keys) => setTargetGroupIdForPoolMove(Array.from(keys as Set<React.Key>)[0] as string)}
-                                                                classNames={{trigger: "bg-white dark:bg-neutral-600/50 rounded-md text-xs", popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
+                                                       <Select
+                                                            size="sm"
+                                                            placeholder="Move to Group..."
+                                                            className="flex-grow"
+                                                            selectedKeys={targetGroupIdForPoolMove ? [targetGroupIdForPoolMove] : []}
+                                                            onSelectionChange={(keys) =>
+                                                                setTargetGroupIdForPoolMove(
+                                                                Array.from(keys as Set<React.Key>)[0] as string
+                                                                )
+                                                            }
+                                                            classNames={{
+                                                                trigger: "bg-white dark:bg-neutral-600/50 rounded-md text-xs",
+                                                                popoverContent: "bg-white dark:bg-neutral-800 border rounded-md",
+                                                            }}
                                                             >
-                                                                {userGroups.map(ug => <SelectItem key={ug.id} value={ug.id} className="text-black dark:text-neutral-200">{ug.name}</SelectItem>)}
-                                                            </Select>
+                                                            {userGroups.map(ug => (
+                                                                // Drop `value={ug.id}`—the `key` is used instead
+                                                                <SelectItem
+                                                                key={ug.id}
+                                                                className="text-black dark:text-neutral-200"
+                                                                >
+                                                                {ug.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </Select>
+
                                                             <div className="flex gap-2 w-full sm:w-auto">
                                                                 <Button
                                                                     size="sm" color="primary" variant="flat" className="flex-grow sm:flex-grow-0 rounded-md"
@@ -1133,7 +1155,7 @@ function CampaignEditor() {
                                             const selectedInThisGroup = selectedItems[group.id] || new Set();
                                             const intensifiedDarkBg = group.colorScheme.dark.replace('dark:bg-', 'dark:bg-').replace('/40', '/60');
                                             const groupOverallDesign = !group.supportsIndividualDesignAssignment ? designs.find(d => d.id === group.groupDesignId) : null;
-
+                                            const [selectedKey, setSelectedKey] = useState<string | null>(null)
                                             return (
                                                 <Card key={group.id} className={`p-0 flex flex-col min-h-[400px] max-h-[calc(100vh-350px)] border rounded-lg shadow-sm border-gray-300 dark:border-neutral-600 ${group.colorScheme.light} ${group.colorScheme.dark}`}>
                                                     <CardHeader className={`sticky top-0 z-10 flex flex-col items-start p-3 sm:p-4 border-b border-gray-200/50 dark:border-neutral-600/50 space-y-2 ${group.colorScheme.light} ${group.colorScheme.dark}`}>
@@ -1141,34 +1163,57 @@ function CampaignEditor() {
                                                             <h3 className="font-semibold text-black dark:text-neutral-100 text-sm sm:text-base truncate pr-2 flex items-center" title={group.name}>
                                                                 <Icon icon="mdi:email-multiple-outline" className="mr-2 text-lg"/> {group.name} ({group.emails.length})
                                                             </h3>
-                                                            <Dropdown>
-                                                                <DropdownTrigger><Button isIconOnly size="sm" variant="light" className="text-neutral-600 dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/10 rounded-full"><Icon icon="mdi:dots-vertical" /></Button></DropdownTrigger>
-                                                                <DropdownMenu aria-label="Group Actions" onAction={(key) => { if(key === 'edit') handleOpenGroupModalInEditor(group); else if(key === 'delete') handleDeleteGroupInEditor(group.id);}}
-                                                                    itemClasses={{base:"gap-3 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700 rounded-md", title:"text-black dark:text-neutral-200"}}
+                                                            <DropdownMenu
+                                                                aria-label="Group Actions"
+                                                                onAction={(key) => {
+                                                                    if (key === 'edit') handleOpenGroupModalInEditor(group);
+                                                                    else if (key === 'delete') handleDeleteGroupInEditor(group.id);
+                                                                }}
                                                                 >
-                                                                    <DropdownItem key="edit" startContent={<Icon icon="mdi:pencil-outline"/>}>Edit Group</DropdownItem>
-                                                                    {!group.isDefault && <DropdownItem key="delete" className="text-danger" color="danger" startContent={<Icon icon="mdi:delete-outline"/>}>Delete Group</DropdownItem>}
+                                                                {/* always show “Edit” */}
+                                                                <DropdownItem key="edit" startContent={<Icon icon="mdi:pencil-outline" />}>
+                                                                    Edit Group
+                                                                </DropdownItem>
+
+                                                                {/* show “Delete” only when not default; else render null */}
+                                                                {group.isDefault
+                                                                    ? null
+                                                                    : (
+                                                                    <DropdownItem
+                                                                        key="delete"
+                                                                        color="danger"
+                                                                        startContent={<Icon icon="mdi:delete-outline" />}
+                                                                    >
+                                                                        Delete Group
+                                                                    </DropdownItem>
+                                                                    )}
                                                                 </DropdownMenu>
-                                                            </Dropdown>
+
+
                                                         </div>
                                                         {group.description && <p className="text-xs text-neutral-600 dark:text-neutral-400 w-full truncate" title={group.description}>{group.description}</p>}
                                                         
                                                         {/* Group Design Selector / Info */}
                                                         {!group.supportsIndividualDesignAssignment && (
                                                             <div className="w-full mt-1 text-xs">
-                                                                <Select
-                                                                    size="sm"
-                                                                    labelPlacement="outside-left"
-                                                                    label={<span className="text-xs text-neutral-700 dark:text-neutral-300">Group Design:</span>}
-                                                                    placeholder="Select design"
-                                                                    selectedKeys={group.groupDesignId ? [group.groupDesignId.toString()] : []}
-                                                                    onSelectionChange={(keys) => handleSetGroupDesign(group.id, Number(Array.from(keys as Set<React.Key>)[0]) || null)}
-                                                                    className="w-full"
-                                                                    classNames={{trigger:`bg-white/70 dark:bg-black/20 rounded-md text-xs`, popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
+                                                                <Picker
+                                                                    label="Group Design:"
+                                                                    items={designs}
+                                                                    selectedKey={newGroupDesignId !== null ? String(newGroupDesignId) : null}
+                                                                    onSelectionChange={key =>
+                                                                    handleSetGroupDesign(
+                                                                        group.id,
+                                                                        key != null && key !== '' ? Number(key) : null
+                                                                    )
+                                                                    }
+                                                                    UNSAFE_className="w-full rounded-md mt-2 text-xs bg-white/70 dark:bg-black/20"
                                                                 >
-                                                                    <SelectItem key="null" value="" className="text-black dark:text-neutral-200 italic">No Design</SelectItem>
-                                                                    {designs.map(d => <SelectItem key={d.id.toString()} value={d.id.toString()} className="text-black dark:text-neutral-200">{d.name}</SelectItem>)}
-                                                                </Select>
+                                                                    {item => (
+                                                                    <Item key={String(item.id)}>
+                                                                        {item.name}
+                                                                    </Item>
+                                                                    )}
+                                                                </Picker>
                                                             </div>
                                                         )}
                                                         {group.supportsIndividualDesignAssignment && (
@@ -1185,23 +1230,45 @@ function CampaignEditor() {
                                                                 >
                                                                     Select Page ({selectedInThisGroup.size})
                                                                 </Checkbox>
-                                                                <Button size="xs" color="danger" variant="flat" onPress={() => handleBulkRemoveFromGroup(group.id)} isDisabled={selectedInThisGroup.size === 0} className="rounded-md">
+                                                                <Button size="sm" color="danger" variant="flat" onPress={() => handleBulkRemoveFromGroup(group.id)} isDisabled={selectedInThisGroup.size === 0} className="rounded-md">
                                                                     <Icon icon="mdi:account-multiple-remove-outline" className="mr-1"/> Remove Sel.
                                                                 </Button>
                                                             </div>
                                                         )}
-                                                        {group.supportsIndividualDesignAssignment && designs.length > 0 && selectedInThisGroup.size > 0 && (
-                                                            <Select size="sm" labelPlacement="outside-left" label={<span className="text-xs text-neutral-700 dark:text-neutral-300">Assign to Sel:</span>} placeholder="Select design" className="w-full mt-1"
-                                                                classNames={{trigger:`bg-white/70 dark:bg-black/20 rounded-md text-xs`, popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
-                                                                onSelectionChange={(keys) => {
-                                                                    const designId = Array.from(keys as Set<React.Key>)[0];
-                                                                    const designToAssign = designs.find(d => d.id === Number(designId));
-                                                                    if (designToAssign) handleBulkAssignDesignToSelectedEmails(group.id, designToAssign);
-                                                                }}
+                                                      {group.supportsIndividualDesignAssignment &&
+                                                        designs.length > 0 &&
+                                                        selectedInThisGroup.size > 0 && (
+                                                        <div className="w-full mt-1 text-xs">
+                                                            <Picker
+                                                            labelPosition="side" 
+                                                            label={
+                                                                <span className="text-xs text-neutral-700 dark:text-neutral-300">
+                                                                Assign to Sel:
+                                                                </span>
+                                                            }
+                                                            placeholder="Select design"
+                                                            items={designs}
+                                                            selectedKey={selectedKey}
+                                                            onSelectionChange={(key) => {
+                                                                // update UI
+                                                                setSelectedKey(key as string)
+                                                                // find the matching design object
+                                                                const id = key != null && key !== '' ? Number(key) : null
+                                                                const design = designs.find(d => d.id === id)
+                                                                if (design) {
+                                                                handleBulkAssignDesignToSelectedEmails(group.id, design)
+                                                                }
+                                                            }}
+                                                            UNSAFE_className="w-full rounded-md text-xs bg-white/70 dark:bg-black/20"
                                                             >
-                                                                {designs.map(d => <SelectItem key={d.id.toString()} value={d.id.toString()} className="text-black dark:text-neutral-200 data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-neutral-700">{d.name}</SelectItem>)}
-                                                            </Select>
+                                                            {item => (
+                                                                <Item key={String(item.id)}>
+                                                                {item.name}
+                                                                </Item>
+                                                            )}
+                                                            </Picker>   </div>
                                                         )}
+
                                                     </CardHeader>
                                                     <Droppable droppableId={group.id} isDropDisabled={false}>
                                                         {(provided, snapshot) => (
@@ -1350,14 +1417,32 @@ function CampaignEditor() {
                             <div className="space-y-4 mt-4">
                                 <Input label="Automation Name" placeholder="e.g., Welcome Series" defaultValue={editingAutomation?.name} fullWidth autoFocus className="rounded-md" id="automation-name-input"/>
                                 <Input label="Description" placeholder="e.g., Greets new customers" defaultValue={editingAutomation?.description} fullWidth className="rounded-md" id="automation-desc-input"/>
-                                <Select label="Trigger Type" placeholder="Select trigger" defaultSelectedKeys={editingAutomation?.trigger?.type ? [editingAutomation.trigger.type] : []} fullWidth className="rounded-md"
-                                  classNames={{popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}} id="automation-trigger-select"
-                                >
-                                    <SelectItem key="badgeApplied" value="badgeApplied" className="text-black dark:text-neutral-200">Badge Applied</SelectItem>
-                                    <SelectItem key="specificDate" value="specificDate" className="text-black dark:text-neutral-200">Specific Date</SelectItem>
-                                    <SelectItem key="recurring" value="recurring" className="text-black dark:text-neutral-200">Recurring</SelectItem>
-                                    <SelectItem key="manualAdd" value="manualAdd" className="text-black dark:text-neutral-200">Manual Add (Placeholder)</SelectItem>
-                                </Select>
+                                <Select
+                                    label="Trigger Type"
+                                    placeholder="Select trigger"
+                                    defaultSelectedKeys={
+                                        editingAutomation?.trigger?.type
+                                        ? [editingAutomation.trigger.type]
+                                        : []
+                                    }
+                                    fullWidth
+                                    className="rounded-md"
+                                    classNames={{ popoverContent: "bg-white dark:bg-neutral-800 border rounded-md" }}
+                                    id="automation-trigger-select"
+                                    >
+                                    <SelectItem key="badgeApplied" className="text-black dark:text-neutral-200">
+                                        Badge Applied
+                                    </SelectItem>
+                                    <SelectItem key="specificDate" className="text-black dark:text-neutral-200">
+                                        Specific Date
+                                    </SelectItem>
+                                    <SelectItem key="recurring" className="text-black dark:text-neutral-200">
+                                        Recurring
+                                    </SelectItem>
+                                    <SelectItem key="manualAdd" className="text-black dark:text-neutral-200">
+                                        Manual Add (Placeholder)
+                                    </SelectItem>
+                                    </Select>
                                 <h4 className="text-md font-semibold mt-4 pt-3 border-t border-gray-200 dark:border-neutral-700">Email Steps (Placeholder)</h4>
                                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Define the sequence of emails, designs, and delays for this automation.</p>
                                 {editingAutomation?.steps.map((step, idx) => (
@@ -1456,35 +1541,22 @@ function CampaignEditor() {
               </Switch>
 
               {!newGroupSupportsIndividual && (
-                <Select
-                  label="Group Design"
-                  placeholder="Select a design for the whole group"
-                  selectedKeys={
-                    newGroupDesignId !== null
-                      ? [String(newGroupDesignId)] 
-                      : []
-                  }
-                  onSelectionChange={(keys) => {
-                    const key = Array.from(keys as Set<React.Key>)[0];
-                    setNewGroupDesignId(
-                      key !== null && key !== undefined && String(key) !== ''
-                        ? Number(key)
-                        : null
-                    );
-                  }}
-                  className="rounded-md mt-2"
-                  classNames={{popoverContent:"bg-white dark:bg-neutral-800 border rounded-md"}}
-                >
-                  <SelectItem key="" value="" className="text-black dark:text-neutral-200">
-                    No Group Design
-                  </SelectItem>
-                  {designs.map((d) => (
-                    <SelectItem key={String(d.id)} value={String(d.id)} className="text-black dark:text-neutral-200">
-                      {d.name}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
+                <Picker
+                label="Group Design"
+                items={designs}                                          
+                selectedKey={newGroupDesignId !== null ? String(newGroupDesignId) : null}
+                onSelectionChange={(key: React.Key | null) => {
+                setNewGroupDesignId(
+                    key != null && key !== '' ? Number(key) : null
+                );
+                }}
+                UNSAFE_className="rounded-md mt-2 w-full max-w-xs"
+            >
+                {item => (
+                <Item key={String(item.id)}>{item.name}</Item>
+                )}
+            </Picker>
+                )}
             </ModalBody>
             <ModalFooter className="border-t border-gray-200 dark:border-neutral-700">
               <Button

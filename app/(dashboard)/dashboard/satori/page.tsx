@@ -36,40 +36,81 @@ const PanelResizeHandle: React.FC<any> = PanelResizeHandleOrig as any;
 const cardNames = Object.keys(playgroundTabs);
 const editedCards: PlaygroundTabsType = playgroundTabs ? { ...playgroundTabs } : {};
 
-// --- Font and Asset Loading (No AbortSignal) ---
-async function init(): Promise<any[]> {
+const fontData: (ArrayBuffer | null)[] = [null, null, null];
+let segmenterPolyfill: typeof Intl.Segmenter | null = null;
+let hasFontError = false;
+
+async function init(): Promise<Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>> {
   const fontPaths = [
     '/inter-latin-ext-400-normal.woff',
     '/inter-latin-ext-700-normal.woff',
     '/material-icons-base-400-normal.woff',
   ];
-  if (typeof window === 'undefined') return []
+
+  if (typeof window === 'undefined') return [];
+
   try {
     const results = await Promise.allSettled([
-        fetch(fontPaths[0]).then(res => res.ok ? res.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[0]} (${res.status})`))),
-        fetch(fontPaths[1]).then(res => res.ok ? res.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[1]} (${res.status})`))),
-        fetch(fontPaths[2]).then(res => res.ok ? res.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[2]} (${res.status})`))),
-        !globalThis.Intl || !globalThis.Intl.Segmenter
-          ? createIntlSegmenterPolyfill(fetch(new URL('intl-segmenter-polyfill/dist/break_iterator.wasm', import.meta.url)))
-            .catch(e => Promise.reject(new Error(`IntlSegmenter polyfill failed: ${e.message}`)))
-          : Promise.resolve(null),
-      ]);
-    const fontData: (ArrayBuffer | null)[] = [null, null, null];
-    let segmenterPolyfill: any = null; let hasFontError = false;
-    results.forEach((result, index) => {
-        if (index < 3) { if (result.status === 'fulfilled') fontData[index] = result.value; else { console.error("Font load error:", result.reason); hasFontError = true; } }
-        else { if (result.status === 'fulfilled') segmenterPolyfill = result.value; else console.error("Segmenter polyfill error:", result.reason); }
+      // Load each font as an ArrayBuffer
+      fetch(fontPaths[0]).then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[0]} (${r.status})`))),
+      fetch(fontPaths[1]).then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[1]} (${r.status})`))),
+      fetch(fontPaths[2]).then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error(`Fetch failed: ${fontPaths[2]} (${r.status})`))),
+      // Load Intl.Segmenter polyfill only if missing
+      (!globalThis.Intl || !globalThis.Intl.Segmenter)
+        ? createIntlSegmenterPolyfill(fetch(new URL('intl-segmenter-polyfill/dist/break_iterator.wasm', import.meta.url)))
+        : Promise.resolve<typeof Intl.Segmenter | null>(null),
+    ]);
+
+    // Distribute results into fontData[] and segmenterPolyfill
+    results.forEach((res, idx) => {
+      if (idx < 3) {
+        if (res.status === 'fulfilled') {
+          fontData[idx] = res.value as ArrayBuffer;
+        } else {
+          console.error("Font load error:", res.reason);
+          hasFontError = true;
+        }
+      } else {
+        if (res.status === 'fulfilled' && res.value !== null) {
+          // Patch the returned constructor so it has supportedLocalesOf
+          const Poly = res.value as any;
+          // Copy the static method from native Intl.Segmenter
+          Poly.supportedLocalesOf = Intl.Segmenter.supportedLocalesOf;
+          segmenterPolyfill = Poly as typeof Intl.Segmenter;
+        } else if (res.status === 'rejected') {
+          console.error("Segmenter polyfill error:", res.reason);
+        }
+      }
     });
-    if (segmenterPolyfill) { globalThis.Intl = globalThis.Intl || {}; //@ts-expect-error
-      globalThis.Intl.Segmenter = segmenterPolyfill; }
+
+    // If we got a polyfill, install it globally
+    if (segmenterPolyfill) {
+      globalThis.Intl = globalThis.Intl || {};
+      // now matches the TS type of Intl.Segmenter
+      // @ts-expect-error
+      globalThis.Intl.Segmenter = segmenterPolyfill;
+    }
+
+    // Persist resources for debugging
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__resource = [fontData[0], fontData[1], fontData[2], segmenterPolyfill];
-    const fonts = [];
-    if (fontData[0]) fonts.push({ name: 'Inter', data: fontData[0], weight: 400, style: 'normal' });
-    if (fontData[1]) fonts.push({ name: 'Inter', data: fontData[1], weight: 700, style: 'normal' });
-    if (fontData[2]) fonts.push({ name: 'Material Icons', data: fontData[2], weight: 400, style: 'normal' });
-    if (hasFontError && typeof window !== 'undefined') toast.error("Some base fonts failed to load.", { duration: 4000 });
+
+    // Build the array of fonts for e.g. Satori
+    const fonts: Array<{ name: string; data: ArrayBuffer; weight: number; style: string }> = [];
+    if (fontData[0]) fonts.push({ name: 'Inter', data: fontData[0]!, weight: 400, style: 'normal' });
+    if (fontData[1]) fonts.push({ name: 'Inter', data: fontData[1]!, weight: 700, style: 'normal' });
+    if (fontData[2]) fonts.push({ name: 'Material Icons', data: fontData[2]!, weight: 400, style: 'normal' });
+
+    if (hasFontError) {
+      toast.error("Some base fonts failed to load.", { duration: 4000 });
+    }
+
     return fonts;
-  } catch (error: any) { console.error("Error initializing resources:", error); if (typeof window !== 'undefined') toast.error(`Initialization failed: ${error.message}`); return []; }
+  } catch (err: any) {
+    console.error("Error initializing resources:", err);
+    toast.error(`Initialization failed: ${err.message}`);
+    return [];
+  }
 }
 
 // --- withCache (No AbortSignal) ---
@@ -298,7 +339,7 @@ function LiveEditor({ id, code, onCodeChange }: { id: string, code: string, onCo
         language='javascript' value={code} onChange={handleEditorChange} onMount={handleEditorDidMount}
         options={{
           fontFamily: '"Fira Code", Consolas, "Courier New", monospace', fontSize: 13, wordWrap: 'on', tabSize: 2, minimap: { enabled: false }, smoothScrolling: true, cursorSmoothCaretAnimation: 'on', contextmenu: true,
-          automaticLayout: false, scrollBeyondLastLine: false, renderLineHighlight: 'gutter', readOnly: false, lineNumbers: 'on', roundedSelection: false, overviewRulerLanes: 2, occurrencesHighlight: 'off', renderWhitespace: "boundary", scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8, vertical: 'auto', horizontal: 'auto' },
+          automaticLayout: false, scrollBeyondLastLine: false, renderLineHighlight: 'gutter', readOnly: false, lineNumbers: 'on', roundedSelection: false, overviewRulerLanes: 2, occurrencesHighlight: false, renderWhitespace: "boundary", scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8, vertical: 'auto', horizontal: 'auto' },
         }}
       />
     </div>
