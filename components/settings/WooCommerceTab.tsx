@@ -13,9 +13,10 @@ import {
     RadioGroup,
     Radio,
     ScrollShadow,
-    Skeleton
+    Skeleton // Skeleton is imported but its specific usage tied to isLoadingShops will be removed
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+// Assuming useShops provides 'shops', but not 'isLoading' or 'error'
 import { useShops } from "@/context/shops";
 
 // Interface for a single WooCommerce connection entry
@@ -25,11 +26,7 @@ export interface WooEntry {
   selectedShopUrl: string;
 }
 
-// --- Skeleton Components (Adapted for Dark Mode) ---
-const SimpleSkeleton = ({ className }: { className?: string }) => (
-    <div className={`bg-default-300 dark:bg-default-200 rounded animate-pulse ${className}`}></div>
-);
-
+// --- Skeleton Component (Kept for potential future local loading state) ---
 const WooCommerceTabSkeleton = ({ className }: { className?: string }) => (
     <div className={`space-y-4 pt-4 ${className}`}>
          <div className="flex justify-between items-center mb-4">
@@ -53,14 +50,17 @@ const WooCommerceTabSkeleton = ({ className }: { className?: string }) => (
          ))}
      </div>
 );
-// --- End Skeleton Components ---
+// --- End Skeleton Component ---
 
 interface WooCommerceTabProps {
     className?: string;
 }
 
 export default function WooCommerceTab({ className }: WooCommerceTabProps) {
-  const { shops, isLoading: isLoadingShops, error: shopsError } = useShops();
+  // Destructure only 'shops' as isLoading and error are not on ShopsContextValue
+  // If 'shops' can be undefined, handle that appropriately.
+  const { shops } = useShops() || {}; // Provide a fallback if useShops() can return null/undefined
+
   const [connections, setConnections] = useState<WooEntry[]>([]);
   const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -77,10 +77,7 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
       expires = "; expires=" + date.toUTCString();
     }
-    // Encode the value to ensure special characters are handled
     const encodedValue = encodeURIComponent(value);
-    // Set cookie with path=/, SameSite=Lax for good security practice
-    // Add Secure in production if served over HTTPS
     document.cookie = name + "=" + (encodedValue || "")  + expires + "; path=/; SameSite=Lax";
     console.log(`Cookie set: ${name}=${encodedValue}`);
   };
@@ -94,14 +91,13 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
         while (c.charAt(0) === ' ') c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) === 0) {
             const value = c.substring(nameEQ.length, c.length);
-            return decodeURIComponent(value); // Decode the value
+            return decodeURIComponent(value);
         }
     }
     return null;
   };
 
    useEffect(() => {
-    // Load connections from cookie on component mount
     const rawCookie = getCookie("wooConnections");
     console.log("Raw wooConnections cookie on load:", rawCookie);
     if (rawCookie) {
@@ -130,15 +126,9 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
     }
     try {
         const connectionsString = JSON.stringify(next);
-        // Save to cookie for 30 days, adjust as needed
         setCookie("wooConnections", connectionsString, 30);
         setConnections(next);
         console.log("Saved wooConnections to cookie:", next);
-
-        // Optional: You might still want to keep it in localStorage for other client-side uses
-        // or as a backup, but the cookie is primary for API.
-        // localStorage.setItem("wooConnections", connectionsString);
-
     } catch (error) {
         console.error("Failed to save wooConnections to cookie:", error);
         alert("Failed to save connections.");
@@ -169,9 +159,11 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
     if (isEditing && editingIndex !== null) {
         updatedConnections = connections.map((conn, index) => index === editingIndex ? newEntry : conn);
     } else {
+        // Ensure shops is an array before calling find or accessing length
+        const shopNameForAlert = Array.isArray(shops) ? shops.find(s => s.url === sel)?.name : sel;
         const exists = connections.some(conn => conn.selectedShopUrl === sel);
         if (exists) {
-            alert(`Connection for ${shops?.find(s => s.url === sel)?.name || sel} already exists.`);
+            alert(`Connection for ${shopNameForAlert || sel} already exists.`);
             return;
         }
         updatedConnections = [...connections, newEntry];
@@ -181,34 +173,17 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
   };
 
   const handleRemoveClick = (indexToRemove: number) => {
-    const shopName = shops?.find(s => s.url === connections[indexToRemove]?.selectedShopUrl)?.name || connections[indexToRemove]?.selectedShopUrl;
-    if (window.confirm(`Remove connection for ${shopName}?`)) {
+    // Ensure shops is an array before calling find
+    const shopName = Array.isArray(shops)
+        ? shops.find(s => s.url === connections[indexToRemove]?.selectedShopUrl)?.name
+        : connections[indexToRemove]?.selectedShopUrl;
+    if (window.confirm(`Remove connection for ${shopName || connections[indexToRemove]?.selectedShopUrl}?`)) {
         saveAll(connections.filter((_, index) => index !== indexToRemove));
     }
   };
 
-   if (isLoadingShops) {
-       return (
-           <div className={`space-y-4 pt-4 ${className}`}>
-                <div className="flex justify-between items-center mb-4">
-                    <Skeleton className="h-5 w-56 rounded-lg" />
-                    <Skeleton className="h-9 w-36 rounded-lg" />
-                </div>
-                {[...Array(2)].map((_, i) => (
-                    <Skeleton key={i} className="p-4 rounded-lg min-h-[76px] w-full"/>
-                ))}
-           </div>
-       )
-  }
-
-  if (shopsError) {
-      return (
-          <div className={`pt-4 text-center ${className}`}>
-              <p className="text-medium font-semibold mb-4 text-foreground">Manage WooCommerce Connections</p>
-              <p className="text-danger py-4">Error loading webshops: {shopsError.message || 'Please try again.'}</p>
-          </div>
-      );
-  }
+  // Conditional rendering for loading/error states removed as isLoadingShops and shopsError are not used.
+  // The UI will now depend on the 'shops' array directly.
 
   return (
     <div className={`space-y-4 pt-4 ${className}`}>
@@ -220,25 +195,36 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
             size="sm"
             onPress={handleAddClick}
             startContent={<Icon icon="solar:add-circle-linear" width={18} />}
-            isDisabled={!shops || shops.length === 0}
+            // Disable button if shops array is not available or empty
+            isDisabled={!Array.isArray(shops) || shops.length === 0}
             className="dark:text-primary-foreground"
          >
             Add Connection
          </Button>
       </div>
 
-       {!isLoadingShops && shops && shops.length === 0 && (
+       {/* Show message if shops array is available but empty */}
+       {Array.isArray(shops) && shops.length === 0 && (
            <p className="text-center text-default-500 py-4">No webshops found in your account to connect.</p>
        )}
+       {/* Show message if shops is not yet available (e.g. undefined or null from context) */}
+       {!Array.isArray(shops) && (
+            <p className="text-center text-default-500 py-4">Loading webshop information...</p>
+            // Or you could render the WooCommerceTabSkeleton here if you prefer
+            // <WooCommerceTabSkeleton className={className} />
+       )}
 
-      {shops && shops.length > 0 && (
+
+      {/* Render connections list only if shops array is available and has items */}
+      {Array.isArray(shops) && shops.length > 0 && (
           <>
               {connections.length === 0 ? (
                  <p className="text-center text-default-500 py-4">No WooCommerce connections configured yet.</p>
               ) : (
                  <div className="space-y-3">
                     {connections.map((c, idx) => {
-                       const shop = shops.find((s) => s.url === c.selectedShopUrl);
+                       // Ensure shops is an array before calling find
+                       const shop = Array.isArray(shops) ? shops.find((s) => s.url === c.selectedShopUrl) : undefined;
                        const shopDisplayName = shop?.name || c.selectedShopUrl;
                        return (
                          <div key={c.selectedShopUrl || idx} className="p-4 bg-content1 dark:bg-content1 border border-divider rounded-lg flex flex-wrap items-center justify-between gap-3">
@@ -326,14 +312,15 @@ export default function WooCommerceTab({ className }: WooCommerceTabProps) {
                     className="mt-2"
                 >
                      <ScrollShadow className="max-h-48 w-full pr-2">
-                        {shops && shops.length > 0 ? (
+                        {/* Ensure shops is an array and has items before mapping */}
+                        {Array.isArray(shops) && shops.length > 0 ? (
                             shops.map((s) => (
                                 <Radio key={s.url} value={s.url}>
                                     {s.name} <span className="text-default-500 text-xs">({s.url})</span>
                                 </Radio>
                             ))
                         ) : (
-                           <p className="text-sm text-default-500 italic px-1">No webshops available</p>
+                           <p className="text-sm text-default-500 italic px-1">No webshops available to select.</p>
                         )}
                     </ScrollShadow>
                 </RadioGroup>
