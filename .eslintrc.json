@@ -10,10 +10,8 @@
     "plugin:import/recommended",
     "plugin:import/typescript",
     "plugin:react/recommended",
-
     "plugin:tailwindcss/recommended",
     "plugin:prettier/recommended",
-    // removed: "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:@next/next/recommended"
   ],
@@ -28,23 +26,31 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaFeatures": { "jsx": true },
+    "ecmaFeatures": {
+      "jsx": true
+    },
     "ecmaVersion": 12,
     "sourceType": "module"
   },
   "settings": {
     "import/resolver": {
-      "typescript": { "alwaysTryTypes": true }
+      "typescript": {
+        "alwaysTryTypes": true
+      }
     },
-    "react": { "version": "detect" }
+    "react": {
+      "version": "detect"
+    }
   },
-  "ignorePatterns": ["**/components/ui/**"],
+  "ignorePatterns": [
+    "**/components/ui/**"
+  ],
   "rules": {
     "no-console": "warn",
     "react/prop-types": "off",
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "react-hooks/exhaustive-deps": "off", // still works because we’ve got the plugin
+    "react-hooks/exhaustive-deps": "off",
     "jsx-a11y/click-events-have-key-events": "warn",
     "jsx-a11y/interactive-supports-focus": "warn",
     "prettier/prettier": "warn",
@@ -75,7 +81,11 @@
           "index"
         ],
         "pathGroups": [
-          { "pattern": "~/**", "group": "external", "position": "after" }
+          {
+            "pattern": "~/**",
+            "group": "external",
+            "position": "after"
+          }
         ],
         "newlines-between": "always"
       }
@@ -90,16 +100,6 @@
         "reservedFirst": true
       }
     ],
-    "padding-line-between-statements": [
-      "error",
-      // then your array of objects:
-      { "blankLine": "always", "prev": "*", "next": "return" },
-      { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
-      {
-        "blankLine": "any",
-        "prev": ["const", "let", "var"],
-        "next": ["const", "let", "var"]
-      }
-    ]
+    "padding-line-between-statements": "off"
   }
 }

@@ -21,7 +21,8 @@ export class FontDetector {
 
     // Iterate over characters (code points) of the text
     // Using a for...of loop on a string iterates over its characters (Unicode code points if handled correctly)
-    for (const segment of text) { // Each 'segment' here is a single character
+    for (const segment of text) {
+      // Each 'segment' here is a single character
       const lang = this.detectSegment(segment, fonts);
       // If a language is detected for the character, append it to the corresponding language string
       if (lang) {
@@ -48,16 +49,18 @@ export class FontDetector {
     // Also check against generic language keys in languageFontMap if they have ranges
     // This part might need refinement based on how languageFontMap keys relate to rangesByLang keys
     for (const langKey in languageFontMap) {
-        const fontOrFonts = languageFontMap[langKey as keyof typeof languageFontMap];
-        const fontsToCheck = Array.isArray(fontOrFonts) ? fontOrFonts : [fontOrFonts];
-        for (const fontName of fontsToCheck) {
-            const range = this.rangesByLang[fontName.replaceAll(' ', '+')]; // Ensure key format matches rangesByLang
-            if (range && checkSegmentInRange(segment, range)) {
-                return langKey; // Return the broader language key (e.g., 'ja-JP')
-            }
+      const fontOrFonts =
+        languageFontMap[langKey as keyof typeof languageFontMap];
+      const fontsToCheck = Array.isArray(fontOrFonts)
+        ? fontOrFonts
+        : [fontOrFonts];
+      for (const fontName of fontsToCheck) {
+        const range = this.rangesByLang[fontName.replaceAll(' ', '+')]; // Ensure key format matches rangesByLang
+        if (range && checkSegmentInRange(segment, range)) {
+          return langKey; // Return the broader language key (e.g., 'ja-JP')
         }
+      }
     }
-
 
     return null;
   }
@@ -67,8 +70,9 @@ export class FontDetector {
 
     // Filter out fonts whose ranges are already loaded
     const existingLang = Object.keys(this.rangesByLang);
-    const langNeedsToLoad = fonts.filter((font) => !existingLang.includes(font.replaceAll(' ', '+')));
-
+    const langNeedsToLoad = fonts.filter(
+      (font) => !existingLang.includes(font.replaceAll(' ', '+')),
+    );
 
     if (langNeedsToLoad.length === 0) {
       return;
@@ -93,22 +97,25 @@ export class FontDetector {
       });
 
       if (!response.ok) {
-        console.error(`Failed to fetch font data from Google Fonts API. Status: ${response.status}`);
+        console.error(
+          `Failed to fetch font data from Google Fonts API. Status: ${response.status}`,
+        );
         // Optionally, throw an error or handle specific fonts failing to load
         // For now, we'll just return and try to work with what might have loaded previously
         // or what doesn't need loading.
-        langNeedsToLoad.forEach(font => {
-            console.warn(`Could not load ranges for font: ${font}. It might not be available or the name is incorrect.`);
+        langNeedsToLoad.forEach((font) => {
+          console.warn(
+            `Could not load ranges for font: ${font}. It might not be available or the name is incorrect.`,
+          );
         });
         return;
       }
 
       const fontFace = await response.text();
       this.addDetectors(fontFace);
-
     } catch (error) {
-        console.error("Error fetching or processing font data:", error);
-        // Handle network errors or other issues during fetch
+      console.error('Error fetching or processing font data:', error);
+      // Handle network errors or other issues during fetch
     }
   }
 
@@ -133,19 +140,27 @@ export class FontDetector {
 
 // Converts a CSS unicode-range string to an array of numbers or [start, end] tuples
 function convert(input: string): UnicodeRange {
-  return input.split(',').map((rangePart) => { // Split by comma, then trim whitespace
-    const trimmedRangePart = rangePart.trim().replaceAll('U+', '');
-    const [startHex, endHex] = trimmedRangePart.split('-').map((hex) => parseInt(hex, 16));
+  return input
+    .split(',')
+    .map((rangePart) => {
+      // Split by comma, then trim whitespace
+      const trimmedRangePart = rangePart.trim().replaceAll('U+', '');
+      const [startHex, endHex] = trimmedRangePart
+        .split('-')
+        .map((hex) => parseInt(hex, 16));
 
-    if (isNaN(startHex)) { // Should not happen with valid input, but good to check
+      if (isNaN(startHex)) {
+        // Should not happen with valid input, but good to check
         console.warn(`Invalid hex value encountered in range: ${rangePart}`);
         return -1; // Or some other way to signify error / skip
-    }
-    if (isNaN(endHex)) { // This means it's a single code point, not a range
-      return startHex;
-    }
-    return [startHex, endHex];
-  }).filter(val => val !== -1); // Filter out any error markers if you added them
+      }
+      if (isNaN(endHex)) {
+        // This means it's a single code point, not a range
+        return startHex;
+      }
+      return [startHex, endHex];
+    })
+    .filter((val) => val !== -1); // Filter out any error markers if you added them
 }
 
 // Checks if a character (segment) falls within a given UnicodeRange
@@ -157,7 +172,8 @@ function checkSegmentInRange(segment: string, range: UnicodeRange): boolean {
   return range.some((val) => {
     if (typeof val === 'number') {
       return codePoint === val;
-    } else { // val is [start, end]
+    } else {
+      // val is [start, end]
       const [start, end] = val;
       return start <= codePoint && codePoint <= end;
     }
@@ -178,8 +194,8 @@ export const languageFontMap = {
   'th-TH': 'Noto+Sans+Thai',
   'bn-IN': 'Noto+Sans+Bengali', // Bengali (India)
   'ar-AR': 'Noto+Sans+Arabic', // Arabic
-  'ta-IN': 'Noto+Sans+Tamil',  // Tamil (India)
-  'ml-IN': 'Noto+Sans+Malayalam',// Malayalam (India)
+  'ta-IN': 'Noto+Sans+Tamil', // Tamil (India)
+  'ml-IN': 'Noto+Sans+Malayalam', // Malayalam (India)
   'he-IL': 'Noto+Sans+Hebrew', // Hebrew (Israel)
   'te-IN': 'Noto+Sans+Telugu', // Telugu (India)
   devanagari: 'Noto+Sans+Devanagari', // For Hindi, Marathi, Nepali, etc.

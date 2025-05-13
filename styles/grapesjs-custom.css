@@ -1,62 +1,62 @@
 /* make the top “device / code / undo” panel dark */
-.gjs-pn-commands, .gjs-pn-views {
-    background: #1f1f2e !important;
-    color: #ddd !important;
-    border-bottom: 1px solid #2a2a3c !important;
-  }
-  
-  /* style the Blocks panel like React‑Email: card grid, rounded thumbnails */
-  #gjs-blocks {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.75rem !important;
-  }
-  
-  /* each block “card” */
-  .gjs-block {
-    background: #2a2a3c !important;
-    border: none !important;
-    border-radius: 0.5rem !important;
-    padding: 0.75rem !important;
-    transition: background 0.2s;
-  }
-  
-  /* hover highlight like a true card */
-  .gjs-block:hover {
-    background: #333347 !important;
-  }
-  
-  /* block label typography */
-  .gjs-block-label {
-    color: #eee !important;
-    font-size: 0.875rem !important;
-    margin-top: 0.5rem !important;
-    text-align: center !important;
-  }
-  
-  /* category headers (“Templates”, etc.) */
-  .gjs-block-category-label {
-    color: #bbb !important;
-    font-size: 0.75rem !important;
-    letter-spacing: 0.05em !important;
-    text-transform: uppercase;
-    padding: 0.25rem 0.5rem;
-  }
-  
-  /* make the Style Manager panel dark too */
-  .gjs-sm-c {
-    background: #1f1f2e !important;
-    color: #ddd !important;
-  }
-  
-  /* scrollbars that match a dark UI */
-  #gjs-blocks::-webkit-scrollbar,
-  .gjs-sm-c::-webkit-scrollbar {
-    width: 8px;
-  }
-  #gjs-blocks::-webkit-scrollbar-thumb,
-  .gjs-sm-c::-webkit-scrollbar-thumb {
-    background: #3a3a4a;
-    border-radius: 4px;
-  }
-  
+.gjs-pn-commands,
+.gjs-pn-views {
+  background: #1f1f2e !important;
+  color: #ddd !important;
+  border-bottom: 1px solid #2a2a3c !important;
+}
+
+/* style the Blocks panel like React‑Email: card grid, rounded thumbnails */
+#gjs-blocks {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.75rem !important;
+}
+
+/* each block “card” */
+.gjs-block {
+  background: #2a2a3c !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem !important;
+  transition: background 0.2s;
+}
+
+/* hover highlight like a true card */
+.gjs-block:hover {
+  background: #333347 !important;
+}
+
+/* block label typography */
+.gjs-block-label {
+  color: #eee !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.5rem !important;
+  text-align: center !important;
+}
+
+/* category headers (“Templates”, etc.) */
+.gjs-block-category-label {
+  color: #bbb !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+}
+
+/* make the Style Manager panel dark too */
+.gjs-sm-c {
+  background: #1f1f2e !important;
+  color: #ddd !important;
+}
+
+/* scrollbars that match a dark UI */
+#gjs-blocks::-webkit-scrollbar,
+.gjs-sm-c::-webkit-scrollbar {
+  width: 8px;
+}
+#gjs-blocks::-webkit-scrollbar-thumb,
+.gjs-sm-c::-webkit-scrollbar-thumb {
+  background: #3a3a4a;
+  border-radius: 4px;
+}

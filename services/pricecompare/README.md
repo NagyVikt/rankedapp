@@ -8,3 +8,4 @@ This microservice uses [Browser-use](https://github.com/browser-use/browser-use)
    ```bash
    pip install -r requirements.txt
    playwright install chromium
+   ```

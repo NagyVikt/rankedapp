@@ -1,5 +1,5 @@
-import type { Config } from 'tailwindcss'
-import { heroui } from '@heroui/theme'
+import type { Config } from 'tailwindcss';
+import { heroui } from '@heroui/theme';
 
 const config: Config = {
   darkMode: ['class'],
@@ -74,9 +74,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    heroui(),
-  ],
-}
+  plugins: [heroui()],
+};
 
-export default config
+export default config;
