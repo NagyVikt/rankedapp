@@ -27,7 +27,7 @@ const Navbar = () => {
 
   const data = [
     {
-      title: 'Home',
+      title: 'Welcome',
       icon: (
         <HomeIcon className='h-full w-full ' />
       ),
@@ -38,28 +38,28 @@ const Navbar = () => {
       icon: (
         <User className='h-full w-full ' />
       ),
-      href: '/about',
+      href: '/start/about',
     },
     {
       title: 'Skills',
       icon: (
         <LightbulbIcon className='h-full w-full ' />
       ),
-      href: '/skills',
+      href: '/start/skills',
     },
     {
       title: 'Education',
       icon: (
         <GraduationCap className='h-full w-full ' />
       ),
-      href: '/education',
+      href: '/start/education',
     },
     {
       title: 'Projects',
       icon: (
         <FolderGit2 className='h-full w-full ' />
       ),
-      href: '/projects',
+      href: '/start/projects',
     },
 
     {
@@ -67,14 +67,14 @@ const Navbar = () => {
       icon: (
         <Mail className='h-full w-full ' />
       ),
-      href: '/contact',
+      href: '/start/contact',
     },
     {
       title: 'More',
       icon: (
         <MoreHorizontal className='h-full w-full ' />
       ),
-      href: '/more',
+      href: '/start/more',
     },
   ];
   // State to track scrolling, used to hide the navbar when scrolling occurs

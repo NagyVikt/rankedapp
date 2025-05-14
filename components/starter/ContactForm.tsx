@@ -1,3 +1,5 @@
+"use client"; // This component needs to be a Client Component because it uses interactive elements and likely hooks
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -10,17 +12,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "../ui/button";
+// Import the SendEmail Server Action
 import { SendEmail } from "./SendEmail";
 
 const ContactForm = () => {
   return (
     <Card>
-      <form
-        action={async (FormData) => {
-          "use server";
-          await SendEmail(FormData);
-        }}
-      >
+      {/*
+        The form's action prop directly calls the imported SendEmail Server Action.
+        The "use server" directive should be at the top of the SendEmail.ts file,
+        not here in the action prop.
+      */}
+      <form action={SendEmail}>
         <CardHeader>
           <CardTitle className="icon_underline">Send me a mail.</CardTitle>
           <CardDescription>

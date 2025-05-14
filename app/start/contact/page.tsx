@@ -1,3 +1,5 @@
+"use client"; // <-- Added this directive
+
 import ContactForm from "@/components/starter/ContactForm";
 import FramerWrapper from "@/components/animation/FramerWrapper";
 import Heading from "@/components/starter/Heading";
@@ -16,6 +18,10 @@ const contactPage = () => {
         <Heading>Contact Me!</Heading>
         <div className="h-auto w-full flex justify-center items-center">
           <FramerWrapper y={0} scale={0.8}>
+            {/*
+              ContactForm and any components it renders that use hooks
+              will also need to be Client Components (marked with "use client").
+            */}
             <ContactForm />
           </FramerWrapper>
         </div>
