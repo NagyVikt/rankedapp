@@ -18,6 +18,8 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
+    "@vercel/og": "^0.5.20",
+    "resend": "^0.16.0",
     "@adobe/react-spectrum": "^3.41.0",
     "@ai-sdk/deepseek": "^0.1.8",
     "@ai-sdk/fireworks": "^0.1.0",
@@ -163,6 +165,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+ 
     "@biomejs/biome": "1.9.4",
     "@next/eslint-plugin-next": "15.0.4",
     "@react-types/shared": "3.25.0",
