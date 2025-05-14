@@ -58,7 +58,7 @@ export default function DefaultLayout({
       <div
         className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${mainMargin}`}
       >
-        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 bg-background/80 backdrop-blur border-b border-divider">
+        <header className="sticky top-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-background/80 backdrop-blur border-b border-divider">
           {!isSidebarOpen && (
             <button
               onClick={toggleSidebar}

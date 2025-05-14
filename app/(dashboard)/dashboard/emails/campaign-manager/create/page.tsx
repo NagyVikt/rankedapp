@@ -1497,14 +1497,27 @@ function CampaignEditor() {
       </div>
 
       {/* Notifications and Errors */}
-      {notification && (
-        <div className={`fixed top-25 right-5 p-4 rounded-md shadow-lg text-sm z-[100] border ${notification.type === 'success' ? 'bg-green-50 dark:bg-green-900/70 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/70 border-red-600 dark:border-red-500 text-red-700 dark:text-red-300'}`}>
-          <div className="flex items-center">
-            <Icon icon={notification.type === 'success' ? 'mdi:check-circle' : 'mdi:alert-circle'} className="mr-2 text-lg" />
-            {notification.message}
-          </div>
-        </div>
-      )}
+   {notification && (
+    <div 
+      className={`
+        fixed top-16 right-5 /* Or right-4, adjust as needed for spacing from edge */
+        p-5 rounded-md shadow-lg text-sm z-[900] border 
+        w-auto /* Let content define width, or set a specific width like w-96 */
+        ${notification.type === 'success' 
+          ? 'bg-green-50 dark:bg-green-900/70 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300' 
+          : 'bg-red-50 dark:bg-red-900/70 border-red-600 dark:border-red-500 text-red-700 dark:text-red-300'}
+      `}
+    >
+      <div className="flex items-center">
+        {/* <Icon icon={notification.type === 'success' ? 'mdi:check-circle' : 'mdi:alert-circle'} className="mr-2 text-lg" /> */}
+        <span className="mr-2 text-lg">
+          {notification.type === 'success' ? '✅' : '⚠️'}
+        </span>
+        {notification.message}
+      </div>
+    </div>
+  )}
+  
       {error && (
         <div className="bg-red-50 dark:bg-red-900/70 border border-red-500 text-red-700 dark:text-red-300 px-4 py-3 rounded-md relative mb-4" role="alert">
           <strong className="font-bold"><Icon icon="mdi:alert-octagon" className="inline mr-1" /> Error: </strong>
