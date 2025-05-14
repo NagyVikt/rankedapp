@@ -1498,7 +1498,7 @@ function CampaignEditor() {
 
       {/* Notifications and Errors */}
       {notification && (
-        <div className={`fixed top-5 right-5 p-4 rounded-md shadow-lg text-sm z-[100] border ${notification.type === 'success' ? 'bg-green-50 dark:bg-green-900/70 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/70 border-red-600 dark:border-red-500 text-red-700 dark:text-red-300'}`}>
+        <div className={`fixed top-25 right-5 p-4 rounded-md shadow-lg text-sm z-[100] border ${notification.type === 'success' ? 'bg-green-50 dark:bg-green-900/70 border-green-600 dark:border-green-500 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/70 border-red-600 dark:border-red-500 text-red-700 dark:text-red-300'}`}>
           <div className="flex items-center">
             <Icon icon={notification.type === 'success' ? 'mdi:check-circle' : 'mdi:alert-circle'} className="mr-2 text-lg" />
             {notification.message}
