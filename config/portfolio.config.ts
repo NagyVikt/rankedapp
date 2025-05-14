@@ -1,6 +1,6 @@
 export const portfolioConfig = {
   // Basic Information
-  name: "Md Taqui Imam",
+  name: "MAKING MARKETING EASY",
   title: "Software Engineer",
   description: "I am a Passionate Software Developer",
   location: "Ramgarh cantt, Jharkhand, India",

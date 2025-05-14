@@ -31,35 +31,35 @@ const Navbar = () => {
       icon: (
         <HomeIcon className='h-full w-full ' />
       ),
-      href: '/',
+      href: '/welcome',
     },
     {
       title: 'About',
       icon: (
         <User className='h-full w-full ' />
       ),
-      href: '/start/about',
+      href: '/welcome/about',
     },
     {
       title: 'Skills',
       icon: (
         <LightbulbIcon className='h-full w-full ' />
       ),
-      href: '/start/skills',
+      href: '/welcome/skills',
     },
     {
       title: 'Education',
       icon: (
         <GraduationCap className='h-full w-full ' />
       ),
-      href: '/start/education',
+      href: '/welcome/education',
     },
     {
       title: 'Projects',
       icon: (
         <FolderGit2 className='h-full w-full ' />
       ),
-      href: '/start/projects',
+      href: '/welcome/projects',
     },
 
     {
@@ -67,14 +67,14 @@ const Navbar = () => {
       icon: (
         <Mail className='h-full w-full ' />
       ),
-      href: '/start/contact',
+      href: '/welcome/contact',
     },
     {
       title: 'More',
       icon: (
         <MoreHorizontal className='h-full w-full ' />
       ),
-      href: '/start/more',
+      href: '/welcome/more',
     },
   ];
   // State to track scrolling, used to hide the navbar when scrolling occurs
